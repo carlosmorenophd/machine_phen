@@ -1,0 +1,14 @@
+{
+    "cSpell.ignoreWords": [
+        "arange",
+        "cmap",
+        "contourf",
+        "iloc",
+        "meshgrid",
+        "ravel",
+        "xlabel",
+        "xlim",
+        "ylabel",
+        "ylim"
+    ]
+}

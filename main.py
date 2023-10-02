@@ -1,6 +1,6 @@
 
 def do_run():
-    print("Hello")
+    svm
 
 
 if __name__ == "__main__":
