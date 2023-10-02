@@ -1,6 +1,3 @@
-# Kernel SVM
-
-# Importing the libraries
 # from matplotlib.colors import ListedColormap
 # import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
@@ -10,35 +7,44 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
+from model import ResultSVM
 
-# Importing the dataset
-def calculate_svm():
-    dataset = pd.read_csv('data/6x299_yield_to_machine.csv')
+
+def calculate_svm(file_name: str, debug: bool = False) -> ResultSVM:
+    """_summary_ Calculate SVM return matrix confusion and accuracy
+    """
+    dataset = pd.read_csv(file_name)
     X = dataset.iloc[:, :-1].values
     y = dataset.iloc[:, -1].values
 
-    print(X)
+    if debug:
+        print("Variable X =>", X)
 
     imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
     imputer.fit(X)
     X = imputer.transform(X)
-    print(X)
 
+    if debug:
+        print("Transform variable X =>", X)
 
     # Splitting the dataset into the Training set and Test set
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=0)
-    print(X_train)
-    print(y_train)
-    print(X_test)
-    print(y_test)
+
+    if debug:
+        print("Training data => ", X_train)
+        print("Training y => ", y_train)
+        print("Set to test => ", X_test)
+        print("Test y => ", y_test)
 
     # Feature Scaling
     sc = StandardScaler()
     X_train = sc.fit_transform(X_train)
     X_test = sc.transform(X_test)
-    print(X_train)
-    print(X_test)
+
+    if debug:
+        print("Scaling training set =>", X_train)
+        print("Scaling test set =>", X_test)
 
     # Training the Kernel SVM model on the Training set
     classifier = SVC(kernel='rbf', random_state=0)
@@ -50,13 +56,19 @@ def calculate_svm():
 
     # Predicting the Test set results
     y_pred = classifier.predict(X_test)
-    print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test), 1)), 1))
+    if debug:
+        print("Result of testing => ")
+        print(np.concatenate((y_pred.reshape(len(y_pred), 1),
+                              y_test.reshape(len(y_test), 1)), 1))
 
     # Making the Confusion Matrix
     cm = confusion_matrix(y_test, y_pred)
-    print(cm)
     ac = accuracy_score(y_test, y_pred)
-    print(ac)
+    if debug:
+        print("Confusion matrix => ", cm)
+        print("Accuracy => ", ac)
+    result = ResultSVM(confusion_matrix=cm, accuracy_score=ac)
+    return result
 
 # # Visualizing the Training set results
 # X_set, y_set = sc.inverse_transform(X_train), y_train
