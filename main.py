@@ -1,4 +1,5 @@
-from svm import calculate_svm_simple, calculate_svm_principal_component_analysis
+from svm import (calculate_svm_simple,
+                 calculate_svm_principal_component_analysis)
 
 
 def do_run():

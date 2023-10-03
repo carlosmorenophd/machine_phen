@@ -1,10 +1,12 @@
-from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, roc_curve, roc_auc_score
+from sklearn.metrics import (
+    confusion_matrix, accuracy_score, recall_score, roc_curve, roc_auc_score)
 import matplotlib.pyplot as plt
 
 
 class ResultSVM ():
     """_summary_ Storage all result statistic of SMV
     """
+
     def __init__(self) -> None:
         self.confusion_matrixes = None
         self.accuracy_score: float = None
