@@ -1,0 +1,18 @@
+{
+    "cSpell.ignoreWords": [
+        "arange",
+        "cmap",
+        "contourf",
+        "figsize",
+        "iloc",
+        "linestyle",
+        "meshgrid",
+        "ndarray",
+        "proba",
+        "ravel",
+        "xlabel",
+        "xlim",
+        "ylabel",
+        "ylim"
+    ]
+}
