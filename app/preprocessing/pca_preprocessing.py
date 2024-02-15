@@ -1,5 +1,5 @@
 from sklearn.decomposition import PCA
-from numpy import abs, ndarray, cumsum, sum, arange, where, insert
+from numpy import abs, ndarray, cumsum, sum, arange, where, percentile
 from typing import Tuple
 import matplotlib.pyplot as plt
 
@@ -56,39 +56,41 @@ class PCA_Preprocessing():
             print(self.loadings_by_variable.shape)
             for loading in self.loadings_by_variable:
                 writer.writerow(loading)
-    def outlier_excel(self, xls_name):
+
+    def outlier_excel(self, xls_name, threshold=1.5, color="0000FF"):
         from openpyxl import Workbook
         from openpyxl.styles import PatternFill
         # Calcular el rango intercuartílico para identificar valores atípicos
-        Q1 = df['Columna'].quantile(0.25)
-        Q3 = df['Columna'].quantile(0.75)
+        Q1 = percentile(self.pca_x, 25)
+        Q3 = percentile(self.pca_x, 75)
         IQR = Q3 - Q1
 
         # Definir límites para identificar valores atípicos
-        lower_limit = Q1 - 1.5 * IQR
-        upper_limit = Q3 + 1.5 * IQR
+        lower_limit = Q1 - threshold * IQR
+        upper_limit = Q3 + threshold * IQR
 
         # Encontrar valores atípicos
-        outliers = df[(df['Columna'] < lower_limit) | (df['Columna'] > upper_limit)]
+        indices_filas, indices_columnas = where(
+            (self.pca_x < lower_limit) | (self.pca_x > upper_limit))
 
         # Crear un libro de Excel y agregar una hoja de trabajo
         wb = Workbook()
         ws = wb.active
 
-        # Guardar los datos originales en la hoja de trabajo
-        for r_idx, row in enumerate(df.itertuples(), start=1):
-            for c_idx, value in enumerate(row, start=1):
-                ws.cell(row=r_idx, column=c_idx, value=value)
+        # Guardar la matriz original en la hoja de trabajo
+        for r_idx, fila in enumerate(self.pca_x, start=1):
+            for c_idx, valor in enumerate(fila, start=1):
+                ws.cell(row=r_idx, column=c_idx, value=valor)
 
         # Resaltar valores atípicos en azul
-        for r_idx, row in enumerate(outliers.itertuples(), start=1):
-            for c_idx, value in enumerate(row, start=1):
-                cell = ws.cell(row=r_idx, column=c_idx)
-                cell.fill = PatternFill(start_color="0000FF", end_color="0000FF", fill_type="solid")
-                cell.value = value
+        for r, c in zip(indices_filas, indices_columnas):
+            # Sumar 1 para ajustar el índice base 0
+            cell = ws.cell(row=r + 1, column=c + 1)
+            cell.fill = PatternFill(
+                start_color=color, end_color=color, fill_type="solid")
 
         # Guardar el libro de Excel
-        wb.save('datos_atipicos.xlsx')
+        wb.save(xls_name)
 
     def graph_sedimentation(self):
         # Gráfica de sedimentación (scree plot)
