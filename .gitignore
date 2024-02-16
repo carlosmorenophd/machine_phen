@@ -1,4 +1,3 @@
-/data/*
 .idea
 .ipynb_checkpoints
 .mypy_cache
@@ -12,14 +11,12 @@ coverage.xml
 .netlify
 test.db
 log.txt
-.venv
-
+.venv/
+venv/
 # vim temporary files
 *~
 .*.sw?
 .cache
-
 # macOS
 .DS_Store
-
 *test*

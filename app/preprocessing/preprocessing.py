@@ -16,7 +16,7 @@ class Preprocessing():
         self.y_train = None
         self.y_test = None
 
-    def read_file(self, transform:  str = "") -> None:
+    def read_file(self, transform:  str = TransformEnum.PASS) -> None:
         self.transform = transform
         if self.type_file == TypeFileEnum.CSV:
             self.dataset = pd.read_csv(self.file_name)
@@ -41,7 +41,7 @@ class Preprocessing():
     def get_x_transform(self) -> ndarray:
         return self.x_transform
 
-    def set_train_and_test(self, test_size: float = 0.2, random_state: int = 42) -> None:
+    def build_train_and_test(self, test_size: float = 0.2, random_state: int = 42) -> None:
         self.test_size = test_size
         self.random_state = random_state
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
@@ -51,14 +51,14 @@ class Preprocessing():
         return self.test_size, self.random_state
 
     def get_train(self):
-        if self.x_train == None:
+        if self.x_train is None:
             raise Exception(
-                "Sorry, you need to set the method set_train_and_test before call this method")
+                "Sorry, you need to set the method build_train_and_test before call this method")
         else:
             return self.x_train, self.y_train
 
     def get_test(self):
-        if self.x_train == None:
+        if self.x_train is None:
             raise Exception(
                 "Sorry, you need to set the method set_train_and_test before call this method")
         else:

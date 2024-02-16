@@ -11,6 +11,7 @@
         "meshgrid",
         "ndarray",
         "openpyxl",
+        "phen",
         "proba",
         "quantile",
         "ravel",
@@ -20,6 +21,7 @@
         "ylim"
     ],
     "cSpell.words": [
+        "obregon",
         "yeiden"
     ]
 }
