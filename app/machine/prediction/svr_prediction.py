@@ -10,6 +10,7 @@ class SVR_Prediction():
         self.kernel = kernel
         self.c = c
         self.epsilon = epsilon
+        self.precision = None
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.svr = SVR(kernel=self.kernel.value,

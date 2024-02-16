@@ -3,12 +3,17 @@
         "arange",
         "cmap",
         "contourf",
+        "cumsum",
         "figsize",
         "iloc",
+        "keepdims",
         "linestyle",
         "meshgrid",
         "ndarray",
+        "openpyxl",
+        "phen",
         "proba",
+        "quantile",
         "ravel",
         "xlabel",
         "xlim",
@@ -16,6 +21,7 @@
         "ylim"
     ],
     "cSpell.words": [
+        "obregon",
         "yeiden"
     ]
 }
