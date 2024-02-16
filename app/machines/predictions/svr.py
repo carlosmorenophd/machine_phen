@@ -13,8 +13,11 @@ class SVR_Prediction():
         self.precision = None
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
-        self.svr = SVR(kernel=self.kernel.value,
-                       C=self.c, epsilon=self.epsilon)
+        self.svr = SVR(
+            kernel=self.kernel.value,
+            C=self.c,
+            epsilon=self.epsilon,
+        )
         self.svr.fit(x_train, y_train)
 
     def prediction(self, x_test: ndarray) -> ndarray:
