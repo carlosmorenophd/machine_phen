@@ -15,6 +15,7 @@
         "proba",
         "quantile",
         "ravel",
+        "tweedie",
         "xlabel",
         "xlim",
         "ylabel",
