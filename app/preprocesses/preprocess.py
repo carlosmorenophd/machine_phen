@@ -1,12 +1,12 @@
 import pandas as pd
 from numpy import ndarray
 from sklearn.impute import SimpleImputer
-from preprocessing.enums import TypeFileEnum, TransformEnum
+from preprocesses.enums import TypeFileEnum, TransformEnum
 from sklearn.model_selection import train_test_split
 from typing import Tuple
 
 
-class Preprocessing():
+class Preprocess():
     def __init__(self, file_name: str, type_file: TypeFileEnum, is_debug: bool = False) -> None:
         self.file_name = file_name
         self.type_file = type_file

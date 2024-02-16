@@ -1,7 +1,7 @@
 
 from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error
-from machine.enums import SvrKernelEnum
+from machines.enums import SvrKernelEnum
 from numpy import ndarray
 
 

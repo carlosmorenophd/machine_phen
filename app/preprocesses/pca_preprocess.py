@@ -4,7 +4,7 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 
 
-class PCA_Preprocessing():
+class PCA_Preprocess():
     def __init__(self, data: ndarray, target: ndarray, feature_names: ndarray,  is_debug: bool = False) -> None:
         self.data = data
         self.target = target
