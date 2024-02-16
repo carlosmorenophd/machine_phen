@@ -1,5 +1,4 @@
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import confusion_matrix, accuracy_score, recall_score
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -23,7 +22,11 @@ def calculate_svm_simple(file_name: str, debug: bool = False):
     return calculate_svm(X=X, y=y, debug=debug)
 
 
-def calculate_svm_principal_component_analysis(file_name: str, debug: bool = False, n_components: int = 2):
+def calculate_svm_principal_component_analysis(
+    file_name: str,
+    debug: bool = False,
+    n_components: int = 2
+):
     X, y = get_file_data(file_name=file_name)
     pca = PCA(n_components=n_components)
     X = pca.fit_transform(X)
