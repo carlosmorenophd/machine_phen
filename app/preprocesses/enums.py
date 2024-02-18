@@ -6,5 +6,9 @@ class TransformEnum(Enum):
     MEAN = 'mean'
 
 
+class StandardScaleEnum(Enum):
+    PASS = ''
+    BASIC = 'basic'
+
 class TypeFileEnum(Enum):
     CSV = 0
