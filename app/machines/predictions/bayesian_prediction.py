@@ -10,6 +10,7 @@ class BayesianPrediction:
         self.x_train = x_train
         self.bayesian = BayesianRidge()
         self.bayesian.fit(X=x_train, y=y_train)
+        print("Score -> {}".format(self.bayesian.score(X=x_train, y=y_train)))
 
-    def prediction(self, x_test: ndarray) -> ndarray:
+    def prediction(self, x_test: ndarray) -> ndarray:        
         return self.bayesian.predict(X=x_test)
