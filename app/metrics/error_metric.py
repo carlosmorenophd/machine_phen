@@ -57,28 +57,31 @@ class ErrorMetric():
 
     def plot_r2_predicted(
         self,
+        features: ndarray,
         legend: PlotLegends = PlotLegends(),
         is_inline: bool = True,
     ):
+        index_feature = 0
         for x_true_single in self.x_true.T:
+            variable_name = features[index_feature]
             plt.scatter(
                 x_true_single,
                 self.y_true,
                 color='red',
-                label=legend.first_plot_label,
+                label=legend.first_plot_label.format(variable=variable_name),
             )
-            plt.plot(
+            plt.scatter(
                 x_true_single,
                 self.y_predicted,
-                label=legend.second_plot_label
+                label=legend.second_plot_label.format(variable=variable_name)
             )
-            plt.xlabel(legend.x_label)
+            plt.xlabel(legend.x_label.format(variable=variable_name))
             plt.ylabel(legend.y_label)
             plt.legend()
-            plt.title(legend.title)
+            plt.title(legend.title.format(variable=variable_name, r2=self.get_metric(metric=MetricEnum.R2_SCORE)))
             if is_inline:
                 plt.show()
-            break
+            index_feature = index_feature + 1
 
     def calculate_metric_prediction(self) -> None:
         self.metrics[MetricEnum.D2_ABSOLUTE_ERROR_SCORE.value] = d2_absolute_error_score(
