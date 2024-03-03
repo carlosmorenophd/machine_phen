@@ -19,8 +19,9 @@ class MetricEnum(Enum):
     ROOT_MEAN_SQUARED_LOG_ERROR = "root_mean_squared_log_error"
 
 class PlotLegends():
-    scatter_label = ""
-    y_label = ""
-    x_label = "" 
-    title=""
+    first_plot_label = "First element"
+    second_plot_label = "Second element"
+    y_label = "Label Y"
+    x_label = "Label X" 
+    title="Plot"
     

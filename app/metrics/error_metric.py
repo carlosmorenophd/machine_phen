@@ -17,7 +17,7 @@ from sklearn.metrics import (
 )
 from numpy import ndarray
 import matplotlib.pyplot as plt
-from metrics.enums import MetricEnum
+from metrics.enums import MetricEnum, PlotLegends
 
 
 class ErrorMetric():
@@ -27,26 +27,58 @@ class ErrorMetric():
         self.x_true = x_test
         self.metrics = {}
 
-    def plot_true_vs_predicted(self, is_inline: bool = True, save_file: str = ""):
-        plt.scatter(self.y_true, self.y_predicted)
-        plt.plot([min(self.y_true), max(self.y_true)], [min(self.y_true), max(
-            self.y_true)], linestyle='--', color='red', linewidth=2)
-        plt.xlabel('Valores de Referencia (Conjunto de Prueba)')
-        plt.ylabel('Valores Estimados por el Modelo')
-        plt.title('Desempeño del Modelo SVR en el Conjunto de Prueba')
-        if is_inline:
-            plt.show()
-
-    def plot_r2_predicted(self, is_inline: bool = True):
-        plt.scatter(self.x_true, self.y_true, label='Datos de entrenamiento')
-        plt.plot(self.x_true, self.y_predicted, 'r-', label=f'Regresión Lineal (R²={
-                 self.get_metric(MetricEnum.R2_SCORE):.2f})', linewidth=2)
-        plt.xlabel('Variable Independiente')
-        plt.ylabel('Variable Dependiente')
+    def plot_true_vs_predicted(
+        self,
+        legend: PlotLegends = PlotLegends(),
+        is_inline: bool = True,
+        save_file: str = "",
+    ):
+        plt.scatter(
+            self.y_true,
+            self.y_predicted,
+            label=legend.first_plot_label,
+        )
+        plt.plot(
+            [min(self.y_true), max(self.y_true)], [
+                min(self.y_true), max(self.y_true)],
+            linestyle='--',
+            color='red',
+            linewidth=2,
+            label=legend.second_plot_label,
+        )
+        plt.xlabel(legend.x_label)
+        plt.ylabel(legend.y_label)
         plt.legend()
-        plt.title('Regresión Lineal en Python')
+        plt.title(legend.title)
         if is_inline:
             plt.show()
+        if not save_file == "":
+            plt.savefig(save_file)
+
+    def plot_r2_predicted(
+        self,
+        legend: PlotLegends = PlotLegends(),
+        is_inline: bool = True,
+    ):
+        for x_true_single in self.x_true.T:
+            plt.scatter(
+                x_true_single,
+                self.y_true,
+                color='red',
+                label=legend.first_plot_label,
+            )
+            plt.plot(
+                x_true_single,
+                self.y_predicted,
+                label=legend.second_plot_label
+            )
+            plt.xlabel(legend.x_label)
+            plt.ylabel(legend.y_label)
+            plt.legend()
+            plt.title(legend.title)
+            if is_inline:
+                plt.show()
+            break
 
     def calculate_metric_prediction(self) -> None:
         self.metrics[MetricEnum.D2_ABSOLUTE_ERROR_SCORE.value] = d2_absolute_error_score(
