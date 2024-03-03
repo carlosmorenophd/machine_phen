@@ -8,6 +8,7 @@
         "iloc",
         "keepdims",
         "linestyle",
+        "linewidth",
         "meshgrid",
         "ndarray",
         "openpyxl",
