@@ -17,3 +17,11 @@ class MetricEnum(Enum):
     R2_SCORE = "r2_score"
     ROOT_MEAN_SQUARED_ERROR = "root_mean_squared_error"
     ROOT_MEAN_SQUARED_LOG_ERROR = "root_mean_squared_log_error"
+
+class PlotLegends():
+    first_plot_label = "First element"
+    second_plot_label = "Second element"
+    y_label = "Label Y"
+    x_label = "Label X" 
+    title="Plot"
+    

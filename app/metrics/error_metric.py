@@ -16,14 +16,72 @@ from sklearn.metrics import (
     root_mean_squared_log_error,
 )
 from numpy import ndarray
-from metrics.enums import MetricEnum
+import matplotlib.pyplot as plt
+from metrics.enums import MetricEnum, PlotLegends
 
 
 class ErrorMetric():
-    def __init__(self, y_predicted, y_test) -> None:
+    def __init__(self, y_predicted, y_test, x_test) -> None:
         self.y_predicted = y_predicted
         self.y_true = y_test
+        self.x_true = x_test
         self.metrics = {}
+
+    def plot_true_vs_predicted(
+        self,
+        legend: PlotLegends = PlotLegends(),
+        is_inline: bool = True,
+        save_file: str = "",
+    ):
+        plt.scatter(
+            self.y_true,
+            self.y_predicted,
+            label=legend.first_plot_label,
+        )
+        plt.plot(
+            [min(self.y_true), max(self.y_true)], [
+                min(self.y_true), max(self.y_true)],
+            linestyle='--',
+            color='red',
+            linewidth=2,
+            label=legend.second_plot_label,
+        )
+        plt.xlabel(legend.x_label)
+        plt.ylabel(legend.y_label)
+        plt.legend()
+        plt.title(legend.title)
+        if is_inline:
+            plt.show()
+        if not save_file == "":
+            plt.savefig(save_file)
+
+    def plot_r2_predicted(
+        self,
+        features: ndarray,
+        legend: PlotLegends = PlotLegends(),
+        is_inline: bool = True,
+    ):
+        index_feature = 0
+        for x_true_single in self.x_true.T:
+            variable_name = features[index_feature]
+            plt.scatter(
+                x_true_single,
+                self.y_true,
+                color='red',
+                label=legend.first_plot_label.format(variable=variable_name),
+            )
+            plt.scatter(
+                x_true_single,
+                self.y_predicted,
+                label=legend.second_plot_label.format(variable=variable_name)
+            )
+            plt.xlabel(legend.x_label.format(variable=variable_name))
+            plt.ylabel(legend.y_label)
+            plt.legend()
+            plt.title(legend.title.format(variable=variable_name, r2=self.get_metric(metric=MetricEnum.R2_SCORE)))
+            if is_inline:
+                plt.show()
+            index_feature = index_feature + 1
 
     def calculate_metric_prediction(self) -> None:
         self.metrics[MetricEnum.D2_ABSOLUTE_ERROR_SCORE.value] = d2_absolute_error_score(
@@ -62,7 +120,6 @@ class ErrorMetric():
             return self.metrics[metric.value]
         else:
             raise Exception("Metric is not valid")
-
 
     def print_list_on_error_upper(self, pivot: float, debug: bool = False) -> ndarray:
         number_upper = 0

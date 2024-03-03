@@ -19,10 +19,10 @@ class Preprocess():
         self.x_transform = None
 
     def read_file(
-            self, 
-            transform:  TransformEnum = TransformEnum.PASS,
-            standard_scale:  StandardScaleEnum = StandardScaleEnum.PASS, 
-        ) -> None:
+        self,
+        transform:  TransformEnum = TransformEnum.PASS,
+        standard_scale:  StandardScaleEnum = StandardScaleEnum.PASS,
+    ) -> None:
         self.transform = transform
         if self.type_file == TypeFileEnum.CSV:
             self.dataset = pd.read_csv(self.file_name)
@@ -44,16 +44,6 @@ class Preprocess():
             self.x_transform = self.scaler.transform(self.x_transform)
         else:
             self.x_transform = self.x_transform
-        
-
-    def get_x(self) -> ndarray:
-        return self.x
-
-    def get_y(self) -> ndarray:
-        return self.y
-
-    def get_x_transform(self) -> ndarray:
-        return self.x_transform
 
     def build_train_and_test(self, test_size: float = 0.2, random_state: int = 42) -> None:
         self.test_size = test_size
