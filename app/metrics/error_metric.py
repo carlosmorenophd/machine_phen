@@ -16,6 +16,7 @@ from sklearn.metrics import (
     root_mean_squared_log_error,
 )
 from numpy import ndarray
+import numpy as np
 import matplotlib.pyplot as plt
 from metrics.enums import MetricEnum, PlotLegends
 
@@ -78,7 +79,8 @@ class ErrorMetric():
             plt.xlabel(legend.x_label.format(variable=variable_name))
             plt.ylabel(legend.y_label)
             plt.legend()
-            plt.title(legend.title.format(variable=variable_name, r2=self.get_metric(metric=MetricEnum.R2_SCORE)))
+            plt.title(legend.title.format(variable=variable_name,
+                      r2=self.get_metric(metric=MetricEnum.R2_SCORE)))
             if is_inline:
                 plt.show()
             index_feature = index_feature + 1
@@ -139,6 +141,30 @@ class ErrorMetric():
             print(
                 "Number of element -> {} number of upper error -> {}".format(len(self.y_true), number_upper))
         return list_upper
+
+    def list_percentage_error_upper(
+        self, 
+        pivot: float, 
+        sort: str ='error',
+        debug: bool = False
+    ) -> ndarray:
+        number_upper = 0
+        list_upper = []
+        if debug:
+            print("#### list on error upper -> {}".format(pivot))
+        for i in range(len(self.y_predicted)):
+            error = abs((self.y_true[i] - self.y_predicted[i]) / self.y_true[i])
+            if error > pivot:
+                number_upper = number_upper + 1
+                list_upper.append(
+                    {'truth': self.y_true[i], 'predict': self.y_predicted[i], 'error': error})
+                if debug:
+                    print(
+                        'Predict {} -> Truth {} dif = {}'.format(self.y_predicted[i], self.y_true[i], error))
+        if debug:
+            print(
+                "Number of element -> {} number of upper error -> {}".format(len(self.y_true), number_upper))
+        return sorted(list_upper, key=lambda x: x[sort], reverse=True)
 
     def get_all_from_predict(self) -> ndarray:
         return self.metrics
