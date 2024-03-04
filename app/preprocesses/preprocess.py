@@ -1,7 +1,8 @@
 import pandas as pd
 from numpy import ndarray
 from sklearn.impute import SimpleImputer
-from preprocesses.enums import TypeFileEnum, TransformEnum
+from sklearn.preprocessing import StandardScaler
+from preprocesses.enums import TypeFileEnum, TransformEnum, StandardScaleEnum
 from sklearn.model_selection import train_test_split
 from typing import Tuple
 
@@ -15,8 +16,13 @@ class Preprocess():
         self.x_test = None
         self.y_train = None
         self.y_test = None
+        self.x_transform = None
 
-    def read_file(self, transform:  str = TransformEnum.PASS) -> None:
+    def read_file(
+        self,
+        transform:  TransformEnum = TransformEnum.PASS,
+        standard_scale:  StandardScaleEnum = StandardScaleEnum.PASS,
+    ) -> None:
         self.transform = transform
         if self.type_file == TypeFileEnum.CSV:
             self.dataset = pd.read_csv(self.file_name)
@@ -28,24 +34,22 @@ class Preprocess():
             if self.is_debug:
                 print("Number of element  => ",
                       self.x.shape, self.y.shape)
-        if transform != TransformEnum.PASS:
-            imputer = SimpleImputer(strategy=transform.value)
-            self.x_transform = imputer.fit_transform(self.x)
-
-    def get_x(self) -> ndarray:
-        return self.x
-
-    def get_y(self) -> ndarray:
-        return self.y
-
-    def get_x_transform(self) -> ndarray:
-        return self.x_transform
+        if transform == TransformEnum.MEAN:
+            self.imputer = SimpleImputer(strategy=transform.value)
+            self.x_transform = self.imputer.fit_transform(self.x)
+        else:
+            self.x_transform = self.x
+        if standard_scale == StandardScaleEnum.BASIC:
+            self.scaler = StandardScaler().fit(self.x_transform)
+            self.x_transform = self.scaler.transform(self.x_transform)
+        else:
+            self.x_transform = self.x_transform
 
     def build_train_and_test(self, test_size: float = 0.2, random_state: int = 42) -> None:
         self.test_size = test_size
         self.random_state = random_state
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
-            self.x, self.y, test_size=test_size, random_state=random_state)
+            self.x_transform, self.y, test_size=test_size, random_state=random_state)
 
     def get_parameter_train_test(self) -> Tuple:
         return self.test_size, self.random_state
@@ -73,7 +77,6 @@ class Preprocess():
 
     def get_name_of_column(self):
         return self.dataset.columns.values
-    
+
     def get_name_features(self):
         return self.dataset.columns.values[:-1]
-        
