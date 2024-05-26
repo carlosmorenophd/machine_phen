@@ -42,7 +42,7 @@ class Preprocess():
             self.imputer = SimpleImputer(strategy=TransformEnum.MEAN.value)
             self.x_transform = self.imputer.fit_transform(self.x)
             self.pca = PCA_Preprocess(data=self.x_transform, target=self.y, feature_names= self.x_transform[1,:], is_debug=self.is_debug)
-            self.x_transform = self.pca.get_transform(n_components=10)
+            self.x_transform = self.pca.get_transform()
         else:
             self.x_transform = self.x
         if standard_scale == StandardScaleEnum.BASIC:

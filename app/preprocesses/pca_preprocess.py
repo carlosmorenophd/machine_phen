@@ -11,7 +11,7 @@ class PCA_Preprocess():
         self.is_debug = is_debug
         self.feature_names = feature_names
 
-    def get_transform(self, n_components: int = 2) -> ndarray:
+    def get_transform(self, n_components: int = None) -> ndarray:
         pca = PCA(n_components=n_components)
         return pca.fit_transform(self.data)
 
