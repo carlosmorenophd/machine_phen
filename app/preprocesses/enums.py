@@ -4,6 +4,7 @@ from enum import Enum
 class TransformEnum(Enum):
     PASS = ''
     MEAN = 'mean'
+    PCA = 'pca'
 
 
 class StandardScaleEnum(Enum):
