@@ -41,7 +41,8 @@ class Preprocess():
         elif transform == TransformEnum.PCA:
             self.imputer = SimpleImputer(strategy=TransformEnum.MEAN.value)
             self.x_transform = self.imputer.fit_transform(self.x)
-            self.pca = PCA_Preprocess(data=self.x_transform, target=self.y, feature_names= self.x_transform[1,:], is_debug=self.is_debug)
+            headers = pd.read_csv(self.file_name, header=None).iloc[0]
+            self.pca = PCA_Preprocess(data=self.x_transform, target=self.y, feature_names= headers, is_debug=self.is_debug)
             self.x_transform = self.pca.get_transform()
         else:
             self.x_transform = self.x
@@ -59,6 +60,11 @@ class Preprocess():
 
     def get_parameter_train_test(self) -> Tuple:
         return self.test_size, self.random_state
+    
+    def get_best_columns_pca (self):
+        if self.transform == TransformEnum.PCA:
+            self.pca.evaluate_pca(n_components=0)
+            return self.pca.list_important_features
 
     def get_train(self):
         if self.x_train is None:
