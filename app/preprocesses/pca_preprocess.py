@@ -11,11 +11,11 @@ class PCA_Preprocess():
         self.is_debug = is_debug
         self.feature_names = feature_names
 
-    def get_transform(self, n_components: int = 2) -> ndarray:
+    def get_transform(self, n_components: int = None) -> ndarray:
         pca = PCA(n_components=n_components)
         return pca.fit_transform(self.data)
 
-    def evaluate_pca(self, n_components: int = 0) -> Tuple[ndarray, ndarray]:
+    def evaluate_pca(self, n_components: int = None) -> Tuple[ndarray, ndarray]:
         if n_components > 0:
             pca = PCA(n_components=n_components)
         else:
@@ -23,6 +23,9 @@ class PCA_Preprocess():
         self.pca_x = pca.fit_transform(self.data)
         weights = pca.components_[0]
         self.most_important_columns = abs(weights).argsort()[::-1]
+        self.list_important_features = []
+        for index in self.most_important_columns:
+            self.list_important_features.append(self.feature_names[index])
         self.eigenvalues = pca.explained_variance_
         if self.is_debug:
             print("Eigenvalues => ", self.eigenvalues)
