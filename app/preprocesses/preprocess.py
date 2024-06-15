@@ -63,6 +63,7 @@ class Preprocess():
     
     def get_pca (self):
         if self.transform == TransformEnum.PCA:
+            self.pca.evaluate_pca(n_components=None)
             return self.pca
         
     def get_train(self):
