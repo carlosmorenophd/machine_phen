@@ -52,6 +52,17 @@ class Preprocess():
         else:
             self.x_transform = self.x_transform
 
+    def set_data(
+        self,
+        x,
+        y,
+    ) -> None:
+        self.x = x
+        self.y = y
+        self.x_transform = x
+
+
+
     def build_train_and_test(self, test_size: float = 0.2, random_state: int = 42) -> None:
         self.test_size = test_size
         self.random_state = random_state
