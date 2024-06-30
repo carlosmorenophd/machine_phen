@@ -15,8 +15,8 @@ class PCA_Preprocess():
         pca = PCA(n_components=n_components)
         return pca.fit_transform(self.data)
 
-    def evaluate_pca(self, n_components: int = None) -> Tuple[ndarray, ndarray]:
-        if n_components > 0:
+    def evaluate_pca(self, n_components = None) -> Tuple[ndarray, ndarray]:
+        if n_components != None and n_components > 0:
             pca = PCA(n_components=n_components)
         else:
             pca = PCA()
