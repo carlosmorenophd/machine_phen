@@ -85,9 +85,9 @@ class Preprocess:
     def get_parameter_train_test(self) -> Tuple:
         return self.test_size, self.random_state
 
-    def get_pca(self):
+    def get_pca(self, threshold: float = 0.95):
         if self.transform == TransformEnum.PCA:
-            self.pca.evaluate_pca(n_components=None)
+            self.pca.evaluate_pca(n_components=None, threshold=threshold)
             return self.pca
 
     def get_train(self):

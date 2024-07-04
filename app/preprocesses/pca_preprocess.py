@@ -40,12 +40,18 @@ class PCA_Preprocess:
             pca = PCA(n_components=n_components)
             return pca.fit_transform(self.data)
 
-    def evaluate_pca(self, n_components=None) -> Tuple[ndarray, ndarray]:
+    def evaluate_pca(self, n_components=None, threshold :  float = 0.95) -> Tuple[ndarray, ndarray]:
         if n_components != None and n_components > 0:
             pca = PCA(n_components=n_components)
         else:
             pca = PCA()
         self.pca_x = pca.fit_transform(self.data)
+        cumulative_variance = 0
+        for i, ratio in enumerate(pca.explained_variance_ratio_):
+            cumulative_variance += ratio
+            if cumulative_variance >= threshold:
+                break
+        self.number_of_pcs = i + 1
         weights = pca.components_[0]
         self.most_important_columns = abs(weights).argsort()[::-1]
         self.list_important_features = []
