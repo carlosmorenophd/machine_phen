@@ -34,6 +34,7 @@ class PCA_Preprocess:
             number_of_pcs = i + 1
             if self.is_debug:
                 print(f"Number of component ${number_of_pcs}")
+            self.number_of_pcs = number_of_pcs
             pca = PCA(n_components=number_of_pcs)
             return pca.fit_transform(self.data)
         else:
