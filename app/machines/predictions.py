@@ -99,6 +99,9 @@ class SVR_Prediction:
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.svr.predict(x_test)
+    
+    def __str__(self) -> str:
+        return f"SVR - {self.kernel.value}"
 
 class XGB_Prediction:
     def __init__(
