@@ -16,7 +16,7 @@ class Result_ML:
 
     def adding_value(self, column_name: str, value):
         index = self.columns_name.index(column_name)
-        self.adding_value[index] = value
+        self.adding_result.insert(index,value)
     
     def save_values(self):
         self.results.append(self.adding_result)
@@ -73,9 +73,9 @@ class Do_Run_ML:
                     type_file=self.files_dataset[key_file]['type'],
                 )
                 preprocessing.read_file(
-                    transform=self.files_dataset['transform'],
-                    standard_scale=self.files_dataset['standard_scale'],
-                    is_search_best_pca_component=self.files_dataset['is_search_best_pca_component'],
+                    transform=self.files_dataset[key_file]['transform'],
+                    standard_scale=self.files_dataset[key_file]['standard_scale'],
+                    is_search_best_pca_component=self.files_dataset[key_file]['is_search_best_pca_component'],
                 )
                 machine_to_run = filter(lambda machine: machine['all'] == True or machine['key_dataset'] == key_file, self.machines)
                 for machine in machine_to_run:
@@ -96,8 +96,8 @@ class Do_Run_ML:
                     self.results.adding_value(column_name='RMSE',value=metric.get_metric(metric=MetricEnum.ROOT_MEAN_SQUARED_ERROR))
                     self.results.adding_value(column_name='R2',value=metric.get_metric(metric=MetricEnum.R2_SCORE))
                     self.results.adding_value(column_name='MAPE',value=metric.get_metric(metric=MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR))
-                    self.results.adding_result()
-        self.results.file_to_save()
+                    self.results.save_values()
+        self.results.write_to_csv()
 
 
 
