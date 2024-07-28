@@ -1,13 +1,10 @@
-# from machines.predictions import RF_Prediction
-# from preprocesses.preprocess import Preprocess
-# from preprocesses.enums import TransformEnum, TypeFileEnum, StandardScaleEnum
-# from metrics.error_metric import ErrorMetric
-# from metrics.enums import MetricEnum
-# from typing import List
-# import pandas as pd
-# from os import path
 from do_run.run_machine import Do_Run_ML
-from machines.predictions import SVR_Prediction, SvrKernelEnum
+from machines.predictions import (
+    SVR_Prediction,
+    SvrKernelEnum,
+    XGB_Prediction,
+    RF_Prediction,
+)
 
 files_csv_original = [
     "data/obregon_1516_1617/original/o_57_o_phenotypic.csv",
@@ -24,6 +21,59 @@ files_csv_heatmap = [
     "data/obregon_1516_1617/correlation/o_57_c_phenotypic_weather_f.csv",
     "data/obregon_1516_1617/correlation/o_57_c_phenotypic_weather_m.csv",
 ]
+
+
+def adding_svr(do):
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.LINEAR), key_dataset="original"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.POLY), key_dataset="original"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.RBF), key_dataset="original"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.SIGMOID), key_dataset="original"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.LINEAR), key_dataset="heatmap"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.POLY), key_dataset="heatmap"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.RBF), key_dataset="heatmap"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.SIGMOID), key_dataset="heatmap"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.LINEAR), key_dataset="pca"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.POLY), key_dataset="pca"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.RBF), key_dataset="pca"
+    )
+    do.adding_machine_dataset(
+        machine=SVR_Prediction(kernel=SvrKernelEnum.SIGMOID), key_dataset="pca"
+    )
+    return do
+
+
+def adding_xgb(do):
+    do.adding_machine_dataset(machine=XGB_Prediction(), key_dataset="original")
+    do.adding_machine_dataset(machine=XGB_Prediction(), key_dataset="heatmap")
+    do.adding_machine_dataset(machine=XGB_Prediction(), key_dataset="pca")
+    return do
+
+def adding_rf(do):
+    do.adding_machine_dataset(machine=RF_Prediction(), key_dataset="original")
+    do.adding_machine_dataset(machine=RF_Prediction(), key_dataset="heatmap")
+    do.adding_machine_dataset(machine=RF_Prediction(), key_dataset="pca")
+    return do
 
 
 def launch_all():
@@ -43,7 +93,7 @@ def launch_all():
         names=files_csv_original,
         is_search_best_pca_component=True,
     )
-    do.adding_machine_dataset(
-        machine=SVR_Prediction(kernel=SvrKernelEnum.LINEAR), key_dataset="original"
-    )
+    do = adding_svr(do=do)
+    do = adding_rf(do=do)
+    do = adding_xgb(do=do)
     do.run()
