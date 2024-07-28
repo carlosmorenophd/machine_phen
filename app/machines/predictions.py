@@ -4,18 +4,21 @@ from xgboost import XGBRegressor
 from sklearn.svm import SVR
 from numpy import ndarray
 from machines.enums import SvrKernelEnum
-
+import time
+from datetime import timedelta
 
 
 class BayesianPrediction:
     def __init__(self) -> None:
         self.x_train = None
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.x_train = x_train
         self.bayesian = BayesianRidge()
+        start = time.time()
         self.bayesian.fit(X=x_train, y=y_train)
-        print("Score -> {}".format(self.bayesian.score(X=x_train, y=y_train)))
+        self.time_training = timedelta(seconds=time.time() - start)
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.bayesian.predict(X=x_test)
@@ -24,11 +27,14 @@ class BayesianPrediction:
 class LinearRegressionPrediction:
     def __init__(self) -> None:
         self.linear = None
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.x_train = x_train
         self.linear = LinearRegression()
+        start = time.time()
         self.linear.fit(X=x_train, y=y_train)
+        self.time_training = timedelta(seconds=time.time() - start)
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.linear.predict(X=x_test)
@@ -37,11 +43,14 @@ class LinearRegressionPrediction:
 class RidgePrediction:
     def __init__(self) -> None:
         self.ridge = None
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray, alpha: float = 0.1) -> None:
         self.x_train = x_train
         self.ridge = Ridge(alpha=alpha)
+        start = time.time()
         self.ridge.fit(X=x_train, y=y_train)
+        self.time_training = timedelta(seconds=time.time() - start)
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.ridge.predict(X=x_test)
@@ -50,11 +59,14 @@ class RidgePrediction:
 class LassoPrediction:
     def __init__(self) -> None:
         self.lasso = None
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray, alpha: float = 0.1) -> None:
         self.x_train = x_train
         self.lasso = Lasso(alpha=alpha)
+        start = time.time()
         self.lasso.fit(X=x_train, y=y_train)
+        self.time_training = timedelta(seconds=time.time() - start)
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.lasso.predict(X=x_test)
@@ -65,6 +77,7 @@ class RF_Prediction:
         self.n_estimators = n_estimators
         self.random_sate = random_sate
         self.n_jobs = n_jobs
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.rf = RandomForestRegressor(
@@ -72,10 +85,15 @@ class RF_Prediction:
             random_state=self.random_sate,
             n_jobs=self.n_jobs,
         )
+        start = time.time()
         self.rf.fit(x_train, y_train)
+        self.time_training = timedelta(seconds=time.time() - start)
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.rf.predict(x_test)
+
+    def __str__(self) -> str:
+        return f"RF - {self.n_estimators} "
 
 
 class SVR_Prediction:
@@ -88,6 +106,7 @@ class SVR_Prediction:
         self.kernel = kernel
         self.c = c
         self.epsilon = epsilon
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.svr = SVR(
@@ -95,10 +114,16 @@ class SVR_Prediction:
             C=self.c,
             epsilon=self.epsilon,
         )
+        start = time.time()
         self.svr.fit(x_train, y_train)
+        self.time_training = timedelta(seconds=time.time() - start)
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.svr.predict(x_test)
+
+    def __str__(self) -> str:
+        return f"SVR - {self.kernel.value}"
+
 
 class XGB_Prediction:
     def __init__(
@@ -106,12 +131,16 @@ class XGB_Prediction:
         is_debug: bool = False,
     ) -> None:
         self.is_debug = is_debug
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.xgb = XGBRegressor()
+        start = time.time()
         self.xgb.fit(x_train, y_train)
+        self.time_training = timedelta(seconds=time.time() - start)
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.xgb.predict(x_test)
 
-    
+    def __str__(self) -> str:
+        return f"XGB "
