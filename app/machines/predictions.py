@@ -4,12 +4,14 @@ from xgboost import XGBRegressor
 from sklearn.svm import SVR
 from numpy import ndarray
 from machines.enums import SvrKernelEnum
-
+import time
+from datetime import timedelta
 
 
 class BayesianPrediction:
     def __init__(self) -> None:
         self.x_train = None
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.x_train = x_train
@@ -24,6 +26,7 @@ class BayesianPrediction:
 class LinearRegressionPrediction:
     def __init__(self) -> None:
         self.linear = None
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.x_train = x_train
@@ -37,6 +40,7 @@ class LinearRegressionPrediction:
 class RidgePrediction:
     def __init__(self) -> None:
         self.ridge = None
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray, alpha: float = 0.1) -> None:
         self.x_train = x_train
@@ -50,6 +54,7 @@ class RidgePrediction:
 class LassoPrediction:
     def __init__(self) -> None:
         self.lasso = None
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray, alpha: float = 0.1) -> None:
         self.x_train = x_train
@@ -65,6 +70,7 @@ class RF_Prediction:
         self.n_estimators = n_estimators
         self.random_sate = random_sate
         self.n_jobs = n_jobs
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.rf = RandomForestRegressor(
@@ -88,6 +94,7 @@ class SVR_Prediction:
         self.kernel = kernel
         self.c = c
         self.epsilon = epsilon
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.svr = SVR(
@@ -95,13 +102,17 @@ class SVR_Prediction:
             C=self.c,
             epsilon=self.epsilon,
         )
+        start = time.time()
         self.svr.fit(x_train, y_train)
+        end = time.time()
+        self.time_training = timedelta(seconds=end - start)
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.svr.predict(x_test)
-    
+
     def __str__(self) -> str:
         return f"SVR - {self.kernel.value}"
+
 
 class XGB_Prediction:
     def __init__(
@@ -109,6 +120,7 @@ class XGB_Prediction:
         is_debug: bool = False,
     ) -> None:
         self.is_debug = is_debug
+        self.time_training = 0
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
         self.xgb = XGBRegressor()
@@ -116,5 +128,3 @@ class XGB_Prediction:
 
     def prediction(self, x_test: ndarray) -> ndarray:
         return self.xgb.predict(x_test)
-
-    
