@@ -1,17 +1,23 @@
 {
     "cSpell.ignoreWords": [
+        "annot",
         "arange",
+        "cbar",
         "cmap",
         "contourf",
+        "coolwarm",
+        "corrcoef",
         "cumsum",
         "darkorange",
         "figsize",
+        "fillna",
         "iloc",
         "keepdims",
         "linestyle",
         "linewidth",
         "meshgrid",
         "ndarray",
+        "ndvi",
         "openpyxl",
         "phen",
         "proba",
@@ -21,8 +27,10 @@
         "xgboost",
         "xlabel",
         "xlim",
+        "xticklabels",
         "ylabel",
-        "ylim"
+        "ylim",
+        "yticklabels"
     ],
     "cSpell.words": [
         "obregon",
