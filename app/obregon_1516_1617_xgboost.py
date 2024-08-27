@@ -21,6 +21,10 @@ files_csv_heatmap = [
     "data/obregon_1516_1617/correlation/o_57_c_phenotypic_weather_m.csv",
 ]
 
+files_csv_no_ndvi =[
+    'data/obregon_1516_1617/original/o_57_o_phenotypic_no_ndvi.csv'
+]
+
 
 def do_run_xgb(
     do_basic: bool,
@@ -53,7 +57,7 @@ def do_run_xgb(
                 file_csv=file_csv,
                 data=data,
                 do_pca=True,
-            )
+            )    
     df = pd.DataFrame(
         data, columns=['ML', 'Reduction Technic', 'Dataset',
                        'RMSE', 'R2', 'MAPE', 'Number of components']

@@ -55,7 +55,7 @@ class Do_Run_ML:
         key: str,
         names: List[str],
         type: TypeFileEnum = TypeFileEnum.CSV,
-        transform: TransformEnum = TransformEnum.MEAN,
+        transform: TransformEnum = TransformEnum.PCA,
         standard_scale: StandardScaleEnum = StandardScaleEnum.BASIC,
         is_search_best_pca_component: bool = False,
     ):
@@ -81,6 +81,7 @@ class Do_Run_ML:
                 preprocessing = Preprocess(
                     file_name=file,
                     type_file=self.files_dataset[key_file]["type"],
+                    is_debug=self.is_debug,
                 )
                 preprocessing.read_file(
                     transform=self.files_dataset[key_file]["transform"],

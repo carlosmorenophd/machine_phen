@@ -21,11 +21,15 @@ files_csv_heatmap = [
     "data/obregon_1516_1617/correlation/o_57_c_phenotypic_weather_m.csv",
 ]
 
+files_csv_no_ndvi =[
+    'data/obregon_1516_1617/original/o_57_o_phenotypic_no_ndvi.csv'
+]
 
 def do_run_rf(
     do_basic: bool,
     do_heatmap: bool,
     do_pca: bool,
+    do_no_ndvi,
     file_name: str,
     is_debug: bool = False
 ):
@@ -53,6 +57,13 @@ def do_run_rf(
                 file_csv=file_csv,
                 data=data,
                 do_pca=True,
+            )
+    if do_no_ndvi:
+        for file_csv in files_csv_no_ndvi:
+            data = run_rf(
+                reductionName="Without",
+                file_csv=file_csv,
+                data=data
             )
     df = pd.DataFrame(
         data, columns=['ML', 'Reduction Technic', 'Dataset',
