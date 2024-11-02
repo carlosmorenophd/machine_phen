@@ -2,14 +2,16 @@
 # from obregon_1516_1617_rf import do_run_rf
 # from obregon_1516_1617_xgboost import do_run_xgb
 # from do_run.obregon_1516_1617 import launch_all
-from notebooks.no_ndvi.process_no_ndvi_wheater import do_run
-import math
+# from notebooks.no_ndvi.process_no_ndvi_wheater import do_run
+# import math
 
-def combinaciones(n, k):
-  return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
+# def combinaciones(n, k):
+#   return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
+
+from notebooks.best_ndvi.process_best_ndvi import run
 
 if __name__ == "__main__":
-    do_run()
+    run()
     
     # C(2054, 1) + C(2054, 2) + C(2054, 3) + ... + C(2054, 2054)
 #     C(8, 1) = 8
