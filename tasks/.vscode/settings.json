@@ -9,6 +9,7 @@
         "corrcoef",
         "cumsum",
         "darkorange",
+        "dotenv",
         "figsize",
         "fillna",
         "iloc",

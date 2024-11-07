@@ -30,6 +30,9 @@ class Preprocess:
         self.y = None
         self.imputer = None
         self.pca = None
+        self.scaler = None
+        self.test_size = None
+        self.random_state = None
 
     def read_file(
         self,

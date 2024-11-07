@@ -1,11 +1,14 @@
+"""Example to run machine"""
+from os import path
+from typing import List
+
+import pandas as pd
+
 from machines.predictions import RF_Prediction
 from preprocesses.preprocess import Preprocess
 from preprocesses.enums import TransformEnum, TypeFileEnum, StandardScaleEnum
 from metrics.error_metric import ErrorMetric
 from metrics.enums import MetricEnum
-from typing import List
-import pandas as pd
-from os import path
 
 
 class Result_ML:
@@ -95,7 +98,8 @@ class Do_Run_ML:
                     self.machines,
                 )
                 for machine in machine_to_run:
-                    self.results.adding_value(column_name="file_key", value=key_file)
+                    self.results.adding_value(
+                        column_name="file_key", value=key_file)
                     self.results.adding_value(
                         column_name="file_name", value=path.basename(file)
                     )
