@@ -1,7 +1,13 @@
+"""Get metrics from data"""
 from enum import Enum
 
 
 class MetricEnum(Enum):
+    """Definition for all metrics
+
+    Args:
+        Enum (_type_): _description_
+    """
     D2_ABSOLUTE_ERROR_SCORE = "d2_absolute_error_score"
     D2_PINBALL_SCORE = "d2_pinball_score"
     D2_TWEEDIE_SCORE = "d2_tweedie_score"
@@ -18,10 +24,12 @@ class MetricEnum(Enum):
     ROOT_MEAN_SQUARED_ERROR = "root_mean_squared_error"
     ROOT_MEAN_SQUARED_LOG_ERROR = "root_mean_squared_log_error"
 
+
 class PlotLegends():
+    """Basic class for plots
+    """
     first_plot_label = "First element"
     second_plot_label = "Second element"
     y_label = "Label Y"
-    x_label = "Label X" 
-    title="Plot"
-    
+    x_label = "Label X"
+    title = "Plot"

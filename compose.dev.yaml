@@ -1,5 +1,5 @@
 services:
-  tasks:
+  tasksdd:
     build:
       context: tasks/
       dockerfile: Dockerfile.dev

@@ -58,6 +58,7 @@ tornado==6.4
 traitlets==5.14.1
 tzdata==2024.1
 vine==5.1.0
+watchdog==6.0.0
 wcwidth==0.2.13
 wheel==0.43.0
 xgboost==2.1.1

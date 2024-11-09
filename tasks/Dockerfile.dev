@@ -2,9 +2,12 @@ FROM python:3.12.4-bookworm
 
 WORKDIR /app
 RUN apt update
-RUN apt install git git-flow nano -y
+RUN apt install nano -y
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY . .
 
+RUN chmod +x run.dev.sh
+
+ENTRYPOINT sh ./run.dev.sh
