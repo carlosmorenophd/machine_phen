@@ -124,8 +124,7 @@ class ErrorMetric():
             y_pred=self.y_predicted, y_true=self.y_true)
         self.metrics[MetricEnum.MEAN_ABSOLUTE_ERROR.value] = mean_absolute_error(
             y_pred=self.y_predicted, y_true=self.y_true)
-        self.metrics[MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR.value] =
-        mean_absolute_percentage_error(
+        self.metrics[MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR.value] = mean_absolute_percentage_error(
             y_pred=self.y_predicted, y_true=self.y_true
         )
         self.metrics[MetricEnum.MEAN_GAMMA_DEVIANCE.value] = mean_gamma_deviance(

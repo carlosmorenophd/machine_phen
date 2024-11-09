@@ -9,7 +9,7 @@ from sklearn.svm import SVR
 from xgboost import XGBRegressor
 from numpy import ndarray
 
-from src.machines.enums import SvrKernelEnum
+# from src.machines.enums import SvrKernelEnum
 from src.metrics.error_metric import ErrorMetric
 
 
