@@ -9,7 +9,7 @@ from sklearn.svm import SVR
 from xgboost import XGBRegressor
 from numpy import ndarray
 
-# from src.machines.enums import SvrKernelEnum
+from src.machines.enums import SupportVectorRegressionKernelEnum
 from src.metrics.error_metric import ErrorMetric
 
 
@@ -40,7 +40,7 @@ class MachinePrediction(ABC):
         self.time_training = timedelta(seconds=time.time() - start)
 
     def save_metric(
-        self, x_test: ndarray, y_test, base_file_name: str
+        self, x_test: ndarray, y_test, base_file_name: str, machine_name: str
     ) -> None:
         """Save metric into 2 files all metrics and result of test
 
@@ -53,14 +53,12 @@ class MachinePrediction(ABC):
         Returns:
             _type_: _description_
         """
+        print(f"Parameters: base file - {base_file_name}")
         y_predicted = self.machine.predict(x_test)
-        self.error = ErrorMetric(x_test=x_test, y_test=y_test, y_predicted=y_predicted)
+        self.error = ErrorMetric(
+            x_test=x_test, y_test=y_test, y_predicted=y_predicted)
         self.error.calculate_metric_prediction()
-        self.error.to_save(base_file_name=base_file_name)
-
-
-
-
+        self.error.to_save(base_file_name=f"{machine_name}_{base_file_name}")
 
     def prediction(self, x_test: ndarray) -> ndarray:
         """Predict new values
@@ -74,19 +72,18 @@ class MachinePrediction(ABC):
         return self.machine.predict(x_test)
 
 
-# class BayesianPrediction(MachinePrediction):
-#     """Class to run a Bayesian Prediction
-#     """
+class BayesianPrediction(MachinePrediction):
+    """Class to run a Bayesian Prediction
+    """
 
-#     def training(self, x_train: ndarray, y_train: ndarray) -> None:
-#         self.x_train = x_train
-#         self.machine = BayesianRidge()
-#         start = time.time()
-#         self.machine.fit(X=x_train, y=y_train)
-#         self.time_training = timedelta(seconds=time.time() - start)
+    # def __init__(self) -> None:
+    #     super().__init__()
 
-#     def prediction(self, x_test: ndarray) -> ndarray:
-#         return self.machine.predict(X=x_test)
+    def build_machine(self) -> None:
+        self.machine = BayesianRidge()
+
+    def __str__(self) -> str:
+        return f"Bayesian - {1} "
 
 
 # class LinearRegressionPrediction(MachinePrediction):
@@ -128,26 +125,22 @@ class MachinePrediction(ABC):
 #         return self.machine.predict(X=x_test)
 
 
-# class LassoPrediction(MachinePrediction):
-#     """Machine for linear LASSO
+class LassoPrediction(MachinePrediction):
+    """Machine for linear LASSO
 
-#     Args:
-#         MachinePrediction (_type_): Abstract method
-#     """
+    Args:
+        MachinePrediction (_type_): Abstract method
+    """
 
-#     def __init__(self, alpha: float = 0.1) -> None:
-#         super().__init__()
-#         self.alpha = alpha
+    def __init__(self, alpha: float = 0.1) -> None:
+        super().__init__()
+        self.alpha = alpha
 
-#     def training(self, x_train: ndarray, y_train: ndarray) -> None:
-#         self.x_train = x_train
-#         self.machine = Lasso(alpha=self.alpha)
-#         start = time.time()
-#         self.machine.fit(X=x_train, y=y_train)
-#         self.time_training = timedelta(seconds=time.time() - start)
+    def build_machine(self) -> None:
+        self.machine = Lasso(alpha=self.alpha)
 
-#     def prediction(self, x_test: ndarray) -> ndarray:
-#         return self.machine.predict(X=x_test)
+    def __str__(self) -> str:
+        return f"LASSO - {self.alpha} "
 
 
 class RandomForestPrediction(MachinePrediction):
@@ -159,9 +152,9 @@ class RandomForestPrediction(MachinePrediction):
 
     def __init__(self, n_estimators: int = 1000, random_sate: int = 42, n_jobs: int = -1) -> None:
         super().__init__()
-        self.n_estimators = n_estimators if n_estimators > 0 else 1000
-        self.random_sate = random_sate if random_sate > 0 else 42
-        self.n_jobs = n_jobs if n_jobs > -1 else -1
+        self.n_estimators = n_estimators
+        self.random_sate = random_sate
+        self.n_jobs = n_jobs
 
     def build_machine(self) -> None:
         self.machine = RandomForestRegressor(
@@ -174,56 +167,54 @@ class RandomForestPrediction(MachinePrediction):
         return f"Random Forest Prediction - {self.n_estimators} "
 
 
-# class SupportVectorRegressionPrediction(MachinePrediction):
-#     """Machine for Support Vector Regression
+class SupportVectorRegressionPrediction(MachinePrediction):
+    """Machine for Support Vector Regression
 
-#     Args:
-#         MachinePrediction (_type_): Abstract method
-#     """
+    Args:
+        MachinePrediction (_type_): Abstract method
+    """
 
-#     def __init__(
-#         self,
-#         kernel: SvrKernelEnum = SvrKernelEnum.RBF,
-#         c: float = 1.0,
-#         epsilon: float = 0.1,
-#     ) -> None:
-#         super().__init__()
-#         self.kernel = kernel
-#         self.c = c
-#         self.epsilon = epsilon
+    def build_machine(self) -> None:
+        self.machine = SVR(
+            kernel=self.kernel.value,
+            C=self.c,
+            epsilon=self.epsilon,
+        )
 
-#     def training(self, x_train: ndarray, y_train: ndarray) -> None:
-#         self.machine = SVR(
-#             kernel=self.kernel.value,
-#             C=self.c,
-#             epsilon=self.epsilon,
-#         )
-#         start = time.time()
-#         self.machine.fit(x_train, y_train)
-#         self.time_training = timedelta(seconds=time.time() - start)
+    def __str__(self) -> str:
+        return f"Support Vector Regression - {self.kernel.value}"
 
-#     def prediction(self, x_test: ndarray) -> ndarray:
-#         return self.machine.predict(x_test)
-
-#     def __str__(self) -> str:
-#         return f"Support Vector Regression - {self.kernel.value}"
+    def __init__(
+        self,
+        kernel: SupportVectorRegressionKernelEnum = SupportVectorRegressionKernelEnum.LINEAR,
+        c: float = 1.0,
+        epsilon: float = 0.1,
+    ) -> None:
+        super().__init__()
+        self.kernel = kernel
+        self.c = c
+        self.epsilon = epsilon
 
 
-# class ExtremeGradientBoostingPrediction(MachinePrediction):
-#     """Machine for prediction on Extreme Gradient Boosting
+class ExtremeGradientBoostPrediction(MachinePrediction):
+    """Machine for prediction on Extreme Gradient Boosting
 
-#     Args:
-#         MachinePrediction (_type_): Abstract method
-#     """
+    Args:
+        MachinePrediction (_type_): Abstract method
+    """
 
-#     def training(self, x_train: ndarray, y_train: ndarray) -> None:
-#         self.machine = XGBRegressor()
-#         start = time.time()
-#         self.machine.fit(x_train, y_train)
-#         self.time_training = timedelta(seconds=time.time() - start)
+    def __init__(self, n_estimators: int = 1000, max_depth: int = -1, max_leaves: int = 0) -> None:
+        super().__init__()
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.max_leaves = max_leaves
 
-#     def prediction(self, x_test: ndarray) -> ndarray:
-#         return self.machine.predict(x_test)
+    def build_machine(self) -> None:
+        self.machine = XGBRegressor(
+            # n_estimators=self.n_estimators,
+            # max_depth=self.max_depth,
+            # max_leaves=self.max_leaves,
+        )
 
-#     def __str__(self) -> str:
-#         return f"Extreme Gradient Boosting - {1}"
+    def __str__(self) -> str:
+        return f"Extreme Gradient Boost - {self.n_estimators} "

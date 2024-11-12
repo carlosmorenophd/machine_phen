@@ -26,3 +26,9 @@ Run image in a container
 ```
 docker run -it -d --name dev_machine --network=net-phenotypic -v ${PWD}:/develop  phen/machine:00.dev
 ```
+
+Run the application
+
+```
+watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A tasks worker --loglevel=INFO
+```

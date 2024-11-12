@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile.dev
     environment:
       - REDIS_URL=${REDIS_URL}
+      - FOLDER_DATA=${FOLDER_DATA}
     networks:
       phen-net:
         aliases:

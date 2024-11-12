@@ -5,10 +5,15 @@ from dataclasses import dataclass
 from sklearn.model_selection import train_test_split
 from numpy import ndarray
 from pandas import DataFrame
-from src.machines.predictions import RandomForestPrediction
+from src.machines.predictions import (
+    RandomForestPrediction,
+    ExtremeGradientBoostPrediction,
+    BayesianPrediction,
+    LassoPrediction,
+    SupportVectorRegressionPrediction,
+)
 from src.machines.enums import RandomForestJson, MachineNames
 from src.helpers.file_access import FolderCache, get_file_to_data_frame
-
 
 
 @dataclass
@@ -21,8 +26,6 @@ class FileAccessRunnerProperties:
     folder_path: FolderCache = FolderCache.UPLOAD
     test_size: float = 0.8
     random_state: int = 42
-
-
 
 
 @dataclass
@@ -65,7 +68,7 @@ class MachineRunner():
 
     def run_single_machine_single_file(
         self,
-        machine: RandomForestJson,
+        machine_definition: RandomForestJson,
 
     ) -> None:
         """Run single machine with single file
@@ -76,16 +79,29 @@ class MachineRunner():
             folder_path (FolderCache, optional): 
                 Folder to get the file. Defaults to FolderCache.UPLOAD.
         """
-        if machine.name == MachineNames.RF:
+        machine = None
+        if machine_definition.name == MachineNames.RF:
             machine = RandomForestPrediction(
-                n_estimators=machine.n_estimators,
-                random_sate=machine.random_state,
-                n_jobs=machine.n_jobs,
+                n_estimators=machine_definition.n_estimators,
+                random_sate=machine_definition.random_state,
+                n_jobs=machine_definition.n_jobs,
             )
+        elif machine_definition.name == MachineNames.XGB:
+            print(f"Parameters machine- {machine_definition}")
+            machine = ExtremeGradientBoostPrediction()
+        elif machine_definition.name == MachineNames.BAP:
+            machine = BayesianPrediction()
+        elif machine_definition.name == MachineNames.LAP:
+            machine = LassoPrediction()
+        elif machine_definition.name == MachineNames.SVRP:
+            machine = SupportVectorRegressionPrediction()
+        print(f"Parameters machine- {machine_definition}")
+        if machine is not None:
             machine.build_machine()
             machine.training(self.dataset.x_train, self.dataset.y_train)
             machine.save_metric(
                 x_test=self.dataset.x_test,
                 y_test=self.dataset.y_test,
-                base_file_name=self.file_access.file_name_only
+                base_file_name=self.file_access.file_name_only,
+                machine_name=machine_definition.name.value,
             )

@@ -1,5 +1,7 @@
 """Get metrics from data"""
 from enum import Enum
+from dataclasses import dataclass
+
 
 
 class MetricEnum(Enum):
@@ -24,7 +26,7 @@ class MetricEnum(Enum):
     ROOT_MEAN_SQUARED_ERROR = "root_mean_squared_error"
     ROOT_MEAN_SQUARED_LOG_ERROR = "root_mean_squared_log_error"
 
-
+@dataclass
 class PlotLegends():
     """Basic class for plots
     """

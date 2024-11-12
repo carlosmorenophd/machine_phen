@@ -4,10 +4,8 @@ WORKDIR /app
 RUN apt update
 RUN apt install nano -y
 COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY . .
 
-RUN chmod +x run.dev.sh
-
-ENTRYPOINT sh ./run.dev.sh

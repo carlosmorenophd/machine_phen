@@ -124,7 +124,9 @@ class ErrorMetric():
             y_pred=self.y_predicted, y_true=self.y_true)
         self.metrics[MetricEnum.MEAN_ABSOLUTE_ERROR.value] = mean_absolute_error(
             y_pred=self.y_predicted, y_true=self.y_true)
-        self.metrics[MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR.value] = mean_absolute_percentage_error(
+        self.metrics[
+            MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR.value
+        ] = mean_absolute_percentage_error(
             y_pred=self.y_predicted, y_true=self.y_true
         )
         self.metrics[MetricEnum.MEAN_GAMMA_DEVIANCE.value] = mean_gamma_deviance(
@@ -205,16 +207,16 @@ class ErrorMetric():
         list_upper = []
         if IS_DEBUG:
             print(f"#### list on error upper -> {pivot}")
-        for i, predicted in enumerate(self.y_predicted):
+        for predicted, true in zip(self.y_predicted, self.y_true):
             error = abs(
-                (self.y_true[i] - predicted) / self.y_true[i])
+                (true - predicted) / true)
             if error > pivot:
                 number_upper = number_upper + 1
                 list_upper.append(
-                    {'truth': self.y_true[i], 'predict': predicted, 'error': error})
-                if IS_DEBUG:
-                    print(
-                        f'Predict {predicted} -> Truth {self.y_true[i]} dif = {error}')
+                    {'truth': true, 'predict': predicted, 'error': error})
+                # if IS_DEBUG:
+                #     print(
+                #         f'Predict {predicted} -> Truth {true} dif = {error}')
         if IS_DEBUG:
             print(
                 f"Number of element -> {len(self.y_true)} number of upper error -> {number_upper}")
@@ -235,6 +237,9 @@ class ErrorMetric():
             base_file_name (str): Base path to save
         """
         file_metric = f"metric_{base_file_name}.csv"
-        # file_result = f"result_{base_file_name}.csv"
-        df_metric = pd.DataFrame(self.metrics)
+        df_metric = pd.DataFrame(self.metrics, index=[0])
         save_to_csv(data_frame=df_metric, file_save=file_metric)
+        file_result = f"result_{base_file_name}.csv"
+        result = self.list_percentage_error_upper(pivot=0)
+        df_result = pd.DataFrame(result)
+        save_to_csv(data_frame=df_result, file_save=file_result)

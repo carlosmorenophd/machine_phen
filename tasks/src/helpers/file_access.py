@@ -71,4 +71,4 @@ def get_name_file_without_extension(file_name: str, folder: FolderCache) -> str:
     file = os.path.join(FOLDER_DATA, folder.value, file_name)
     complete_name = os.path.basename(file)
     name = os.path.splitext(complete_name)
-    return name
+    return name[0]
