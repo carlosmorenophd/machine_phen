@@ -2,6 +2,7 @@
 import time
 from datetime import timedelta
 from abc import ABC, abstractmethod
+from typing import Dict
 
 from sklearn.linear_model import BayesianRidge, LinearRegression, Ridge, Lasso
 from sklearn.ensemble import RandomForestRegressor
@@ -9,8 +10,8 @@ from sklearn.svm import SVR
 from xgboost import XGBRegressor
 from numpy import ndarray
 
-from src.machines.enums import SupportVectorRegressionKernelEnum
-from src.metrics.error_metric import ErrorMetric
+from machines.machine_enums import SupportVectorRegressionKernelEnum
+from metrics.error_metric_process import ErrorMetric
 
 
 class MachinePrediction(ABC):
@@ -40,15 +41,19 @@ class MachinePrediction(ABC):
         self.time_training = timedelta(seconds=time.time() - start)
 
     def save_metric(
-        self, x_test: ndarray, y_test, base_file_name: str, machine_name: str
+        self,
+        x_test: ndarray,
+        y_test,
+        base_file_name: str,
+        machine_name: str
     ) -> None:
         """Save metric into 2 files all metrics and result of test
 
         Args:
             x_test (ndarray): Array for test
             y_test (_type_): Target for test
-            file_metric_name (str): file to save the metric
-            file_result_name (str): file to save the target, predict and error
+            base_file_name (str): path to save the other files
+            machine_name (str): machine name
 
         Returns:
             _type_: _description_
@@ -59,6 +64,28 @@ class MachinePrediction(ABC):
             x_test=x_test, y_test=y_test, y_predicted=y_predicted)
         self.error.calculate_metric_prediction()
         self.error.to_save(base_file_name=f"{machine_name}_{base_file_name}")
+
+    def get_metric(
+        self,
+        x_test: ndarray,
+        y_test,
+    ) -> Dict:
+        """Get the metric for some test data
+
+        Args:
+            x_test (ndarray): Array for test
+            y_test (_type_): Target for test
+
+
+        Returns:
+            _type_: _description_
+       """
+        y_predicted = self.machine.predict(x_test)
+        self.error = ErrorMetric(
+            x_test=x_test, y_test=y_test, y_predicted=y_predicted)
+        self.error.calculate_metric_prediction()
+        return self.error.metrics;
+        
 
     def prediction(self, x_test: ndarray) -> ndarray:
         """Predict new values
@@ -75,9 +102,6 @@ class MachinePrediction(ABC):
 class BayesianPrediction(MachinePrediction):
     """Class to run a Bayesian Prediction
     """
-
-    # def __init__(self) -> None:
-    #     super().__init__()
 
     def build_machine(self) -> None:
         self.machine = BayesianRidge()

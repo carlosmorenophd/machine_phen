@@ -6,7 +6,7 @@ import json
 from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
 from src.helpers.file_access import get_name_file_without_extension
-from src.machines.enums import (
+from machines.machine_enums import (
     RandomForestJson,
     MachineNames,
     ExtremeGradientBoost,

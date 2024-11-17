@@ -1,7 +1,11 @@
 """Skelton for class to predict"""
 from dataclasses import dataclass
+from typing import Dict
+
 
 from enum import Enum
+import pandas as pd
+from src.metrics.metric_enums import MetricEnum
 
 
 class SupportVectorRegressionKernelEnum(Enum):
@@ -59,6 +63,11 @@ class MachineJson:
     """
     name: MachineNames
 
+    def __str__(self) -> str:
+        return f"machine_name: {
+            self.name.value
+        }"
+
 
 @dataclass
 class RandomForestJson(MachineJson):
@@ -68,6 +77,17 @@ class RandomForestJson(MachineJson):
     n_estimators: int = 1000
     random_state: int = 42
     n_jobs: int = -1
+
+    def __str__(self) -> str:
+        return f"machine_name: {
+            self.name.value
+        } - [ n_estimators: {
+            self.n_estimators
+        }, random_state: {
+            self.random_state
+        }, n_jobs: {
+            self.n_jobs
+        } ]"
 
 
 @dataclass
@@ -79,12 +99,28 @@ class ExtremeGradientBoost(MachineJson):
     max_depth: int = 0
     max_leaves: int = 0
 
+    def __str__(self) -> str:
+        return f"machine_name: {
+            self.name.value
+        } - [ n_estimators: {
+            self.n_estimators
+        }, max_depth: {
+            self.max_depth
+        }, max_leaves: {
+            self.max_leaves
+        } ]"
+
 
 @dataclass
 class BayesianPredictionDefinition(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
     name: MachineNames = MachineNames.BAP
+
+    def __str__(self) -> str:
+        return f"machine_name: {
+            self.name.value
+        } - [ ]"
 
 
 @dataclass
@@ -93,6 +129,11 @@ class LassoPredictionDataClass(MachineJson):
     """
     name: MachineNames = MachineNames.LAP
     alpha: float = 0.1
+
+    def __str__(self) -> str:
+        return f"machine_name: {
+            self.name.value
+        } - [ ]"
 
 
 @dataclass
@@ -103,3 +144,16 @@ class SupportVectorRegressionPredictionDataClass(MachineJson):
     kernel: SupportVectorRegressionKernelEnum = SupportVectorRegressionKernelEnum.LINEAR
     c: float = 1.0
     epsilon: float = 0.1
+
+    def __str__(self) -> str:
+        return f"machine_name: {
+            self.name.value
+        } - [kernel: {
+            self.kernel.value
+        }, c: {
+            self.c
+        }, epsilon: {
+            self.epsilon
+        } ]"
+
+

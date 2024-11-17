@@ -20,7 +20,7 @@ from numpy import ndarray
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from src.metrics.enums import MetricEnum, PlotLegends
+from metrics.metric_enums import MetricEnum, PlotLegends
 from src.helpers.key_env import IS_DEBUG
 from src.helpers.file_access import save_to_csv
 
