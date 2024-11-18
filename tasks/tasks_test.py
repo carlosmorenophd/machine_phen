@@ -11,7 +11,6 @@ if __name__ == "__main__":
         action = sys.argv[1]
         if action == "result_single-machine-single-file":
             print("Run - result_single-machine-single-file")
-            # python tasks_test.py result_single-machine-single-file pca_lrace_trueba_fill_clean.csv Yield '{"name": "random_forest"}' 
             print(f"file -> {
                 sys.argv[2]
             }, target -> {
@@ -27,3 +26,21 @@ if __name__ == "__main__":
                     sys.argv[4],
                 )
             )
+        elif action == "regression_forward_force_single_machine_single_file":
+            print("Run - regression_forward_force_single_machine_single_file")
+            print(f"file -> {
+                sys.argv[2]
+            }, target -> {
+                sys.argv[3]
+            }, machine - {
+                sys.argv[4]
+            }")
+            app.send_task(
+                name="regression_forward_force_single_machine_single_file",
+                args=(
+                    sys.argv[2],
+                    sys.argv[3],
+                    sys.argv[4],
+                )
+            )
+

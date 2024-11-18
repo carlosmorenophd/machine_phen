@@ -5,6 +5,14 @@ WORKDIR /phen
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-COPY app/ ./app
+COPY src/ src/
 
-COPY data/ ./data
+COPY tasks.py .
+
+COPY test_task.py .
+
+COPY run.sh .
+
+RUN chmod +x run.sh
+
+ENTRYPOINT sh ./run.sh

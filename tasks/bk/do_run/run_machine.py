@@ -7,8 +7,8 @@ import pandas as pd
 from machines.predictions import RF_Prediction
 from preprocesses.preprocess import Preprocess
 from preprocesses.enums import TransformEnum, TypeFileEnum, StandardScaleEnum
-from metrics.error_metric import ErrorMetric
-from metrics.enums import MetricEnum
+from metrics.error_metric_process import ErrorMetric
+from metrics.metric_enums import MetricEnum
 
 
 class Result_ML:
