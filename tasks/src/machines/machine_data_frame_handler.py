@@ -3,17 +3,7 @@
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
-from src.machines.regression_run import (
-    RandomForestRegression,
-    ExtremeGradientBoostRegression,
-    BayesianRegression,
-    LassoRegression,
-    SupportVectorRegression,
-    MachineRegression,
-)
 from src.machines.machine_enums import (
-    MachineNames,
-    MachineJson,
     FileAccessRunnerProperties,
     DatasetProperties
 )
@@ -42,7 +32,7 @@ class DataFrameHandler():
             test_size=file_access_runner.test_size,
             random_state=file_access_runner.random_state
         )
-        self.dataset = DatasetProperties(
+        self._dataset = DatasetProperties(
             x=x,
             y=y,
             x_train=x_train,
@@ -58,7 +48,7 @@ class DataFrameHandler():
         Returns:
             DatasetProperties: dataset
         """
-        return self.dataset
+        return self._dataset
 
     def change_column_from_data_frame(self, columns_to_keep: list):
         """Get some column of the dataset
@@ -75,7 +65,7 @@ class DataFrameHandler():
             test_size=self.file_access_runner.test_size,
             random_state=self.file_access_runner.random_state
         )
-        self.dataset = DatasetProperties(
+        self._dataset = DatasetProperties(
             x=x,
             y=y,
             x_train=x_train,

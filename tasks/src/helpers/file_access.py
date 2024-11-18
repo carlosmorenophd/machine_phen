@@ -110,24 +110,6 @@ class StorageFile():
             FOLDER_DATA, folder_file.value, file_name)
         self.file_name_only, _ = os.path.splitext(self.absolute_file)
 
-    @property
-    def file_name_only(self):
-        """Get name only without extension
-
-        Returns:
-            _type_: name of file 
-        """
-        return self.file_name_only
-
-    @property
-    def absolute_file(self):
-        """Get absolute path and file
-
-        Returns:
-            _type_: name of file 
-        """
-        return self.absolute_file
-
     def adding_prefix_file_name(self, prefix: str) -> str:
         """Adding one prefix to file to save on same folder keep the same extension
 

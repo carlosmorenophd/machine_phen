@@ -5,10 +5,10 @@ import json
 
 from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
-from src.helpers.file_access import get_name_file_without_extension
 from src.machines.machine_enums import build_machine_definition
 from src.machines.machine_data_frame_handler import DataFrameHandler, FileAccessRunnerProperties
 from src.sequence_planing.force_brute_runner import forward_selection_force_brute_run
+
 
 
 print(REDIS_BROKEN)
@@ -26,14 +26,10 @@ def result_single_machine_file_single(files_in: str, target_column: str, machine
     machine_definition = build_machine_definition(
         machine_json=json.loads(machine_str))
 
-    name_file_without_extension = get_name_file_without_extension(
-        file_name=files_in, folder=FolderCache.UPLOAD
-    )
     file_access_runner = FileAccessRunnerProperties(
         file_in=files_in,
         target_feature=target_column,
         folder_path=FolderCache.UPLOAD,
-        file_name_only=name_file_without_extension
     )
     machine = DataFrameHandler(file_access_runner=file_access_runner)
     # machine.run_single_machine_single_file(
@@ -79,4 +75,4 @@ def version() -> str:
     Returns:
         str: version number
     """
-    return "24.11.17"
+    return "24.11.18"

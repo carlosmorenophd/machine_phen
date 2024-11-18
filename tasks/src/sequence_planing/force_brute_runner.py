@@ -41,13 +41,13 @@ class ForwardSelectionBestResult():
             "columns": ",".join(columns),
         }
         element = element | metrics
-        self.metric_values = self.metric_values.append(
-            element,
-            ignore_index=True,
-        )
+        self.metric_values = pd.concat([
+            self.metric_values,
+            pd.DataFrame([element]),
+        ], ignore_index=True)
         if self.metric_to_evaluate == MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR:
             self.validate_minus(
-                value=metrics[self.metric_to_evaluate],
+                value=metrics[self.metric_to_evaluate.value],
                 machine=machine_definition
             )
 
@@ -108,7 +108,7 @@ def forward_selection_force_brute_run(
             columns=combination,
             metrics=error_metric.metrics,
         )
-        df_metric = forward_selection.metric_values
-        data_frame.storage_file.save_data_frame_to_csv(
-            data_frame=df_metric, prefix="metric_forward_selection",
-        )
+    df_metric = forward_selection.metric_values
+    data_frame.storage_file.save_data_frame_to_csv(
+        data_frame=df_metric, prefix="metric_forward_selection",
+    )

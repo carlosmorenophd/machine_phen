@@ -72,7 +72,7 @@ class MachineJson:
 
     def __str__(self) -> str:
         return f"machine_name: {
-            self.name.value
+            self.name_machine.value
         }"
 
 
@@ -112,7 +112,7 @@ class RandomForestJson(MachineJson):
 
     def __str__(self) -> str:
         return f"machine_name: {
-            self.name.value
+            self.name_machine.value
         } - [ n_estimators: {
             self.n_estimators
         }, random_state: {
@@ -130,12 +130,12 @@ class ExtremeGradientBoostJson(MachineJson):
     def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
         self.n_estimators = -1
-        self.max_depth  0
+        self.max_depth = 0
         self.max_leaves = 0
 
     def __str__(self) -> str:
         return f"machine_name: {
-            self.name.value
+            self.name_machine.value
         } - [ n_estimators: {
             self.n_estimators
         }, max_depth: {
@@ -149,12 +149,13 @@ class ExtremeGradientBoostJson(MachineJson):
 class BayesianJson(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
+
     def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
 
     def __str__(self) -> str:
         return f"machine_name: {
-            self.name.value
+            self.name_machine.value
         } - [ ]"
 
 
@@ -162,13 +163,14 @@ class BayesianJson(MachineJson):
 class LassoJson(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
+
     def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
         self.alpha = 0.1
 
     def __str__(self) -> str:
         return f"machine_name: {
-            self.name.value
+            self.name_machine.value
         } - [ ]"
 
 
@@ -176,6 +178,7 @@ class LassoJson(MachineJson):
 class SupportVectorMachineJson(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
+
     def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
         self.kernel = SupportVectorKernelEnum.LINEAR
@@ -184,7 +187,7 @@ class SupportVectorMachineJson(MachineJson):
 
     def __str__(self) -> str:
         return f"machine_name: {
-            self.name.value
+            self.name_machine.value
         } - [kernel: {
             self.kernel.value
         }, c: {
@@ -205,7 +208,7 @@ def build_machine_definition(machine_json) -> MachineJson:
         raise NotImplementedError("Not have a name of machine")
     if machine_json["name"] == MachineNames.RFR.value:
         machine_definition = RandomForestJson(
-            name=MachineNames.RFR, type_machine=MachinesTypes.R)
+            name_machine=MachineNames.RFR, type_machine=MachinesTypes.R)
         if "parameters" in machine_json:
             parameters = machine_json["parameters"]
             if "n_estimators" in parameters:
@@ -217,7 +220,7 @@ def build_machine_definition(machine_json) -> MachineJson:
         return machine_definition
     if machine_json["name"] == MachineNames.XGBR.value:
         machine_definition = ExtremeGradientBoostJson(
-            name=MachineNames.XGBR, type_machine=MachinesTypes.R
+            name_machine=MachineNames.XGBR, type_machine=MachinesTypes.R
         )
         if "parameters" in machine_json:
             parameters = machine_json["parameters"]
@@ -230,11 +233,11 @@ def build_machine_definition(machine_json) -> MachineJson:
         return machine_definition
     if machine_json["name"] == MachineNames.BAR.value:
         machine_definition = BayesianJson(
-            name=MachineNames.BAR, type_machine=MachinesTypes.R)
+            name_machine=MachineNames.BAR, type_machine=MachinesTypes.R)
         return machine_definition
     if machine_json["name"] == MachineNames.LAR.value:
         machine_definition = LassoJson(
-            name=MachineNames.LAR, type_machine=MachinesTypes.R)
+            name_machine=MachineNames.LAR, type_machine=MachinesTypes.R)
         if "parameters" in machine_json:
             parameters = machine_json["parameters"]
             if "alpha" in parameters:
@@ -242,7 +245,7 @@ def build_machine_definition(machine_json) -> MachineJson:
         return machine_definition
     if machine_json["name"] == MachineNames.SVR.value:
         machine_definition = SupportVectorMachineJson(
-            name=MachineNames.SVR, type_machine=MachinesTypes.R)
+            name_machine==MachineNames.SVR, type_machine=MachinesTypes.R)
         if "parameters" in machine_json:
             parameters = machine_json["parameters"]
             if "kernel" in parameters:

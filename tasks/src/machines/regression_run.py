@@ -260,18 +260,18 @@ def machine_build_regression(machine_definition: MachineJson) -> MachineRegressi
     Returns:
         MachineJson: Return child of Machine Json to run it
     """
-    if machine_definition.name == MachineNames.RF:
+    if machine_definition.name_machine == MachineNames.RFR:
         return RandomForestRegression(
             n_estimators=machine_definition.n_estimators,
             random_sate=machine_definition.random_state,
             n_jobs=machine_definition.n_jobs,
         )
-    if machine_definition.name == MachineNames.XGB:
+    if machine_definition.name_machine == MachineNames.XGBR:
         return ExtremeGradientBoostRegression()
-    if machine_definition.name == MachineNames.BAP:
+    if machine_definition.name_machine == MachineNames.BAR:
         return BayesianRegression()
-    if machine_definition.name == MachineNames.LAP:
+    if machine_definition.name_machine == MachineNames.LAR:
         return LassoRegression()
-    if machine_definition.name == MachineNames.SVRP:
+    if machine_definition.name_machine == MachineNames.SVR:
         return SupportVectorRegression()
     raise NotImplementedError("Don't exist machine to run it")
