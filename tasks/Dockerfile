@@ -9,7 +9,7 @@ COPY src/ src/
 
 COPY tasks.py .
 
-COPY test_task.py .
+COPY tasks_test.py .
 
 COPY run.sh .
 

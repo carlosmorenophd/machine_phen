@@ -1,9 +1,8 @@
 services:
-  tasksdd:
+  tasks:
     container_name: phen_machine
     build:
       context: tasks/
-      dockerfile: Dockerfile.dev
     environment:
       - REDIS_URL=${REDIS_URL}
       - FOLDER_DATA=${FOLDER_DATA}
