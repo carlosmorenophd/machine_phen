@@ -7,7 +7,7 @@ from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
 from src.machines.machine_enums import build_machine_definition
 from src.machines.machine_data_frame_handler import DataFrameHandler, FileAccessRunnerProperties
-from src.sequence_planing.force_brute_runner import forward_selection_force_brute_run
+from src.selection_variables.force_brute import selection_force_brute_run
 
 
 
@@ -55,7 +55,7 @@ def task_regression_forward_force_single_machine_single_file(
         f" Inputs: file - {files_in}, column - {
             target_column}, machine - {machine_str}"
     )
-    forward_selection_force_brute_run(
+    selection_force_brute_run(
         machine_definition=build_machine_definition(
             machine_json=json.loads(machine_str)
         ),
