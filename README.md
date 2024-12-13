@@ -60,7 +60,7 @@ python tasks_test.py regression_forward_force_single_machine_single_file lrace_t
 selection variable by genetic algorithm
 
 ```
-python tasks_test.py regression_genetic_single_machine_single_file lrace_trueba_fill_clean_normalize.csv Rendimiento '{"name": "random_forest_regression"}' 
+python tasks_test.py regression_genetic_single_machine_single_file lrace_trueba_fill_clean_normalize.csv Rendimiento '{"name": "random_forest_regression"}' '{"num_generations":5}'
 
 ```
 
