@@ -50,10 +50,17 @@ watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A ta
 
 Run to some test
 
-forward selection 
+selection variable by force brute 
 
 ```
 python tasks_test.py regression_forward_force_single_machine_single_file lrace_trueba_fill_clean_normalize.csv Rendimiento '{"name": "random_forest_regression"}' 
+
+```
+
+selection variable by genetic algorithm
+
+```
+python tasks_test.py regression_genetic_single_machine_single_file lrace_trueba_fill_clean_normalize.csv Rendimiento '{"name": "random_forest_regression"}' 
 
 ```
 

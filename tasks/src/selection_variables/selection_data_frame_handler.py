@@ -26,7 +26,7 @@ class SelectionBestMetric():
             machine_definition: MachineJson,
             columns: List[str],
             metrics: Dict,
-    ) -> None:
+    ) -> float:
         """Add new metric and validate if is better that previous
 
         Args:
@@ -47,6 +47,8 @@ class SelectionBestMetric():
                 value=metrics[self.metric_to_evaluate.value],
                 machine=machine_definition
             )
+            return metrics[self.metric_to_evaluate.value]
+        raise KeyError("Not valid metric")
 
     def validate_minus(self, value: float, machine: MachineJson) -> None:
         """Validate if is better by minus values
