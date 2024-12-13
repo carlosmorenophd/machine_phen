@@ -1,0 +1,18 @@
+.idea
+.ipynb_checkpoints
+.mypy_cache
+__pycache__
+.pytest_cache
+htmlcov
+dist
+site
+.coverage
+coverage.xml
+.netlify
+*~
+.*.sw?
+.cache
+# macOS
+.DS_Store
+
+nohup.out

@@ -26,3 +26,41 @@ Run image in a container
 ```
 docker run -it -d --name dev_machine --network=net-phenotypic -v ${PWD}:/develop  phen/machine:00.dev
 ```
+
+# New documentation
+Run contained on dev
+
+Build the images
+```
+docker compose -f compose.dev.yaml build
+```
+
+Run the contained
+```
+docker compose -f compose.dev.yaml up -d
+```
+Access to docker
+`docker compose -f compose.dev.yaml exec -it tasksdd bash`
+
+To run the celery task
+
+```
+watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A tasks worker --loglevel=INFO
+```
+
+Run to some test
+
+selection variable by force brute 
+
+```
+python tasks_test.py regression_forward_force_single_machine_single_file lrace_trueba_fill_clean_normalize.csv Rendimiento '{"name": "random_forest_regression"}' 
+
+```
+
+selection variable by genetic algorithm
+
+```
+python tasks_test.py regression_genetic_single_machine_single_file lrace_trueba_fill_clean_normalize.csv Rendimiento '{"name": "random_forest_regression"}' 
+
+```
+

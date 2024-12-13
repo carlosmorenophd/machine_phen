@@ -1,0 +1,15 @@
+stages:
+  - compose_stage
+
+develop_celery:
+  stage: compose_stage
+  tags:
+    - dev_phd
+  only:
+    - main
+  script:
+    - echo $PWD
+    - export PATH_TO_CACHE=/mnt/resource/_phen/cache/transform
+    - docker compose -f compose.yaml down
+    - docker compose -f compose.yaml build
+    - docker compose -f compose.yaml up -d
