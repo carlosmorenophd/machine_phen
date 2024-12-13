@@ -11,6 +11,7 @@ develop_celery:
     - echo $PWD
     - export PATH_TO_CACHE=/mnt/resource/_phen/cache/machine
     - export REDIS_URL=redis://redis:6379/0
+    - export FOLDER_DATA=/app/cache/
     - docker compose -f compose.yaml down
     - docker compose -f compose.yaml build
     - docker compose -f compose.yaml up -d
