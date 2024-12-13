@@ -4,12 +4,13 @@ stages:
 develop_celery:
   stage: compose_stage
   tags:
-    - dev_phd
+    - production_phd
   only:
     - main
   script:
     - echo $PWD
-    - export PATH_TO_CACHE=/mnt/resource/_phen/cache/transform
+    - export PATH_TO_CACHE=/mnt/resource/_phen/cache/machine
+    - export REDIS_URL=redis://redis:6379/0
     - docker compose -f compose.yaml down
     - docker compose -f compose.yaml build
     - docker compose -f compose.yaml up -d
