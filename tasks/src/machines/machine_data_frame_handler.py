@@ -74,27 +74,6 @@ class DataFrameHandler():
             y_test=y_test
         )
 
-# Moving to other file
-# Adding new function to save on file but adding result
-    # def run_single_machine_single_file(
-    #     self,
-    #     machine_definition: MachineJson,
-    # ) -> None:
-    #     """Run single machine with single file
-
-    #     Args:
-    #         machine (MachineJson): machine to run 
-    #     """
-    #     print(f"Parameters machine- {machine_definition}")
-    #     machine = build_machine(machine_definition=machine_definition)
-    #     machine.build_machine()
-    #     machine.training(self.dataset.x_train, self.dataset.y_train)
-    #     error_metric = machine.test_machine(
-    #         x_test=self.dataset.x_test,
-    #         y_test=self.dataset.y_test,
-    #     )
-    #     print(f"Metric => {error_metric.metrics}")
-
     def get_data_frame_without_target(self) -> pd.DataFrame:
         """Get data frame without target columns
 

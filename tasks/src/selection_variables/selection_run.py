@@ -7,11 +7,11 @@ import pandas as pd
 
 from src.machines.machine_enums import MachineJson, FileAccessRunnerProperties
 from src.machines.machine_data_frame_handler import DataFrameHandler
-from src.machines.regression_run import machine_build_regression, MachineRegression
+from src.machines.regression_run import machine_build_regression
 from src.metrics.metric_enums import MetricEnum
 from src.selection_variables.selection_data_frame_handler import SelectionBestMetric
 from src.selection_variables.force_brute import combination_columns_from_data_frame
-from src.selection_variables.genetic.genetic_enum import GeneticParameter
+from src.selection_variables.genetic.genetic_enum import GeneticParameter, MachineMainRegression
 
 
 def selection_force_brute_run(
@@ -45,12 +45,12 @@ def selection_force_brute_run(
         )
     df_metric = best_metric.metric_values
     data_frame.storage_file.save_data_frame_to_csv(
-        data_frame=df_metric, prefix="metric_forward_selection",
+        data_frame=df_metric, prefix="metric_force_selection",
     )
 
 
-def selection_evolution_strategy_run(
-        file_access_runner: FileAccessRunnerProperties,
+def selection_genetic_algorithm_run(
+    file_access_runner: FileAccessRunnerProperties,
     machine_definition: MachineJson,
     metric: MetricEnum = MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR,
 ) -> None:
@@ -62,21 +62,27 @@ def selection_evolution_strategy_run(
         metric (MetricEnum, optional): metric to evaluate. 
             Defaults to MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR.
     """
-    data_frame = DataFrameHandler(file_access_runner=file_access_runner)
-    best_metric = SelectionBestMetric(metric_to_evaluate=metric)
-
-    best_solution = genetic_algorithm(
-        data_frame=data_frame,
-        best_metric=best_metric,
+    machine_main = MachineMainRegression(
+        data_frame=DataFrameHandler(file_access_runner=file_access_runner),
+        best_metric=SelectionBestMetric(metric_to_evaluate=metric),
         machine_definition=machine_definition,
+        machine=machine_build_regression(machine_definition=machine_definition)
     )
-    print(best_solution)
+    parameter = GeneticParameter()
+    parameter.chromosome_length = len(
+        machine_main.data_frame.get_data_frame_without_target().columns)
+    best_solution = genetic_algorithm(
+        machine_main=machine_main,
+        parameter=parameter,
+    )
+    df_metric = best_solution.metric_values
+    machine_main.data_frame.storage_file.save_data_frame_to_csv(
+        data_frame=df_metric, prefix="metric_genetic_selection",
+    )
 
 
 def genetic_algorithm(
-        data_frame: DataFrameHandler,
-        best_metric:  SelectionBestMetric,
-        machine_definition: MachineJson,
+        machine_main: MachineMainRegression,
         parameter: GeneticParameter = GeneticParameter(),
 ) -> SelectionBestMetric:
     """Launched genetic algorithm
@@ -92,24 +98,18 @@ def genetic_algorithm(
         SelectionBestMetric: return all metric of algorithms
     """
 
-    parameter.chromosome_length = len(
-        data_frame.get_data_frame_without_target.columns)
-    machine = machine_build_regression(machine_definition=machine_definition)
-
     population = create_initial_population(
         parameter
     )
 
     for generation in range(parameter.num_generations):
         print(f"Generation => {generation}")
-        fitness_scores = [fitness_function(
-            individual=individual,
-            best_metric=best_metric,
-            machine=machine,
-            machine_definition=machine_definition,
-            data_frame=data_frame,
-        ) for individual in population]
-        selected_population = selection(population, fitness_scores)
+        # fitness_scores = [fitness_function(
+        #     individual=individual,
+        #     machine_main=machine_main,
+        # ) for individual in population]
+        selected_population = selection(
+            population=population, machine_main=machine_main)
 
         new_population = []
         for i in range(0, parameter.population_size, 2):
@@ -121,28 +121,42 @@ def genetic_algorithm(
             new_population.extend([child1, child2])
 
         population = new_population
-    return best_metric
+    return machine_main.best_metric
 
 
 def fitness_function(
-        individual,
-        machine_definition: MachineJson,
-        best_metric: SelectionBestMetric,
-        data_frame: DataFrameHandler,
-        machine: MachineRegression,
+        individual: list,
+        machine_main: MachineMainRegression,
 ) -> float:
-    """A simple fitness function, you can replace this with your specific function"""
-    combination = data_frame.get_data_frame_without_target[individual]
-    data_frame.change_column_from_data_frame(columns_to_keep=combination)
-    dataset = data_frame.dataset
-    machine.build_machine()
-    machine.training(dataset.x_train, dataset.y_train)
-    error_metric = machine.test(
+    """A simple fitness function, you can replace this with your specific function
+
+    Args:
+        individual (_type_): chromosome individual
+        machine_definition (MachineJson): _description_
+        best_metric (SelectionBestMetric): _description_
+        data_frame (DataFrameHandler): _description_
+        machine (MachineRegression): _description_
+
+    Returns:
+        float: _description_
+    """
+    combination_bool = [bool(x) for x in individual]
+    combination = machine_main.data_frame.get_data_frame_without_target(
+    ).columns[combination_bool]
+    print(individual)
+    print(combination)
+
+    machine_main.data_frame.change_column_from_data_frame(
+        columns_to_keep=combination)
+    dataset = machine_main.data_frame.dataset
+    machine_main.machine.build_machine()
+    machine_main.machine.training(dataset.x_train, dataset.y_train)
+    error_metric = machine_main.machine.test(
         x_test=dataset.x_test,
         y_test=dataset.y_test,
     )
-    fitness = best_metric.add_metric_value(
-        machine_definition=machine_definition,
+    fitness = machine_main.best_metric.add_metric_value(
+        machine_definition=machine_main.machine_definition,
         columns=combination,
         metrics=error_metric.metrics,
     )
@@ -167,14 +181,17 @@ def create_initial_population(parameters: GeneticParameter) -> list:
     return population
 
 
-def selection(population, fitness_scores):
+def selection(population, machine_main: MachineMainRegression):
     """Selection the best population"""
     selected_individuals = []
+    tournament_size = 2
     for _ in range(len(population)):
-        tournament_size = 2
         tournament_participants = random.sample(population, tournament_size)
         selected_individuals.append(
-            max(tournament_participants, key=fitness_scores))
+            max(tournament_participants, key=lambda x: fitness_function(
+                individual=x,
+                machine_main=machine_main,
+            )))
     return selected_individuals
 
 
@@ -194,8 +211,7 @@ def crossover(parent1, parent2, crossover_rate):
         child1 = parent1[:crossover_point] + parent2[crossover_point:]
         child2 = parent2[:crossover_point] + parent1[crossover_point:]
         return child1, child2
-    else:
-        return parent1, parent2
+    return parent1, parent2
 
 
 def mutation(individual, mutation_rate):

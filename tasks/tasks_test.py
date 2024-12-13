@@ -43,4 +43,20 @@ if __name__ == "__main__":
                     sys.argv[4],
                 )
             )
-
+        elif action == "regression_genetic_single_machine_single_file":
+            print("Run - regression_genetic_single_machine_single_file")
+            print(f"file -> {
+                sys.argv[2]
+            }, target -> {
+                sys.argv[3]
+            }, machine - {
+                sys.argv[4]
+            }")
+            app.send_task(
+                name="regression_genetic_single_machine_single_file",
+                args=(
+                    sys.argv[2],
+                    sys.argv[3],
+                    sys.argv[4],
+                )
+            )
