@@ -52,6 +52,7 @@ def selection_force_brute_run(
 def selection_genetic_algorithm_run(
     file_access_runner: FileAccessRunnerProperties,
     machine_definition: MachineJson,
+    genetic_parameters: GeneticParameter,
     metric: MetricEnum = MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR,
 ) -> None:
     """Search best combination of variables on dataset and 
@@ -68,16 +69,12 @@ def selection_genetic_algorithm_run(
         machine_definition=machine_definition,
         machine=machine_build_regression(machine_definition=machine_definition)
     )
-    parameter = GeneticParameter()
-    parameter.chromosome_length = len(
+
+    genetic_parameters.chromosome_length = len(
         machine_main.data_frame.get_data_frame_without_target().columns)
-    best_solution = genetic_algorithm(
+    genetic_algorithm(
         machine_main=machine_main,
-        parameter=parameter,
-    )
-    df_metric = best_solution.metric_values
-    machine_main.data_frame.storage_file.save_data_frame_to_csv(
-        data_frame=df_metric, prefix="metric_genetic_selection",
+        parameter=genetic_parameters,
     )
 
 
@@ -103,14 +100,9 @@ def genetic_algorithm(
     )
 
     for generation in range(parameter.num_generations):
-        print(f"Generation => {generation}")
-        # fitness_scores = [fitness_function(
-        #     individual=individual,
-        #     machine_main=machine_main,
-        # ) for individual in population]
+        print(f"Generation => {generation} of {parameter.num_generations}")
         selected_population = selection(
             population=population, machine_main=machine_main)
-
         new_population = []
         for i in range(0, parameter.population_size, 2):
             parent1, parent2 = selected_population[i], selected_population[i+1]
@@ -120,6 +112,10 @@ def genetic_algorithm(
             child2 = mutation(child2, parameter.mutation_rate)
             new_population.extend([child1, child2])
 
+        df_metric = machine_main.best_metric.metric_values
+        machine_main.data_frame.storage_file.save_data_frame_to_csv(
+            data_frame=df_metric, prefix="metric_genetic_selection",
+        )
         population = new_population
     return machine_main.best_metric
 
@@ -131,11 +127,8 @@ def fitness_function(
     """A simple fitness function, you can replace this with your specific function
 
     Args:
-        individual (_type_): chromosome individual
-        machine_definition (MachineJson): _description_
-        best_metric (SelectionBestMetric): _description_
-        data_frame (DataFrameHandler): _description_
-        machine (MachineRegression): _description_
+        individual (list): chromosome individual
+        machine_main (MachineMainRegression): machine main definition
 
     Returns:
         float: _description_
@@ -143,9 +136,6 @@ def fitness_function(
     combination_bool = [bool(x) for x in individual]
     combination = machine_main.data_frame.get_data_frame_without_target(
     ).columns[combination_bool]
-    print(individual)
-    print(combination)
-
     machine_main.data_frame.change_column_from_data_frame(
         columns_to_keep=combination)
     dataset = machine_main.data_frame.dataset
