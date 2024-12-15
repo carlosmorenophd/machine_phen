@@ -8,6 +8,7 @@ from src.metrics.metric_enums import MetricEnum
 from src.selection_variables.selection_data_frame_handler import SelectionBestMetric
 from src.selection_variables.force_brute import combination_columns_from_data_frame
 from src.selection_variables.genetic.genetic_enum import GeneticParameter, MachineMainRegression
+from src.selection_variables.genetic.genetic_models import GeneticAlgorithm
 
 
 def selection_force_brute_run(
@@ -68,7 +69,8 @@ def selection_genetic_algorithm_run(
 
     genetic_parameters.chromosome_length = len(
         machine_main.data_frame.get_data_frame_without_target().columns)
-    genetic_algorithm(
+    genetic = GeneticAlgorithm(
         machine_main=machine_main,
         parameter=genetic_parameters,
     )
+    genetic.run()
