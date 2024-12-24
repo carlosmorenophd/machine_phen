@@ -105,6 +105,6 @@ class SelectionBestMetric():
             value (float): new value
             machine (MachineJson): new machine
         """
-        if self.best_metric > value and value <= 1:
+        if value > self.best_metric and value <= 1:
             self.best_metric = value
             self.best_machine = machine
