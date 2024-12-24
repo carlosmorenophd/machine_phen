@@ -65,7 +65,7 @@ python tasks_test.py regression_genetic_single_machine_single_file lrace_trueba_
 ```
 
 ```
-python tasks_test.py regression_genetic_single_machine_single_file lrace_all_clean_fill_normalizel.csv GrainYield '{"name": "random_forest_regression"}' '{"num_generations":100}'
+python tasks_test.py regression_genetic_single_machine_single_file lrace_all_clean_fill_normalize.csv GrainYield '{"name": "random_forest_regression"}' '{"num_generations":10000}'
 ```
 
 

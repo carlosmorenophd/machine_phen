@@ -12,7 +12,7 @@ services:
           - phen-net-machine
     volumes:
       - "./tasks:/app"
-      - "${PATH_TO_CACHE}:/app/cache"
+      - "${PATH_TO_CACHE}:${FOLDER_DATA}"
     tty: true
     stdin_open: true
 
