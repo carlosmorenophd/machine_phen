@@ -15,7 +15,12 @@ if __name__ == "__main__":
         print(f"Run with props action - {sys.argv[1]}")
         app = Celery('phen_transform', broker_url=REDIS_BROKEN)
         action = sys.argv[1]
-        if action == "result_single-machine-single-file":
+        if action == "version":
+            print("Run - version")
+            app.send_task(
+                name="version",
+            )
+        elif action == "result_single-machine-single-file":
             print("Run - result_single-machine-single-file")
             print(f"file -> {
                 sys.argv[2]
