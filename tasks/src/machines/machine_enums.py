@@ -104,11 +104,24 @@ class RandomForestJson(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
 
-    def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
+    def __init__(
+            self,
+            name_machine: MachineNames,
+            type_machine: MachinesTypes,
+            machine_json: dict
+    ) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
         self.n_estimators = 1000
         self.random_state = 42
         self.n_jobs = -1
+        if "parameters" in machine_json:
+            parameters = machine_json["parameters"]
+            if "n_estimators" in parameters:
+                self.n_estimators = parameters["n_estimators"]
+            if "random_state" in parameters:
+                self.random_state = parameters["random_state"]
+            if "n_jobs" in parameters:
+                self.n_jobs = parameters["n_jobs"]
 
     def __str__(self) -> str:
         return f"machine_name: {
@@ -127,11 +140,24 @@ class ExtremeGradientBoostJson(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
 
-    def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
+    def __init__(
+            self,
+            name_machine: MachineNames,
+            type_machine: MachinesTypes,
+            machine_json: dict,
+    ) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
         self.n_estimators = -1
         self.max_depth = 0
         self.max_leaves = 0
+        if "parameters" in machine_json:
+            parameters = machine_json["parameters"]
+            if "n_estimators" in parameters:
+                self.n_estimators = parameters["n_estimators"]
+            if "max_leaves" in parameters:
+                self.max_leaves = parameters["max_leaves"]
+            if "max_depth" in parameters:
+                self.max_depth = parameters["max_depth"]
 
     def __str__(self) -> str:
         return f"machine_name: {
@@ -164,9 +190,18 @@ class LassoJson(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
 
-    def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
+    def __init__(
+        self,
+        name_machine: MachineNames,
+        type_machine: MachinesTypes,
+        machine_json: dict,
+    ) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
         self.alpha = 0.1
+        if "parameters" in machine_json:
+            parameters = machine_json["parameters"]
+            if "alpha" in parameters:
+                self.alpha = parameters["alpha"]
 
     def __str__(self) -> str:
         return f"machine_name: {
@@ -179,11 +214,25 @@ class SupportVectorMachineJson(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
 
-    def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
+    def __init__(
+            self,
+            name_machine: MachineNames,
+            type_machine: MachinesTypes,
+            machine_json: dict,
+    ) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
         self.kernel = SupportVectorKernelEnum.LINEAR
         self.c = 1.0
         self.epsilon = 0.1
+        if "parameters" in machine_json:
+            parameters = machine_json["parameters"]
+            if "kernel" in parameters:
+                self.kernel = cast_kernel_svm(
+                    input_kernel=parameters["kernel"])
+            if "c" in parameters:
+                self.c = parameters["c"]
+            if "epsilon" in parameters:
+                self.c = parameters["epsilon"]
 
     def __str__(self) -> str:
         return f"machine_name: {
@@ -197,63 +246,42 @@ class SupportVectorMachineJson(MachineJson):
         } ]"
 
 
-def build_machine_definition(machine_json) -> MachineJson:
+def build_machine_definition(machine_json: dict) -> MachineJson:
     """Create a machine definition to work with it
 
-    Returns:
+   Returns:
         MachineJson: machine definition to operate with it
     """
-    machine_definition = None
     if "name" not in machine_json:
         raise NotImplementedError("Not have a name of machine")
     if machine_json["name"] == MachineNames.RFR.value:
-        machine_definition = RandomForestJson(
-            name_machine=MachineNames.RFR, type_machine=MachinesTypes.R)
-        if "parameters" in machine_json:
-            parameters = machine_json["parameters"]
-            if "n_estimators" in parameters:
-                machine_definition.n_estimators = parameters["n_estimators"]
-            if "random_state" in parameters:
-                machine_definition.random_state = parameters["random_state"]
-            if "n_jobs" in parameters:
-                machine_definition.n_jobs = parameters["n_jobs"]
-        return machine_definition
-    if machine_json["name"] == MachineNames.XGBR.value:
-        machine_definition = ExtremeGradientBoostJson(
-            name_machine=MachineNames.XGBR, type_machine=MachinesTypes.R
+        return RandomForestJson(
+            name_machine=MachineNames.RFR,
+            type_machine=MachinesTypes.R,
+            machine_json=machine_json,
         )
-        if "parameters" in machine_json:
-            parameters = machine_json["parameters"]
-            if "n_estimators" in parameters:
-                machine_definition.n_estimators = parameters["n_estimators"]
-            if "max_leaves" in parameters:
-                machine_definition.max_leaves = parameters["max_leaves"]
-            if "max_depth" in parameters:
-                machine_definition.max_depth = parameters["max_depth"]
-        return machine_definition
+    if machine_json["name"] == MachineNames.XGBR.value:
+        return ExtremeGradientBoostJson(
+            name_machine=MachineNames.XGBR,
+            type_machine=MachinesTypes.R,
+            machine_json=machine_json,
+        )
     if machine_json["name"] == MachineNames.BAR.value:
-        machine_definition = BayesianJson(
-            name_machine=MachineNames.BAR, type_machine=MachinesTypes.R)
-        return machine_definition
+        return BayesianJson(
+            name_machine=MachineNames.BAR,
+            type_machine=MachinesTypes.R,
+        )
     if machine_json["name"] == MachineNames.LAR.value:
-        machine_definition = LassoJson(
-            name_machine=MachineNames.LAR, type_machine=MachinesTypes.R)
-        if "parameters" in machine_json:
-            parameters = machine_json["parameters"]
-            if "alpha" in parameters:
-                machine_definition.alpha = parameters["alpha"]
-        return machine_definition
+        return LassoJson(
+            name_machine=MachineNames.LAR,
+            type_machine=MachinesTypes.R,
+            machine_json=machine_json,
+        )
     if machine_json["name"] == MachineNames.SVR.value:
-        machine_definition = SupportVectorMachineJson(
-            name_machine==MachineNames.SVR, type_machine=MachinesTypes.R)
-        if "parameters" in machine_json:
-            parameters = machine_json["parameters"]
-            if "kernel" in parameters:
-                machine_definition.kernel = cast_kernel_svm(
-                    input_kernel=parameters["kernel"])
-            if "c" in parameters:
-                machine_definition.c = parameters["c"]
-            if "epsilon" in parameters:
-                machine_definition.c = parameters["epsilon"]
-        return machine_definition
+        return SupportVectorMachineJson(
+            name_machine=MachineNames.SVR,
+            type_machine=MachinesTypes.R,
+            machine_json=machine_json,
+        )
+
     raise NotImplementedError("Not have a name of valid machine")

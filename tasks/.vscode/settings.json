@@ -20,6 +20,7 @@
         "keepdims",
         "linestyle",
         "linewidth",
+        "lrace",
         "meshgrid",
         "ndarray",
         "ndvi",

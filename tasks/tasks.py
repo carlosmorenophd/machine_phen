@@ -6,8 +6,11 @@ import json
 from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
 from src.machines.machine_enums import build_machine_definition
-from src.machines.machine_data_frame_handler import DataFrameHandler, FileAccessRunnerProperties
-from src.selection_variables.selection_run import selection_force_brute_run, selection_genetic_algorithm_run
+from src.machines.machine_data_frame_handler import FileAccessRunnerProperties
+from src.selection_variables.selection_run import (
+    selection_force_brute_run,
+    selection_genetic_algorithm_run,
+)
 from src.selection_variables.genetic.genetic_enum import convert_str_genetic_parameters
 
 
@@ -108,4 +111,4 @@ def version() -> str:
     Returns:
         str: version number
     """
-    return "24.11.18"
+    return "24.12.141"

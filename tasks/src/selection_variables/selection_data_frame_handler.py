@@ -21,6 +21,27 @@ class SelectionBestMetric():
         if metric_to_evaluate == MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR:
             self.best_metric = 1000
 
+    def exist_this_columns(
+            self,
+            machine_definition: MachineJson,
+            columns: List[str],
+    ):
+        """Validate if was testing this combination of columns
+
+        Args:
+            columns (List[str]): list of columns to search
+        """
+        value = self.metric_values[
+            (
+                self.metric_values['machine_name'] == str(machine_definition)
+            ) & (
+                self.metric_values['columns'] == ",".join(columns)
+            )]
+        if value.empty:
+            return None
+        print(value[self.metric_to_evaluate.value].iloc[0])
+        return value[self.metric_to_evaluate.value].iloc[0]
+
     def add_metric_value(
             self,
             machine_definition: MachineJson,
