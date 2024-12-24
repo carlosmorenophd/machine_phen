@@ -111,4 +111,4 @@ def version() -> str:
     Returns:
         str: version number
     """
-    return "24.11.18"
+    return "24.12.141"
