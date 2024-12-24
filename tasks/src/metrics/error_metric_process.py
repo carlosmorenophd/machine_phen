@@ -72,6 +72,12 @@ class ErrorMetric():
             y_pred=self.y_predicted, y_true=self.y_true)
         self.metrics[MetricEnum.ROOT_MEAN_SQUARED_LOG_ERROR.value] = root_mean_squared_log_error(
             y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[
+            MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR.value
+        ] = 1 - mean_absolute_percentage_error(
+            y_pred=self.y_predicted,
+            y_true=self.y_true,
+        )
 
     def get_error_predict_versus_true(
         self,

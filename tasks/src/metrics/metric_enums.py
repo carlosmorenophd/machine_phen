@@ -10,6 +10,7 @@ class MetricEnum(Enum):
     Args:
         Enum (_type_): _description_
     """
+    ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR = "accuracy_mape"
     D2_ABSOLUTE_ERROR_SCORE = "d2_absolute_error_score"
     D2_PINBALL_SCORE = "d2_pinball_score"
     D2_TWEEDIE_SCORE = "d2_tweedie_score"

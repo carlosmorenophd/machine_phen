@@ -104,11 +104,24 @@ class RandomForestJson(MachineJson):
     """Basic parameters for Random Forest machine definition
     """
 
-    def __init__(self, name_machine: MachineNames, type_machine: MachinesTypes) -> None:
+    def __init__(
+            self,
+            name_machine: MachineNames,
+            type_machine: MachinesTypes,
+            machine_json: dict
+    ) -> None:
         super().__init__(name_machine=name_machine, type_machine=type_machine)
         self.n_estimators = 1000
         self.random_state = 42
         self.n_jobs = -1
+        if "parameters" in machine_json:
+            parameters = machine_json["parameters"]
+            if "n_estimators" in parameters:
+                self.n_estimators = parameters["n_estimators"]
+            if "random_state" in parameters:
+                self.random_state = parameters["random_state"]
+            if "n_jobs" in parameters:
+                self.n_jobs = parameters["n_jobs"]
 
     def __str__(self) -> str:
         return f"machine_name: {
@@ -197,27 +210,22 @@ class SupportVectorMachineJson(MachineJson):
         } ]"
 
 
-def build_machine_definition(machine_json) -> MachineJson:
+def build_machine_definition(machine_json: dict) -> MachineJson:
     """Create a machine definition to work with it
 
+    # TODO: Upgrade all class to have the validation of 
+    #   parameters on same constructor like Random Forest
     Returns:
         MachineJson: machine definition to operate with it
     """
-    machine_definition = None
     if "name" not in machine_json:
         raise NotImplementedError("Not have a name of machine")
     if machine_json["name"] == MachineNames.RFR.value:
-        machine_definition = RandomForestJson(
-            name_machine=MachineNames.RFR, type_machine=MachinesTypes.R)
-        if "parameters" in machine_json:
-            parameters = machine_json["parameters"]
-            if "n_estimators" in parameters:
-                machine_definition.n_estimators = parameters["n_estimators"]
-            if "random_state" in parameters:
-                machine_definition.random_state = parameters["random_state"]
-            if "n_jobs" in parameters:
-                machine_definition.n_jobs = parameters["n_jobs"]
-        return machine_definition
+        return RandomForestJson(
+            name_machine=MachineNames.RFR,
+            type_machine=MachinesTypes.R,
+            machine_json=machine_json,
+        )
     if machine_json["name"] == MachineNames.XGBR.value:
         machine_definition = ExtremeGradientBoostJson(
             name_machine=MachineNames.XGBR, type_machine=MachinesTypes.R
@@ -245,7 +253,9 @@ def build_machine_definition(machine_json) -> MachineJson:
         return machine_definition
     if machine_json["name"] == MachineNames.SVR.value:
         machine_definition = SupportVectorMachineJson(
-            name_machine==MachineNames.SVR, type_machine=MachinesTypes.R)
+            name_machine == MachineNames.SVR,
+            type_machine=MachinesTypes.R,
+        )
         if "parameters" in machine_json:
             parameters = machine_json["parameters"]
             if "kernel" in parameters:

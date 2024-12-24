@@ -1,7 +1,7 @@
 """Runner to select variable variable"""
 
 
-from src.machines.machine_enums import MachineJson, FileAccessRunnerProperties
+from src.machines.machine_enums import MachineJson, FileAccessRunnerProperties, MachinesTypes
 from src.machines.machine_data_frame_handler import DataFrameHandler
 from src.machines.regression_run import machine_build_regression
 from src.metrics.metric_enums import MetricEnum
@@ -50,7 +50,7 @@ def selection_genetic_algorithm_run(
     file_access_runner: FileAccessRunnerProperties,
     machine_definition: MachineJson,
     genetic_parameters: GeneticParameter,
-    metric: MetricEnum = MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR,
+    metric: MetricEnum = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
 ) -> None:
     """Search best combination of variables on dataset and 
 
@@ -58,19 +58,24 @@ def selection_genetic_algorithm_run(
         file_access_runner (FileAccessRunnerProperties): file access
         machine_definition (MachineJson): machine
         metric (MetricEnum, optional): metric to evaluate. 
-            Defaults to MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR.
+            Defaults to MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR.
     """
-    machine_main = MachineMainRegression(
-        data_frame=DataFrameHandler(file_access_runner=file_access_runner),
-        best_metric=SelectionBestMetric(metric_to_evaluate=metric),
-        machine_definition=machine_definition,
-        machine=machine_build_regression(machine_definition=machine_definition)
-    )
+    if machine_definition.type_machine == MachinesTypes.R:
+        machine_main = MachineMainRegression(
+            data_frame=DataFrameHandler(file_access_runner=file_access_runner),
+            best_metric=SelectionBestMetric(metric_to_evaluate=metric),
+            machine_definition=machine_definition,
+            machine=machine_build_regression(
+                machine_definition=machine_definition,
+            ),
+        )
 
-    genetic_parameters.chromosome_length = len(
-        machine_main.data_frame.get_data_frame_without_target().columns)
-    genetic = GeneticAlgorithm(
-        machine_main=machine_main,
-        parameter=genetic_parameters,
-    )
-    genetic.run()
+        genetic_parameters.chromosome_length = len(
+            machine_main.data_frame.get_data_frame_without_target().columns
+        )
+        genetic = GeneticAlgorithm(
+            machine_main=machine_main,
+            parameter=genetic_parameters,
+        )
+        genetic.run()
+    raise ValueError("Machine type no definition")
