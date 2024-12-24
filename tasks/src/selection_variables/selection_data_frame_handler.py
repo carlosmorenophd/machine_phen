@@ -20,6 +20,8 @@ class SelectionBestMetric():
         self.best_machine = None
         if metric_to_evaluate == MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR:
             self.best_metric = 1000
+        if metric_to_evaluate == MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR:
+            self.best_machine = -1
 
     def exist_this_columns(
             self,
@@ -69,9 +71,19 @@ class SelectionBestMetric():
                 machine=machine_definition
             )
             return metrics[self.metric_to_evaluate.value]
-        raise KeyError("Not valid metric")
+        if self.metric_to_evaluate == MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR:
+            self.validate_one(
+                value=metrics[self.metric_to_evaluate.value],
+                machine=machine_definition
+            )
+            return metrics[self.metric_to_evaluate.value]
+        raise KeyError(f"Not valid metric {self.metric_to_evaluate}")
 
-    def validate_minus(self, value: float, machine: MachineJson) -> None:
+    def validate_minus(
+        self,
+        value: float,
+            machine: MachineJson,
+    ) -> None:
         """Validate if is better by minus values
 
         Args:
@@ -79,5 +91,20 @@ class SelectionBestMetric():
             machine (MachineJson): new machine
         """
         if self.best_metric > value:
+            self.best_metric = value
+            self.best_machine = machine
+
+    def validate_one(
+            self,
+            value: float,
+            machine: MachineJson,
+    ) -> None:
+        """Validate if is equal to one
+
+        Args:
+            value (float): new value
+            machine (MachineJson): new machine
+        """
+        if value > self.best_metric and value <= 1:
             self.best_metric = value
             self.best_machine = machine
