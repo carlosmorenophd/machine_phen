@@ -78,4 +78,5 @@ def selection_genetic_algorithm_run(
             parameter=genetic_parameters,
         )
         genetic.run()
-    raise ValueError("Machine type no definition")
+    else:
+        raise ValueError("Machine type no definition")
