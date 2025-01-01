@@ -38,14 +38,6 @@ class GeneticAlgorithm():
             self,
     ) -> SelectionBestMetric:
         """Launched genetic algorithm
-
-        Args:
-            df (pd.DataFrame): dataset to work with it
-            selection (SelectionBestMetric): class to store result of individuals
-            machine (MachineJson): machine to use
-            parameter (GeneticParameter, optional): parameter for genetic algorithms. 
-                Defaults to GeneticParameter().
-
         Returns:
             SelectionBestMetric: return all metric of algorithms
         """
