@@ -19,6 +19,8 @@ if __name__ == "__main__":
             print("Run - version")
             app.send_task(
                 name="version",
+                args=(),
+                queue='machine',
             )
         elif action == "result_single-machine-single-file":
             print("Run - result_single-machine-single-file")
@@ -35,7 +37,8 @@ if __name__ == "__main__":
                     sys.argv[2],
                     sys.argv[3],
                     sys.argv[4],
-                )
+                ),
+                queue='machine',
             )
         elif action == "regression_forward_force_single_machine_single_file":
             print("Run - regression_forward_force_single_machine_single_file")
@@ -52,7 +55,8 @@ if __name__ == "__main__":
                     sys.argv[2],
                     sys.argv[3],
                     sys.argv[4],
-                )
+                ),
+                queue='machine',
             )
         elif action == "regression_genetic_single_machine_single_file":
             print("Run - regression_genetic_single_machine_single_file")
@@ -70,10 +74,11 @@ if __name__ == "__main__":
                     sys.argv[3],
                     sys.argv[4],
                     sys.argv[5],
-                )
+                ),
+                queue='machine',
             )
     else:
-        # python tasks_test.py regression_genetic_single_machine_single_file    
+        # python tasks_test.py regression_genetic_single_machine_single_file
         selection_genetic_algorithm_run(
             machine_definition=build_machine_definition(
                 machine_json=json.loads('{"name": "random_forest_regression"}')

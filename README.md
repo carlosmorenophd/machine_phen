@@ -45,7 +45,7 @@ Access to docker
 To run the celery task
 
 ```
-watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A tasks worker --loglevel=INFO
+watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A tasks worker --loglevel=INFO -Q machine
 ```
 
 Run to some test
