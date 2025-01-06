@@ -89,5 +89,5 @@ if __name__ == "__main__":
                 folder_path=FolderCache.UPLOAD,
             ),
             genetic_parameters=convert_str_genetic_parameters(
-                genetic_parameters_str='{"num_generations":5}'),
+                genetic_parameters_str='{"num_generations":6, "population_size": 6}'),
         )

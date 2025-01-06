@@ -19,6 +19,37 @@ class GeneticParameter():
     mutation_rate: float = 0.01
     chromosome_length: int = 2
 
+    def set_population_size(self, value: str) -> None:
+        """_summary_
+
+        Args:
+            value (str): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        new_value = self.convert_to_int(
+            value=value, default=self.population_size)
+        if new_value % 2 != 0:
+            new_value = new_value + 1
+        self.population_size = new_value
+
+    def convert_to_int(self, value: str, default: int) -> int:
+        """Convert to int or return default
+
+        Args:
+            value (str): Value to cast
+            default (int): Default value in case of error
+
+        Returns:
+            int: Return value convert
+        """
+
+        try:
+            return int(value)
+        except ValueError:
+            return default
+
 
 @dataclass
 class MachineMainRegression():
@@ -42,7 +73,9 @@ def convert_str_genetic_parameters(genetic_parameters_str: str) -> GeneticParame
     parameters = GeneticParameter()
     parameters_json = json.loads(genetic_parameters_str)
     if "population_size" in parameters_json:
-        parameters.population_size = parameters_json["population_size"]
+        parameters.set_population_size(
+            value=parameters_json["population_size"],
+        )
     if "num_generations" in parameters_json:
         parameters.num_generations = parameters_json["num_generations"]
     if "crossover_rate" in parameters_json:
