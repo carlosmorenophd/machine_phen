@@ -78,7 +78,6 @@ if __name__ == "__main__":
                 queue='machine',
             )
     else:
-        # python tasks_test.py regression_genetic_single_machine_single_file
         selection_genetic_algorithm_run(
             machine_definition=build_machine_definition(
                 machine_json=json.loads('{"name": "random_forest_regression"}')

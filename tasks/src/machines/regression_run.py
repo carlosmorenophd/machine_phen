@@ -23,10 +23,21 @@ class MachineRegression(ABC):
         self.time_training = 0
         self.machine = None
         self.error_metric = None
+        self.machines_valid = []
 
     @abstractmethod
     def build_machine(self) -> None:
         """Create a machine for training and predict
+        """
+
+    @abstractmethod
+    def build_hyper_parameters(self) -> list:
+        """Create a random hyper parameters
+        """
+
+    @abstractmethod
+    def set_hyper_parameters(self, hyper_parameters: list) -> None:
+        """Set hyper parameters to machine
         """
 
     def training(self, x_train: ndarray, y_train: ndarray) -> None:
@@ -56,50 +67,6 @@ class MachineRegression(ABC):
             y_test=y_test,
             y_predicted=self.machine.predict(x_test)
         )
-
-        # def save_metric(
-        #     self,
-        #     x_test: ndarray,
-        #     y_test,
-        #     base_file_name: str,
-        #     machine_name: str
-        # ) -> None:
-        #     """Save metric into 2 files all metrics and result of test
-
-        #     Args:
-        #         x_test (ndarray): Array for test
-        #         y_test (_type_): Target for test
-        #         base_file_name (str): path to save the other files
-        #         machine_name (str): machine name
-
-        #     Returns:
-        #         _type_: _description_
-        #     """
-        #     print(f"Parameters: base file - {base_file_name}")
-
-        #     self.error.calculate_metric_prediction()
-        #     df_metric = self.error
-        #     self.error.to_save(base_file_name=f"{machine_name}_{base_file_name}")
-
-        # def get_metric(
-        #     self,
-        #     x_test: ndarray,
-        #     y_test,
-        # ) -> Dict:
-        #     """Get the metric for some test data
-
-        #     Args:
-        #         x_test (ndarray): Array for test
-        #         y_test (_type_): Target for test
-
-        #     Returns:
-        #         _type_: _description_
-        #    """
-        #     y_predicted = self.machine.predict(x_test)
-        #     self.error = ErrorMetric(
-        #         x_test=x_test, y_test=y_test, y_predicted=y_predicted)
-        #     self.error.calculate_metric_prediction()
-        #     return self.error.metrics
 
     def prediction(self, x_test: ndarray) -> ndarray:
         """Predict new values

@@ -1,15 +1,21 @@
 """Genetic algorithm to run it"""
 import random
-
+from dataclasses import dataclass
 
 from src.selection_variables.selection_data_frame_handler import SelectionBestMetric
 from src.selection_variables.genetic.genetic_enum import GeneticParameter, MachineMainRegression
+
+@dataclass
+class GeneticIndividual():
+    """Individual for genetic
+    """
+    features: list[bool]
+    machine: MachineMainRegression
 
 
 class GeneticAlgorithm():
     """Model simple genetic algorithm
     """
-
     def __init__(
         self,
         machine_main: MachineMainRegression,
