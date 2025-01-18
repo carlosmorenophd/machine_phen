@@ -44,22 +44,19 @@ def cast_kernel_svm(input_kernel: str):
     raise ValueError(f"Not kernel valid {input_kernel}")
 
 
-MachineNames = Enum(
-    'MachineNames', [
-        ("RFR", "random_forest_regression"),
-        ("XGBR", "extreme_gradient_boost_regression"),
-        ("BAR", "bayesian_prediction_regression"),
-        ("LAR", "lasso_regression"),
-        ("SVR", "support_vector_regression"),
-    ]
-)
+class MachineNames(Enum):
+    """Enum for machine names"""
+    RANDOM_FOREST_REGRESSION = "random_forest_regression"
+    EXTREME_GRADIENT_BOOSTING_REGRESSION = "extreme_gradient_boost_regression"
+    BAYESIAN_REGRESSION = "bayesian_prediction_regression"
+    LASSO_REGRESSION = "lasso_regression"
+    SUPPORT_VECTOR_REGRESSION = "support_vector_regression"
 
-MachinesTypes = Enum(
-    "MachinesTypes", [
-        ("R", "regression"),
-        ("C", "clarification"),
-    ]
-)
+
+class MachinesTypes(Enum):
+    """Enum for machine types"""
+    REGRESSION = "regression"
+    CLASSIFICATION = "clarification"
 
 
 class MachineJson:

@@ -49,8 +49,7 @@ class GeneticAlgorithm():
         """
 
         for generation in range(self.parameter.num_generations):
-            print(f"Generation => {generation} of {
-                  self.parameter.num_generations}")
+            print(f"Generation => {generation} of {self.parameter.num_generations}")
             selected_population = self.selection()
             new_population = []
             for i in range(0, self.parameter.population_size, 2):

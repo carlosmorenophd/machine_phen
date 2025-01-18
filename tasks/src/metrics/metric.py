@@ -21,10 +21,9 @@ import numpy as np
 
 from src.metrics.metric_enums import MetricEnum
 from src.helpers.key_env import IS_DEBUG
-# from src.helpers.file_access import save_to_csv
 
 
-class ErrorMetric():
+class Metric():
     """Class to get error metrics
     """
 
@@ -137,118 +136,4 @@ class ErrorMetric():
             return self.metrics[metric.value]
         raise ModuleNotFoundError("Metric is not valid")
 
-    # def to_save(self, base_file_name: str) -> None:
-    #     """Save all metric on files
 
-    #     Args:
-    #         base_file_name (str): Base path to save
-    #     """
-    #     file_metric = f"metric_{base_file_name}.csv"
-    #     df_metric = pd.DataFrame(self.metrics, index=[0])
-    #     save_to_csv(data_frame=df_metric, file_save=file_metric)
-    #     file_result = f"result_{base_file_name}.csv"
-    #     result = self.list_percentage_error_upper(pivot=0)
-    #     df_result = pd.DataFrame(result)
-    #     save_to_csv(data_frame=df_result, file_save=file_result)
-
-    # def plot_true_vs_predicted(
-    #     self,
-    #     legend: PlotLegends = PlotLegends(),
-    #     is_inline: bool = True,
-    #     save_file: str = "",
-    # ):
-    #     """Plot true vs predict
-
-    #     Args:
-    #         legend (PlotLegends, optional): Is the basic attributes to draw a plot.
-    #             Defaults to PlotLegends().
-    #         is_inline (bool, optional): if return the graphic. Defaults to True.
-    #         save_file (str, optional): save graphic on file. Defaults to "".
-    #     """
-    #     plt.scatter(
-    #         self.y_true,
-    #         self.y_predicted,
-    #         label=legend.first_plot_label,
-    #     )
-    #     plt.plot(
-    #         [min(self.y_true), max(self.y_true)], [
-    #             min(self.y_true), max(self.y_true)],
-    #         linestyle='--',
-    #         color='red',
-    #         linewidth=2,
-    #         label=legend.second_plot_label,
-    #     )
-    #     plt.xlabel(legend.x_label)
-    #     plt.ylabel(legend.y_label)
-    #     plt.legend()
-    #     plt.title(legend.title)
-    #     if is_inline:
-    #         plt.show()
-    #     if save_file != "":
-    #         plt.savefig(save_file)
-
-    # def plot_r2_predicted(
-    #     self,
-    #     features: ndarray,
-    #     legend: PlotLegends = PlotLegends(),
-    #     is_inline: bool = True,
-    #     save_file: str = "",
-    # ):
-    #     """Plot the r2 on predict
-
-    #     Args:
-    #         features (ndarray): list of features
-    #         legend (PlotLegends, optional): basic legends for plot. Defaults to PlotLegends().
-    #         is_inline (bool, optional): Plot in line. Defaults to True.
-    #     """
-    #     index_feature = 0
-    #     for x_true_single in self.x_true.T:
-    #         variable_name = features[index_feature]
-    #         plt.scatter(
-    #             x_true_single,
-    #             self.y_true,
-    #             color='red',
-    #             label=legend.first_plot_label.format(variable=variable_name),
-    #         )
-    #         plt.scatter(
-    #             x_true_single,
-    #             self.y_predicted,
-    #             label=legend.second_plot_label.format(variable=variable_name)
-    #         )
-    #         plt.xlabel(legend.x_label.format(variable=variable_name))
-    #         plt.ylabel(legend.y_label)
-    #         plt.legend()
-    #         plt.title(legend.title.format(variable=variable_name,
-    #                   r2=self.get_single_metric(metric=MetricEnum.R2_SCORE)))
-    #         if is_inline:
-    #             plt.show()
-    #         index_feature = index_feature + 1
-    #     if save_file != "":
-    #         plt.savefig(save_file)
-
-        # def print_list_on_error_upper(self, pivot: float) -> ndarray:
-    #     """Print list of error
-
-    #     Args:
-    #         pivot (float): point to print
-
-    #     Returns:
-    #         ndarray: list od error
-    #     """
-    #     number_upper = 0
-    #     list_upper = []
-    #     if IS_DEBUG:
-    #         print(f"#### list on error upper -> {pivot}")
-    #     for i, predicted in enumerate(self.y_predicted):
-    #         error = abs(predicted - self.y_true[i])
-    #         if error > pivot:
-    #             number_upper = number_upper + 1
-    #             list_upper.append(
-    #                 {'truth': self.y_true[i], 'predict': predicted, 'error': error})
-    #             if IS_DEBUG:
-    #                 print(
-    #                     f'Predict {predicted} -> Truth {self.y_true[i]} dif = {error}')
-    #     if IS_DEBUG:
-    #         print(
-    #             f"Number of element -> {self.y_true} number of upper error -> {number_upper}")
-    #     return list_upper

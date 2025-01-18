@@ -3,7 +3,7 @@ from typing import Tuple
 import pandas as pd
 
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 from preprocesses.enums import TypeFileEnum, TransformEnum, StandardScaleEnum
