@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 
 from src.machines.machine_enums import (
-    FileAccessRunnerProperties,
+    FileAccessForMachine,
     DatasetProperties
 )
 from src.helpers.file_access import StorageFile
@@ -16,7 +16,7 @@ class DataFrameHandler():
 
     def __init__(
         self,
-        file_access_runner: FileAccessRunnerProperties,
+        file_access_runner: FileAccessForMachine,
     ) -> None:
         self.file_access_runner = file_access_runner
         self.storage_file = StorageFile(

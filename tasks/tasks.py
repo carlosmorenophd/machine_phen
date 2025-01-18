@@ -6,7 +6,7 @@ import json
 from celery import Celery
 from helpers.key_env import REDIS_BROKEN, FolderCache
 from machines.machine_enums import build_machine_definition
-from machines.machine_data_frame_handler import FileAccessRunnerProperties
+from src.machines.machine_data_frame_handler import FileAccessForMachine
 from selection_variables.selection_run import (
     selection_force_brute_run,
     selection_genetic_algorithm_run,
@@ -36,7 +36,7 @@ def task_regression_genetic(
         machine_definition=build_machine_definition(
             machine_json=json.loads(machine_str)
         ),
-        file_access_runner=FileAccessRunnerProperties(
+        file_access_runner=FileAccessForMachine(
             file_in=files_in,
             target_feature=target_column,
             folder_path=FolderCache.UPLOAD,

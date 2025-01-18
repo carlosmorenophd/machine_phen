@@ -74,7 +74,7 @@ class MachineJson:
 
 
 @dataclass
-class FileAccessRunnerProperties:
+class FileAccessForMachine:
     """Minimal parameter to load, split  the file and the target to run machine
     """
     target_feature: str

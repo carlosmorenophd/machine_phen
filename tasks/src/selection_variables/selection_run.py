@@ -1,7 +1,7 @@
 """Runner to select variable variable"""
 
 
-from src.machines.machine_enums import MachineJson, FileAccessRunnerProperties, MachinesTypes
+from src.machines.machine_enums import MachineJson, FileAccessForMachine, MachinesTypes
 from src.machines.machine_data_frame_handler import DataFrameHandler
 from src.machines.regression_run import machine_build_regression
 from src.metrics.metric_enums import MetricEnum
@@ -12,7 +12,7 @@ from src.selection_variables.genetic.genetic_models import GeneticAlgorithm
 
 
 def selection_force_brute_run(
-    file_access_runner: FileAccessRunnerProperties,
+    file_access_runner: FileAccessForMachine,
     machine_definition: MachineJson,
     metric: MetricEnum = MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR,
 ) -> None:
@@ -47,7 +47,7 @@ def selection_force_brute_run(
 
 
 def selection_genetic_algorithm_run(
-    file_access_runner: FileAccessRunnerProperties,
+    file_access_runner: FileAccessForMachine,
     machine_definition: MachineJson,
     genetic_parameters: GeneticParameter,
     metric: MetricEnum = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,

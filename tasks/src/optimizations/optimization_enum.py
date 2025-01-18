@@ -16,7 +16,7 @@ class SearchMode(Enum):
 
 
 @dataclass
-class GeneticParameter(ABC):
+class GeneticAlgorithmParameter(ABC):
     """Configuration to run the genetic algorithm
     """
 
@@ -24,22 +24,22 @@ class GeneticParameter(ABC):
         self._search_mode = search_mode
         self._machines_key = []
         if search_mode == SearchMode.QUICK_EXPLORATION:
-            self._machines_key.append(MachineNames.BayesianRegression)
+            self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
             self._population = 10
             self._generation = 10
             self._mutation_rate = 0.1
         elif search_mode == SearchMode.BASIC_SEARCH:
-            self._machines_key.append(MachineNames.BayesianRegression)
-            self._machines_key.append(MachineNames.ExtremeGradientBoostingRegression)
+            self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
+            self._machines_key.append(MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._population = 50
             self._generation = 50
             self._mutation_rate = 0.05
         else:
-            self._machines_key.append(MachineNames.BayesianRegression)
-            self._machines_key.append(MachineNames.ExtremeGradientBoostingRegression)
-            self._machines_key.append(MachineNames.RandomForestRegression)
-            self._machines_key.append(MachineNames.LASSORegression)
-            self._machines_key.append(MachineNames.SupportVectorRegression)
+            self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
+            self._machines_key.append(MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
+            self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
+            self._machines_key.append(MachineNames.LASSO_REGRESSION)
+            self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
             self._population = 100
             self._generation = 50
             self._mutation_rate = 0.01
@@ -92,7 +92,7 @@ class GeneticParameter(ABC):
         return self._mutation_rate
 
 
-def convert_parameters_str_to_genetic(search_mode_str: str) -> GeneticParameter:
+def convert_parameters_str_to_optimization(search_mode_str: str) -> GeneticAlgorithmParameter:
     """Convert str to a valid search mode for genetic algorithm
 
     Args:
