@@ -11,5 +11,9 @@ class GeneticAlgorithm():
     def __init__(self, file_machine: FileAccessForMachine, genetic_algorithm_parameters:  GeneticAlgorithmParameter ) -> None:
         self._file_machine = file_machine
         self._genetic_algorithm_parameters = genetic_algorithm_parameters
-        
-        
+
+    def run(self):
+        """Run the genetic algorithm
+        """
+         
+    

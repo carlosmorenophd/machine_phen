@@ -60,7 +60,7 @@ def selection_genetic_algorithm_run(
         metric (MetricEnum, optional): metric to evaluate. 
             Defaults to MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR.
     """
-    if machine_definition.type_machine == MachinesTypes.R:
+    if machine_definition.type_machine == MachinesTypes.REGRESSION:
         machine_main = MachineMainRegression(
             data_frame=DataFrameHandler(file_access_runner=file_access_runner),
             best_metric=SelectionBestMetric(metric_to_evaluate=metric),
