@@ -9,6 +9,9 @@ from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 
+#TODO: Adding new cross over when are different machines
+#TODO: Adding to chromosome features new cross over keep the most hight value
+#TODO: Adding increase the rate in last values of individual
 
 class GeneticIndividual():
     """Class to create a individual for genetic algorithm
