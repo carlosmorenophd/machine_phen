@@ -1,133 +1,181 @@
 """To run machine to prediction"""
+
 import random
 import time
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import timedelta
 
 from numpy import ndarray
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import BayesianRidge, Lasso, LinearRegression, Ridge
-from sklearn.svm import SVR
-from xgboost import XGBRegressor
+# from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import BayesianRidge
+# from sklearn.svm import SVR
+# from xgboost import XGBRegressor
 
-from src.machines.machine_enums import (MachineJson, MachineNames,
-                                    SupportVectorKernelEnum)
+# from src.machines.machine_enums import (SupportVectorKernelEnum)
 from src.metrics.metric import Metric
-
-class MachineGenetic():
-    def __init__(self, machine: MachineJson) -> None:
-        self.machine = machine
-
-# class MachineRegression(ABC):
-#     """Machine for regression and prediction
-#     """
-
-#     def __init__(self) -> None:
-#         self.x_train = None
-#         self.time_training = 0
-#         self.machine = None
-#         self.error_metric = None
-#         self.machines_valid = []
-
-#     @abstractmethod
-#     def build_machine(self) -> None:
-#         """Create a machine for training and predict
-#         """
-
-#     @abstractmethod
-#     def build_hyper_parameters(self) -> dict:
-#         """Create a random hyper parameters
-#         """
-
-#     @abstractmethod
-#     def set_hyper_parameters(self, hyper_parameters: dict) -> None:
-#         """Set hyper parameters to machine
-#         """
-
-#     def generate_random_hyperparameter(self, low: float = 1e-6, high: float = 1e-1) -> float:
-#         """Generate a random hyperparameter value between low and high
-
-#         Args:
-#             low (float): Lower bound of the range
-#             high (float): Upper bound of the range
-
-#         Returns:
-#             float: Randomly generated hyperparameter value
-#         """
-#         return random.uniform(low, high)
-
-#     def training(self, x_train: ndarray, y_train: ndarray) -> None:
-#         """Training function
-
-#         Args:
-#             x_train (ndarray): Vector for training
-#             y_train (ndarray): Vector to predict
-#         """
-#         start = time.time()
-#         self.machine.fit(x_train, y_train)
-#         self.time_training = timedelta(seconds=time.time() - start)
-
-#     def test(
-#         self,
-#         x_test: ndarray,
-#         y_test: ndarray,
-#     ) -> Metric:
-#         """Run test on machine and store data on error
-
-#         Args:
-#             x_test (ndarray): _description_
-#             y_test (ndarray): _description_
-#         """
-#         return Metric(
-#             x_test=x_test,
-#             y_test=y_test,
-#             y_predicted=self.machine.predict(x_test)
-#         )
-
-#     def prediction(self, x_test: ndarray) -> ndarray:
-#         """Predict new values
-
-#         Args:
-#             x_test (ndarray): Vector for predict
-
-#         Returns:
-#             ndarray: Vector predicted
-#         """
-#         return self.machine.predict(x_test)
+from src.machines.machine_enums import MachineNames
 
 
-# class BayesianRegression(MachineRegression):
-#     """Class to run a Bayesian Prediction
-#     """
+@dataclass
+class HyperParametersDefinition:
+    """General definition for hyperparameters
+    """
+    value: float = None
+    name: str = None
+    low: float = None
+    high: float = None
 
-#     def __init__(self, alpha_1: float = 0.000001, lambda_1: float = 0.000001) -> None:
-#         super().__init__()
-#         self.alpha_1 = alpha_1
-#         self.lambda_1 = lambda_1
 
-#     def build_machine(self) -> None:
-#         self.machine = BayesianRidge(alpha_1=self.alpha_1, lambda_1=self.lambda_1)
+class MachineRegression(ABC):
+    """Machine for regression and prediction
+    """
 
-#     def build_hyper_parameters(self) -> dict:
-#         return {
-#             "alpha_1": self.generate_random_hyperparameter(),
-#             "lambda_1": self.generate_random_hyperparameter(),
-#         }
+    def __init__(self) -> None:
+        self._time_training = 0
+        self._machine = None
+        self._machine_name: MachineNames = None
+        self._error_metric = None
+        self._hyper_parameters: dict[HyperParametersDefinition] = None
+        self._default_hyper_parameters: dict[HyperParametersDefinition] = None
 
-#     def set_hyper_parameters(self, hyper_parameters: dict) -> None:
-#         self.alpha_1 = hyper_parameters.alpha_1
-#         self.lambda_1 = hyper_parameters.lambda_1
+    @abstractmethod
+    def build_machine(self) -> None:
+        """Create a machine for training and predict
+        """
 
-#     def __str__(self) -> str:
-#         return f"Bayesian - {1} "
+    def set_hyper_parameters(self, hyper_parameters: list[HyperParametersDefinition]) -> None:
+        """Set hyper parameters to machine
+        """
+        self._hyper_parameters = hyper_parameters
+
+    def training(self, x_train: ndarray, y_train: ndarray) -> None:
+        """Training function
+
+        Args:
+            x_train (ndarray): Vector for training
+            y_train (ndarray): Vector to predict
+        """
+        start = time.time()
+        self._machine.fit(x_train, y_train)
+        self._time_training = timedelta(seconds=time.time() - start)
+
+    def test(
+        self,
+        x_test: ndarray,
+        y_test: ndarray,
+    ) -> Metric:
+        """Run test on machine and store data on error
+
+        Args:
+            x_test (ndarray): _description_
+            y_test (ndarray): _description_
+        """
+        return Metric(
+            x_test=x_test,
+            y_test=y_test,
+            y_predicted=self._machine.predict(x_test)
+        )
+
+    def prediction(self, x_test: ndarray) -> ndarray:
+        """Predict new values
+
+        Args:
+            x_test (ndarray): Vector for predict
+
+        Returns:
+            ndarray: Vector predicted
+        """
+        return self._machine.predict(x_test)
+
+    def mutate_hyper_parameters(self, mutation_rate: float):
+        """Mutate the hyper parameters
+
+        Args:
+            mutation_rate (float): Range between 0 and 1 to mutate the hyper parameters
+        """
+        for key, _ in self._hyper_parameters.items():
+            if random.random() < mutation_rate:
+                self._hyper_parameters[key].value = self.generate_random_hyperparameter(
+                    low=self._hyper_parameters[key].low,
+                    high=self._hyper_parameters[key].high
+                )
+
+    def generate_random_hyperparameter(self, low: float, high: float) -> float:
+        """Generate a random hyperparameter value between low and high
+
+        Args:
+            low (float): Lower bound of the range
+            high (float): Upper bound of the range
+
+        Returns:
+            float: Randomly generated hyperparameter value
+        """
+        return random.uniform(low, high)
+
+    @property
+    def hyper_parameters(self) -> list[HyperParametersDefinition]:
+        """Create a random hyper parameters
+        """
+        return self._hyper_parameters
+
+    @abstractmethod
+    def identity(self) -> dict:
+        """Return the str that identify the machine and the features
+        """
+
+    @property
+    def machine_name(self) -> MachineNames:
+        """Get the machine name by enum"""
+        return self._machine_name
+
+
+class BayesianRegression(MachineRegression):
+    """Class to run a Bayesian Prediction
+    """
+
+    def __init__(self, is_default_parameters: bool = True) -> None:
+        super().__init__()
+        self._default_hyper_parameters["alpha_1"] = HyperParametersDefinition(
+            name="alpha_1",
+            low=1e-6,
+            high=1e-1,
+            value=0.000001,
+        )
+        self._default_hyper_parameters["lambda_1"] = HyperParametersDefinition(
+            name="lambda_1",
+            low=1e-6,
+            high=1e-1,
+            value=0.000001,
+        )
+        if is_default_parameters:
+            self._hyper_parameters = self._default_hyper_parameters
+
+    def build_machine(self) -> None:
+        self._machine = BayesianRidge(
+            alpha_1=self._hyper_parameters["alpha_1"].value,
+            lambda_1=self._hyper_parameters["lambda_1"].value
+        )
+
+    def __str__(self) -> str:
+        alpha = f"alpha 1: {self._hyper_parameters["alpha_1"].value}"
+        lambda_ = f"lambda 1: {self._hyper_parameters["lambda_1"].value}"
+        return f"Bayesian - {alpha}, {lambda_} "
+
+    def identity(self) -> dict:
+        return {
+            "name": "Bayesian",
+            "alpha_1": self._hyper_parameters["alpha_1"].value,
+            "lambda_1": self._hyper_parameters["lambda_1"].value,
+        }
 
 
 # class LinearRRegression(MachineRegression):
 #     """Machine for linear regression
 #     """
 
-#     def build_machine(self) -> None:
-#         self.machine = LinearRegression()
+#     def build_hyper_parameters_random(self) -> None:
+#         self._machine = LinearRegression()
 
 #     def __str__(self) -> str:
 #         return f"Linear regression - {1} "
@@ -144,10 +192,10 @@ class MachineGenetic():
 #         super().__init__()
 #         self.alpha = alpha
 
-#     def build_machine(self) -> None:
-#         self.machine = Ridge(alpha=self.alpha)
+#     def build_hyper_parameters_random(self) -> None:
+#         self._machine = Ridge(alpha=self.alpha)
 
-#     def build_hyper_parameters(self) -> list:
+#     def build_hyper_parameters_random(self) -> list:
 #         return [
 #             {
 #                 "alpha": self.generate_random_hyperparameter(),
@@ -169,10 +217,10 @@ class MachineGenetic():
 #         super().__init__()
 #         self.alpha = alpha
 
-#     def build_machine(self) -> None:
-#         self.machine = Lasso(alpha=self.alpha)
+#     def build_hyper_parameters_random(self) -> None:
+#         self._machine = Lasso(alpha=self.alpha)
 
-#     def build_hyper_parameters(self) -> list:
+#     def build_hyper_parameters_random(self) -> list:
 #         return [
 #             {
 #                 "alpha": self.generate_random_hyperparameter(),
@@ -187,7 +235,7 @@ class MachineGenetic():
 #     """Machine for Random forest
 
 #     Args:
-#         MachinePrediction (_type_): Abstract method 
+#         MachinePrediction (_type_): Abstract method
 #     """
 
 #     def __init__(self, n_estimators: int = 1000, random_sate: int = 42, n_jobs: int = -1) -> None:
@@ -196,7 +244,7 @@ class MachineGenetic():
 #         self.random_sate = random_sate
 #         self.n_jobs = n_jobs
 
-#     def build_machine(self) -> None:
+#     def build_hyper_parameters_random(self) -> None:
 #         self.machine = RandomForestRegressor(
 #             n_estimators=self.n_estimators,
 #             random_state=self.random_sate,
@@ -214,14 +262,14 @@ class MachineGenetic():
 #         MachinePrediction (_type_): Abstract method
 #     """
 
-#     def build_machine(self) -> None:
+#     def build_hyper_parameters_random(self) -> None:
 #         self.machine = SVR(
 #             kernel=self.kernel.value,
 #             C=self.c,
 #             epsilon=self.epsilon,
 #         )
 
-#     def build_hyper_parameters(self) -> list:
+#     def build_hyper_parameters_random(self) -> list:
 #         return [
 #             {
 #                 "C": self.generate_random_hyperparameter(),
@@ -257,7 +305,7 @@ class MachineGenetic():
 #         self.max_depth = max_depth
 #         self.max_leaves = max_leaves
 
-#     def build_machine(self) -> None:
+#     def build_hyper_parameters_random(self) -> None:
 #         self.machine = XGBRegressor(
 #             # n_estimators=self.n_estimators,
 #             # max_depth=self.max_depth,
@@ -266,32 +314,3 @@ class MachineGenetic():
 
 #     def __str__(self) -> str:
 #         return f"Extreme Gradient Boost - {self.n_estimators} "
-
-
-# def machine_build_regression(machine_definition: MachineJson) -> MachineRegression:
-#     """Build some machine json 
-
-#     Args:
-#         machine_definition (MachineJson): Machine definition
-
-#     Raises:
-#         NotImplementedError: The machine don't exist
-
-#     Returns:
-#         MachineJson: Return child of Machine Json to run it
-#     """
-#     if machine_definition.name_machine == MachineNames.RFR:
-#         return RandomForestRegression(
-#             n_estimators=machine_definition.n_estimators,
-#             random_sate=machine_definition.random_state,
-#             n_jobs=machine_definition.n_jobs,
-#         )
-#     if machine_definition.name_machine == MachineNames.XGBR:
-#         return ExtremeGradientBoostRegression()
-#     if machine_definition.name_machine == MachineNames.BAR:
-#         return BayesianRegression()
-#     if machine_definition.name_machine == MachineNames.LAR:
-#         return LassoRegression()
-#     if machine_definition.name_machine == MachineNames.SVR:
-#         return SupportVectorRegression()
-#     raise NotImplementedError("Don't exist machine to run it")

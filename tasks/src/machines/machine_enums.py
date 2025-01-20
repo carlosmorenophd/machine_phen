@@ -2,9 +2,6 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from numpy import ndarray
-from src.helpers.file_access import FolderCache
-
 
 class SupportVectorKernelEnum(Enum):
     """Kernel for SVR
@@ -71,29 +68,6 @@ class MachineJson:
         return f"machine_name: {
             self.name_machine.value
         }"
-
-
-@dataclass
-class FileAccessForMachine:
-    """Minimal parameter to load, split  the file and the target to run machine
-    """
-    target_feature: str
-    file_in: str
-    folder_path: FolderCache
-    test_size: float = 0.8
-    random_state: int = 42
-
-
-@dataclass
-class DatasetProperties:
-    """All properties for get the file and pass to the machine
-    """
-    x: ndarray
-    y: ndarray
-    x_train: ndarray
-    x_test: ndarray
-    y_train: ndarray
-    y_test: ndarray
 
 
 @dataclass
@@ -251,33 +225,33 @@ def build_machine_definition(machine_json: dict) -> MachineJson:
     """
     if "name" not in machine_json:
         raise NotImplementedError("Not have a name of machine")
-    if machine_json["name"] == MachineNames.RFR.value:
+    if machine_json["name"] == MachineNames.RANDOM_FOREST_REGRESSION.value:
         return RandomForestJson(
-            name_machine=MachineNames.RFR,
-            type_machine=MachinesTypes.R,
+            name_machine=MachineNames.RANDOM_FOREST_REGRESSION,
+            type_machine=MachinesTypes.REGRESSION,
             machine_json=machine_json,
         )
-    if machine_json["name"] == MachineNames.XGBR.value:
+    if machine_json["name"] == MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION.value:
         return ExtremeGradientBoostJson(
-            name_machine=MachineNames.XGBR,
-            type_machine=MachinesTypes.R,
+            name_machine=MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION,
+            type_machine=MachinesTypes.REGRESSION,
             machine_json=machine_json,
         )
-    if machine_json["name"] == MachineNames.BAR.value:
+    if machine_json["name"] == MachineNames.BAYESIAN_REGRESSION.value:
         return BayesianJson(
-            name_machine=MachineNames.BAR,
-            type_machine=MachinesTypes.R,
+            name_machine=MachineNames.BAYESIAN_REGRESSION,
+            type_machine=MachinesTypes.REGRESSION,
         )
-    if machine_json["name"] == MachineNames.LAR.value:
+    if machine_json["name"] == MachineNames.LASSO_REGRESSION.value:
         return LassoJson(
-            name_machine=MachineNames.LAR,
-            type_machine=MachinesTypes.R,
+            name_machine=MachineNames.LASSO_REGRESSION,
+            type_machine=MachinesTypes.REGRESSION,
             machine_json=machine_json,
         )
-    if machine_json["name"] == MachineNames.SVR.value:
+    if machine_json["name"] == MachineNames.SUPPORT_VECTOR_REGRESSION.value:
         return SupportVectorMachineJson(
-            name_machine=MachineNames.SVR,
-            type_machine=MachinesTypes.R,
+            name_machine=MachineNames.SUPPORT_VECTOR_REGRESSION,
+            type_machine=MachinesTypes.REGRESSION,
             machine_json=machine_json,
         )
 

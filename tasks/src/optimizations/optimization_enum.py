@@ -25,24 +25,27 @@ class GeneticAlgorithmParameter(ABC):
         self._machines_key = []
         if search_mode == SearchMode.QUICK_EXPLORATION:
             self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
-            self._population = 10
-            self._generation = 10
+            self._number_population = 10
+            self._number_generation = 10
             self._mutation_rate = 0.1
+            self._cross_over_rate = 0.8
         elif search_mode == SearchMode.BASIC_SEARCH:
             self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
             self._machines_key.append(MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
-            self._population = 50
-            self._generation = 50
+            self._number_population = 50
+            self._number_generation = 50
             self._mutation_rate = 0.05
+            self._cross_over_rate = 0.6
         else:
             self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
             self._machines_key.append(MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
             self._machines_key.append(MachineNames.LASSO_REGRESSION)
             self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
-            self._population = 100
-            self._generation = 50
+            self._number_population = 100
+            self._number_generation = 50
             self._mutation_rate = 0.01
+            self._cross_over_rate = 0.5
 
     @property
     def machines_key(self) -> list[MachineNames]:
@@ -63,24 +66,24 @@ class GeneticAlgorithmParameter(ABC):
         return self._search_mode
 
     @property
-    def population(self) -> int:
+    def number_population(self) -> int:
         """Return the population
 
         Returns:
             int: population
         """
 
-        return self._population
+        return self._number_population
 
     @property
-    def generation(self) -> int:
+    def number_generation(self) -> int:
         """Return the number of generation
 
 
         Returns:
             int: number of generation
         """
-        return self._generation
+        return self._number_generation
 
     @property
     def mutation_rate(self) -> float:
@@ -90,6 +93,15 @@ class GeneticAlgorithmParameter(ABC):
             float: mutation rate
         """
         return self._mutation_rate
+    
+    @property
+    def cross_over_rate(self) -> float:
+        """Return the cross over rate
+
+        Returns:
+            float: cross over rate
+        """
+        return self._cross_over_rate
 
 
 def convert_parameters_str_to_optimization(search_mode_str: str) -> GeneticAlgorithmParameter:
