@@ -27,7 +27,6 @@ def machine_build_regression_optimization(machine_definition: MachineJson) -> Ma
     #     return ExtremeGradientBoostRegression()
     if machine_definition.name_machine == MachineNames.BAYESIAN_REGRESSION:
         machine = BayesianRegression()
-        machine.build_hyper_parameters_random()
         return machine
     # if machine_definition.name_machine == MachineNames.LASSO_REGRESSION:
     #     return LassoRegression()
