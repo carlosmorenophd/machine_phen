@@ -82,7 +82,6 @@ class FileMachine():
             x_test=x_test,
             y_test=y_test,
             features_name=list(x.columns),
-            features_chromosome=columns_to_keep,
         )
 
     @property

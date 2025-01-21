@@ -4,6 +4,7 @@ from abc import ABC
 from dataclasses import dataclass
 
 from src.machines.machine_enums import MachineNames
+from src.files.file_machine import TrainingData
 
 
 class SearchMode(Enum):
@@ -13,6 +14,52 @@ class SearchMode(Enum):
     QUICK_EXPLORATION = "quick_exploration"
     BASIC_SEARCH = "basic_search"
     DEEP_SEARCH = "deep_search"
+
+
+def convert_str_to_search_mode(search_mode_str: str) -> SearchMode:
+    """Convert str to a valid search mode for genetic algorithm
+
+    Args:
+        search_mode_str (str): search mode
+
+    Raises:
+        ValueError: value not valid
+
+    Returns:
+        SearchMode: Search mode from enum
+    """
+    try:
+        return SearchMode(search_mode_str)
+    except ValueError as e:
+        raise ValueError(
+            f"Parameter '{search_mode_str}' is not a valid SearchMode") from e
+
+
+def search_mode_from_search_mode(search_mode: SearchMode) -> TrainingData:
+    """Return the training information from search mode
+
+    Args:
+        search_mode (SearchMode): search mode
+
+    Returns:
+        TrainingData: training information
+    """
+    if search_mode == SearchMode.QUICK_EXPLORATION:
+        return TrainingData(
+            test_size=0.8,
+            random_state=42
+        )
+    if search_mode == SearchMode.BASIC_SEARCH:
+        return TrainingData(
+            test_size=0.7,
+            random_state=42
+        )
+    if search_mode == SearchMode.DEEP_SEARCH:
+        return TrainingData(
+            test_size=0.6,
+            random_state=42
+        )
+    raise ValueError(f"Search mode '{search_mode}' is not valid")
 
 
 @dataclass
@@ -31,14 +78,16 @@ class GeneticAlgorithmParameter(ABC):
             self._cross_over_rate = 0.8
         elif search_mode == SearchMode.BASIC_SEARCH:
             self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
-            self._machines_key.append(MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
+            self._machines_key.append(
+                MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._number_population = 50
             self._number_generation = 50
             self._mutation_rate = 0.05
             self._cross_over_rate = 0.6
         else:
             self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
-            self._machines_key.append(MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
+            self._machines_key.append(
+                MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
             self._machines_key.append(MachineNames.LASSO_REGRESSION)
             self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
@@ -93,7 +142,7 @@ class GeneticAlgorithmParameter(ABC):
             float: mutation rate
         """
         return self._mutation_rate
-    
+
     @property
     def cross_over_rate(self) -> float:
         """Return the cross over rate

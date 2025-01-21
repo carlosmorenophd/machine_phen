@@ -2,16 +2,21 @@
 """
 import random
 
-from src.optimizations.optimization_enum import GeneticAlgorithmParameter
+from src.optimizations.optimization_enum import (
+    GeneticAlgorithmParameter,
+    SearchMode,
+    search_mode_from_search_mode,
+)
 from src.files.file_machine import FileData, TrainingData, FileMachine, DatasetOptimizationData
 from src.machines.machine_build import machine_build_regression_optimization
 from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 
-#TODO: Adding new cross over when are different machines
-#TODO: Adding to chromosome features new cross over keep the most hight value
-#TODO: Adding increase the rate in last values of individual
+# TODO: Adding new cross over when are different machines
+# TODO: Adding to chromosome features new cross over keep the most hight value
+# TODO: Adding increase the rate in last values of individual
+
 
 class GeneticIndividual():
     """Class to create a individual for genetic algorithm
@@ -216,3 +221,21 @@ class GeneticAlgorithm():
         self._global_population.sort(
             key=lambda individual: individual.index_metric, reverse=True)
         self._population = self._new_population
+
+
+def optimization_run(
+    file_date: FileData,
+    search_mode: SearchMode,
+) -> None:
+    """Launch the genetic algorithm
+    """
+    training_info = search_mode_from_search_mode(
+        search_mode=search_mode
+    )
+    genetic_algorithm_parameters = GeneticAlgorithmParameter(
+        search_mode=search_mode)
+    genetic_algorithm = GeneticAlgorithm(
+        file_data=file_date,
+        training_info=training_info,
+        genetic_algorithm_parameters=genetic_algorithm_parameters)
+    genetic_algorithm.run()
