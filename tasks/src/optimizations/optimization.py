@@ -13,6 +13,10 @@ from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 
+# TODO: Store result on database
+# TODO: Create function to extract result according to some rule, number of individual
+# TODO: Review the generation of hyper parameters
+# TODO: Create new random form hyper parameters to get values from .000001, .00001 and .0001
 # TODO: Adding new cross over when are different machines
 # TODO: Adding to chromosome features new cross over keep the most hight value
 # TODO: Adding increase the rate in last values of individual
@@ -24,6 +28,7 @@ class GeneticIndividual():
 
     def __init__(self, machine: MachineRegression = None) -> None:
         self._dataset: DatasetOptimizationData = None
+        self._machine = None
         if machine is not None:
             self._machine = machine
         self._features_chromosome:  list[bool] = None
@@ -62,7 +67,7 @@ class GeneticIndividual():
         Raises:
             ValueError: Error if not was define features chromosome.
         """
-        if features_chromosome is None:
+        if features_chromosome is not None:
             self._features_chromosome = features_chromosome
         if self._features_chromosome is None:
             raise ValueError("Features chromosome is not defined")
@@ -87,6 +92,11 @@ class GeneticIndividual():
     def index_metric(self):
         """Get the index metric"""
         return self._index_metric
+
+    @property
+    def features_chromosome(self):
+        """Get the features chromosome"""
+        return self._features_chromosome
 
     def mutate_features_chromosome(self, mutation_rate: float):
         """Mutate the features chromosome
@@ -141,7 +151,7 @@ class GeneticAlgorithm():
         """
         genetic_individual = GeneticIndividual(
             machine=machine_build_regression_optimization(
-                machine_definition=random.choice(
+                machine_name=random.choice(
                     self._genetic_algorithm_parameters.machines_key
                 )
             )
@@ -160,16 +170,16 @@ class GeneticAlgorithm():
             1, len(self._file_machine.columns_name_with_out_target) - 1)
         child_1 = GeneticIndividual()
         child_2 = GeneticIndividual()
-        child_1.set_features_chromosome(parent_1.dataset.features_chromosome[
-            :crossover_point] + parent_2.dataset.features_chromosome[crossover_point:])
+        child_1.set_features_chromosome(parent_1.features_chromosome[
+            :crossover_point] + parent_2.features_chromosome[crossover_point:])
 
-        child_1.set_features_chromosome(parent_2.dataset.features_chromosome[
-            :crossover_point] + parent_1.dataset.features_chromosome[crossover_point:])
+        child_2.set_features_chromosome(parent_2.features_chromosome[
+            :crossover_point] + parent_1.features_chromosome[crossover_point:])
         # Apply mutation
         hyper_parameters_1 = parent_1.machine.hyper_parameters
         hyper_parameters_2 = parent_2.machine.hyper_parameters
         if parent_1.machine.machine_name == parent_2.machine.machine_name:
-            for key, _ in parent_1.machine.hyper_parameters_1.items():
+            for key, _ in parent_1.machine.hyper_parameters.items():
                 if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
                     hyper_parameters_1[key].value = hyper_parameters_1[key].value
                     hyper_parameters_2[key].value = hyper_parameters_2[key].value
@@ -179,7 +189,7 @@ class GeneticAlgorithm():
         parent_1.machine.set_hyper_parameters(hyper_parameters_1)
         child_1.set_machine(parent_1.machine)
         parent_2.machine.set_hyper_parameters(hyper_parameters_2)
-        child_1.set_machine(parent_2.machine)
+        child_2.set_machine(parent_2.machine)
         return child_1, child_2
 
     def run(self):
@@ -187,9 +197,9 @@ class GeneticAlgorithm():
         """
         self.create_initial_population(
             population_number=self._genetic_algorithm_parameters.number_population)
-        for _ in range(self._genetic_algorithm_parameters.generations):
+        for _ in range(self._genetic_algorithm_parameters.number_generation):
             self.selection()
-            for i in range(self._genetic_algorithm_parameters.number_population / 2):
+            for i in range(self._genetic_algorithm_parameters.number_population // 2):
                 child_1, child_2 = self.crossover(
                     parent_1=self._population[i],
                     parent_2=self._population[
@@ -200,7 +210,11 @@ class GeneticAlgorithm():
                     mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
                 child_2.mutate_features_chromosome(
                     mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
+                child_1.apply_dataset(file_machine=self._file_machine)
+                child_2.apply_dataset(file_machine=self._file_machine)
                 child_1.machine.mutate_hyper_parameters(
+                    mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
+                child_2.machine.mutate_hyper_parameters(
                     mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
                 self._new_population.append(child_1)
                 self._new_population.append(child_2)
@@ -221,6 +235,7 @@ class GeneticAlgorithm():
         self._global_population.sort(
             key=lambda individual: individual.index_metric, reverse=True)
         self._population = self._new_population
+        self._new_population = []
 
 
 def optimization_run(

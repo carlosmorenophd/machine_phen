@@ -127,13 +127,11 @@ class Metric():
             metric (MetricEnum): Metric to get
 
         Raises:
-            ModuleNotFoundError: Not found the metric
+            KeyError: Not found the metric
 
         Returns:
             float: return the metric
         """
-        if metric.value in enumerate(self.metrics):
+        if metric.value in self.metrics:
             return self.metrics[metric.value]
-        raise ModuleNotFoundError("Metric is not valid")
-
-
+        raise KeyError("Metric is not valid")

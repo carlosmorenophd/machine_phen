@@ -136,6 +136,8 @@ class BayesianRegression(MachineRegression):
 
     def __init__(self, is_default_parameters: bool = True) -> None:
         super().__init__()
+        self._default_hyper_parameters = {}
+        self._hyper_parameters = {}
         self._default_hyper_parameters["alpha_1"] = HyperParametersDefinition(
             name="alpha_1",
             low=1e-6,

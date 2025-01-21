@@ -1,11 +1,11 @@
 """Create some machine
     """
 
-from src.machines.machine_enums import MachineNames, MachineJson
+from src.machines.machine_enums import MachineNames
 from src.machines.machine import MachineRegression, BayesianRegression
 
 
-def machine_build_regression_optimization(machine_definition: MachineJson) -> MachineRegression:
+def machine_build_regression_optimization(machine_name: MachineNames) -> MachineRegression:
     """Build some machine for optimization with random values
 
     Args:
@@ -25,7 +25,7 @@ def machine_build_regression_optimization(machine_definition: MachineJson) -> Ma
     #     )
     # if machine_definition.name_machine == MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION:
     #     return ExtremeGradientBoostRegression()
-    if machine_definition.name_machine == MachineNames.BAYESIAN_REGRESSION:
+    if machine_name == MachineNames.BAYESIAN_REGRESSION:
         machine = BayesianRegression()
         return machine
     # if machine_definition.name_machine == MachineNames.LASSO_REGRESSION:
