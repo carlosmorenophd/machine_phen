@@ -15,11 +15,7 @@ from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 
-# TODO: Create new random form hyper parameters to get values from .000001, .00001 and .0001
 # TODO: Adding new cross over when are different machines
-# TODO: Adding to chromosome features new cross over keep the most hight value
-# TODO: Adding increase the rate in last values of individual
-
 
 class GeneticIndividual():
     """Class to create a individual for genetic algorithm
@@ -170,7 +166,8 @@ class GeneticAlgorithm():
             machine=machine_build_regression_optimization(
                 machine_name=random.choice(
                     self._genetic_algorithm_parameters.machines_key
-                )
+                ),
+                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
             )
         )
         genetic_individual.apply_dataset(
@@ -197,12 +194,17 @@ class GeneticAlgorithm():
         hyper_parameters_2 = parent_2.machine.hyper_parameters
         if parent_1.machine.machine_name == parent_2.machine.machine_name:
             for key, _ in parent_1.machine.hyper_parameters.items():
+                hyper_parameter_mean = round(
+                    hyper_parameters_1[key].value +
+                    hyper_parameters_2[key].value / 2,
+                    self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+                )
                 if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
-                    hyper_parameters_1[key].value = hyper_parameters_1[key].value
-                    hyper_parameters_2[key].value = hyper_parameters_2[key].value
+                    hyper_parameters_1[key].value = hyper_parameter_mean
+                    hyper_parameters_2[key].value = hyper_parameter_mean
                 else:
-                    hyper_parameters_1[key].value = hyper_parameters_2[key].value
-                    hyper_parameters_2[key].value = hyper_parameters_1[key].value
+                    hyper_parameters_1[key].value = hyper_parameters_1[key].value
+                    hyper_parameters_2[key].value = hyper_parameter_mean
         parent_1.machine.set_hyper_parameters(hyper_parameters_1)
         child_1.set_machine(parent_1.machine)
         parent_2.machine.set_hyper_parameters(hyper_parameters_2)
@@ -223,19 +225,31 @@ class GeneticAlgorithm():
                         self._genetic_algorithm_parameters.number_population - 1
                     ],
                 )
-                child_1.mutate_features_chromosome(
-                    mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
-                child_2.mutate_features_chromosome(
-                    mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
-                child_1.apply_dataset(file_machine=self._file_machine)
-                child_2.apply_dataset(file_machine=self._file_machine)
-                child_1.machine.mutate_hyper_parameters(
-                    mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
-                child_2.machine.mutate_hyper_parameters(
-                    mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
+                child_1, child_2 = self.mutation_two_children(
+                    child_1=child_1,
+                    child_2=child_2,
+                )
                 self._new_population.append(child_1)
                 self._new_population.append(child_2)
             self.store_population()
+
+    def mutation_two_children(self, child_1: GeneticIndividual, child_2: GeneticIndividual):
+        "Mutation of the population"
+        child_1.mutate_features_chromosome(
+            mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
+        child_2.mutate_features_chromosome(
+            mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
+        child_1.apply_dataset(file_machine=self._file_machine)
+        child_2.apply_dataset(file_machine=self._file_machine)
+        child_1.machine.mutate_hyper_parameters(
+            mutation_rate=self._genetic_algorithm_parameters.mutation_rate,
+            deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
+        )
+        child_2.machine.mutate_hyper_parameters(
+            mutation_rate=self._genetic_algorithm_parameters.mutation_rate,
+            deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
+        )
+        return child_1, child_2
 
     def export(self):
         """Export the best individual

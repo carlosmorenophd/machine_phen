@@ -5,7 +5,7 @@ from src.machines.machine_enums import MachineNames
 from src.machines.machine import MachineRegression, BayesianRegression
 
 
-def machine_build_regression_optimization(machine_name: MachineNames) -> MachineRegression:
+def machine_build_regression_optimization(machine_name: MachineNames, deep_decimal: int) -> MachineRegression:
     """Build some machine for optimization with random values
 
     Args:
@@ -27,6 +27,7 @@ def machine_build_regression_optimization(machine_name: MachineNames) -> Machine
     #     return ExtremeGradientBoostRegression()
     if machine_name == MachineNames.BAYESIAN_REGRESSION:
         machine = BayesianRegression()
+        machine.force_mutate_hyper_parameters(deep_decimal=deep_decimal)
         return machine
     # if machine_definition.name_machine == MachineNames.LASSO_REGRESSION:
     #     return LassoRegression()

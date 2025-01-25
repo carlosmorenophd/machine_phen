@@ -88,7 +88,20 @@ class MachineRegression(ABC):
         """
         return self._machine.predict(x_test)
 
-    def mutate_hyper_parameters(self, mutation_rate: float):
+    def force_mutate_hyper_parameters(self, deep_decimal: int) -> None:
+        """Force mutate the hyper parameters
+
+        Args:
+            deep_decimal (int): Decimal to round the hyper parameters
+        """
+        for key, _ in self._hyper_parameters.items():
+            self._hyper_parameters[key].value = self.generate_random_hyperparameter(
+                low=self._hyper_parameters[key].low,
+                high=self._hyper_parameters[key].high,
+                deep_decimal=deep_decimal,
+            )
+
+    def mutate_hyper_parameters(self, mutation_rate: float, deep_decimal: int):
         """Mutate the hyper parameters
 
         Args:
@@ -98,10 +111,11 @@ class MachineRegression(ABC):
             if random.random() < mutation_rate:
                 self._hyper_parameters[key].value = self.generate_random_hyperparameter(
                     low=self._hyper_parameters[key].low,
-                    high=self._hyper_parameters[key].high
+                    high=self._hyper_parameters[key].high,
+                    deep_decimal=deep_decimal,
                 )
 
-    def generate_random_hyperparameter(self, low: float, high: float) -> float:
+    def generate_random_hyperparameter(self, low: float, high: float, deep_decimal: int) -> float:
         """Generate a random hyperparameter value between low and high
 
         Args:
@@ -111,7 +125,7 @@ class MachineRegression(ABC):
         Returns:
             float: Randomly generated hyperparameter value
         """
-        return random.uniform(low, high)
+        return round(random.uniform(low, high), deep_decimal)
 
     @property
     def hyper_parameters(self) -> list[HyperParametersDefinition]:
@@ -167,7 +181,7 @@ class BayesianRegression(MachineRegression):
 
     def identity(self) -> dict:
         return {
-            "name": "Bayesian",
+            "name": self._machine_name,
             "alpha_1": self._hyper_parameters["alpha_1"].value,
             "lambda_1": self._hyper_parameters["lambda_1"].value,
         }
