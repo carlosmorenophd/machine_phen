@@ -38,7 +38,7 @@ class DatasetOptimizationData:
     x_test: np.ndarray
     y_train: np.ndarray
     y_test: np.ndarray
-    features_name: list[str] = None
+    features_name_that_be_true: list[str] = None
 
 
 class FileMachine():
@@ -86,7 +86,7 @@ class FileMachine():
             x_test=x_test,
             y_train=y_train,
             y_test=y_test,
-            features_name=list(x.columns)
+            features_name_that_be_true=list(x.columns)
         )
 
     @property

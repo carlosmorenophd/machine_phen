@@ -15,9 +15,6 @@ from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 
-# TODO: Store result on database
-# TODO: Create function to extract result according to some rule, number of individual
-# TODO: Review the generation of hyper parameters
 # TODO: Create new random form hyper parameters to get values from .000001, .00001 and .0001
 # TODO: Adding new cross over when are different machines
 # TODO: Adding to chromosome features new cross over keep the most hight value
@@ -38,7 +35,7 @@ class GeneticIndividual():
         self._index_metric: float = None
 
     def __str__(self) -> str:
-        return f"machine: {self._machine}  features: {self._dataset.features_name}"
+        return f"machine: {self._machine}  features: {self._dataset.features_name_that_be_true}"
 
     @property
     def dataset(self):
@@ -80,7 +77,7 @@ class GeneticIndividual():
         """Set the machine"""
         self._machine = machine
 
-    def apply_dataset(self, file_machine: FileData, features_chromosome: list[bool] = None):
+    def apply_dataset(self, file_machine: FileMachine, features_chromosome: list[bool] = None):
         """Convert the features chromosome to dataset
 
         Args:
@@ -112,7 +109,7 @@ class GeneticIndividual():
             for feature in self._features_chromosome
         ]
 
-    def to_dictionary(self):
+    def to_dictionary(self, features_names: list[str]) -> dict:
         """Convert the individual to dictionary
 
         Returns:
@@ -123,10 +120,10 @@ class GeneticIndividual():
             "index_metric": self._index_metric,
         }
         general_dict.update(self._metric.get_all_metric())
-        for key, _ in self._machine.hyper_parameters:
-            general_dict[f"{self._machine.machine_name}_hyper_{
-                key}"] = self._machine.hyper_parameters[key]
-        for chromosome, feature in zip(self._features_chromosome, self._dataset.features_name):
+        for key in self._machine.hyper_parameters:
+            new_key = f"{key}_{self._machine.machine_name}"
+            general_dict[new_key] = self._machine.hyper_parameters[key].value
+        for chromosome, feature in zip(self._features_chromosome, features_names):
             general_dict[f"feature_{feature}"] = chromosome
         return general_dict
 
@@ -243,12 +240,22 @@ class GeneticAlgorithm():
     def export(self):
         """Export the best individual
         """
-        csv_dict = []
+        metric_to_csv = []
         for individual in self._global_population:
-            csv_dict.append(individual.to_dictionary())
+            metric_dict = individual.to_dictionary(
+                features_names=self._file_machine.columns_name_with_out_target,
+            )
+            metric_to_csv.append(metric_dict)
+        data_frame_metric = pd.DataFrame(metric_to_csv)
         self._file_machine.storage_file.save_data_frame_to_csv(
-            data_frame=csv_dict,
+            data_frame=data_frame_metric,
             prefix="optimization",
+        )
+        ten_percent = int(len(data_frame_metric) * 0.1)
+        sampled_data_frame = data_frame_metric.sample(n=ten_percent)
+        self._file_machine.storage_file.save_data_frame_to_csv(
+            data_frame=sampled_data_frame,
+            prefix="optimization_quick",
         )
 
     def selection(self):
