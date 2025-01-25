@@ -46,6 +46,5 @@
     ],
     "workbench.colorCustomizations": {
         "activityBar.background": "#041f52",
-        // Otros colores personalizados
-    }
+    },
 }
