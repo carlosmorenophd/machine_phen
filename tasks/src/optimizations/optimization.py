@@ -2,6 +2,8 @@
 """
 import random
 
+import pandas as pd
+
 from src.optimizations.optimization_enum import (
     GeneticAlgorithmParameter,
     SearchMode,
@@ -37,6 +39,28 @@ class GeneticIndividual():
 
     def __str__(self) -> str:
         return f"machine: {self._machine}  features: {self._dataset.features_name}"
+
+    @property
+    def dataset(self):
+        """Get the dataset"""
+        return self._dataset
+
+    @property
+    def machine(self) -> MachineRegression:
+        """Get the machine"""
+        if self._machine is None:
+            raise ValueError("Machine is not defined")
+        return self._machine
+
+    @property
+    def index_metric(self):
+        """Get the index metric"""
+        return self._index_metric
+
+    @property
+    def features_chromosome(self):
+        """Get the features chromosome"""
+        return self._features_chromosome
 
     def run(self):
         """Run the machine with the features selected"""
@@ -76,28 +100,6 @@ class GeneticIndividual():
                 [True, False]) for _ in self._features_chromosome]
         )
 
-    @property
-    def dataset(self):
-        """Get the dataset"""
-        return self._dataset
-
-    @property
-    def machine(self) -> MachineRegression:
-        """Get the machine"""
-        if self._machine is None:
-            raise ValueError("Machine is not defined")
-        return self._machine
-
-    @property
-    def index_metric(self):
-        """Get the index metric"""
-        return self._index_metric
-
-    @property
-    def features_chromosome(self):
-        """Get the features chromosome"""
-        return self._features_chromosome
-
     def mutate_features_chromosome(self, mutation_rate: float):
         """Mutate the features chromosome
 
@@ -109,6 +111,24 @@ class GeneticIndividual():
             ) < mutation_rate else feature
             for feature in self._features_chromosome
         ]
+
+    def to_dictionary(self):
+        """Convert the individual to dictionary
+
+        Returns:
+            dict: Dictionary with the individual information
+        """
+        general_dict = {
+            "machine_name": self._machine.machine_name,
+            "index_metric": self._index_metric,
+        }
+        general_dict.update(self._metric.get_all_metric())
+        for key, _ in self._machine.hyper_parameters:
+            general_dict[f"{self._machine.machine_name}_hyper_{
+                key}"] = self._machine.hyper_parameters[key]
+        for chromosome, feature in zip(self._features_chromosome, self._dataset.features_name):
+            general_dict[f"feature_{feature}"] = chromosome
+        return general_dict
 
 
 class GeneticAlgorithm():
@@ -220,6 +240,17 @@ class GeneticAlgorithm():
                 self._new_population.append(child_2)
             self.store_population()
 
+    def export(self):
+        """Export the best individual
+        """
+        csv_dict = []
+        for individual in self._global_population:
+            csv_dict.append(individual.to_dictionary())
+        self._file_machine.storage_file.save_data_frame_to_csv(
+            data_frame=csv_dict,
+            prefix="optimization",
+        )
+
     def selection(self):
         """Run every model in all population and sort by best metric
         """
@@ -254,3 +285,4 @@ def optimization_run(
         training_info=training_info,
         genetic_algorithm_parameters=genetic_algorithm_parameters)
     genetic_algorithm.run()
+    genetic_algorithm.export()

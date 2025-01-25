@@ -52,17 +52,18 @@ class FileMachine():
     ) -> None:
         self._file_data = file_data
         self._training_data = training_info
-        self.storage_file = StorageFile(
+        self._storage_file = StorageFile(
             file_name=self._file_data.file_in,
             folder_file=self._file_data.folder_path,
         )
-        self.original_df = self.storage_file.get_csv_to_data_frame()
+        self.original_df = self._storage_file.get_csv_to_data_frame()
 
     def get_dataset(self, columns_to_keep: list[bool] = None) -> DatasetOptimizationData:
         """Get some column of the dataset
 
         Args:
-            columns_to_keep (list[bool], optional): List of boolean values indicating which columns to keep. Defaults to None.
+            columns_to_keep (list[bool], optional): 
+                List of boolean values indicating which columns to keep. Defaults to None.
 
         Returns:
             DatasetOptimizationData: The dataset with selected columns
@@ -70,11 +71,23 @@ class FileMachine():
         x = self.without_target
         if columns_to_keep is not None:
             if len(columns_to_keep) != len(x.columns):
-                raise ValueError("Length of columns_to_keep must match the number of columns in the dataset")
+                raise ValueError(
+                    "Length of columns_to_keep must match the number of columns in the dataset")
             x = x.loc[:, columns_to_keep]
         y = self.only_target
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=self._training_data.test_size, random_state=self._training_data.random_state)
-        return DatasetOptimizationData(x=x, y=y, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test, features_name=list(x.columns))
+        x_train, x_test, y_train, y_test = train_test_split(
+            x, y, test_size=self._training_data.test_size,
+            random_state=self._training_data.random_state,
+        )
+        return DatasetOptimizationData(
+            x=x,
+            y=y,
+            x_train=x_train,
+            x_test=x_test,
+            y_train=y_train,
+            y_test=y_test,
+            features_name=list(x.columns)
+        )
 
     @property
     def without_target(self) -> pd.DataFrame:
@@ -117,3 +130,9 @@ class FileMachine():
         """Get the training data
         """
         return self._training_data
+    
+    @property
+    def storage_file(self) -> StorageFile:
+        """Get the storage file
+        """
+        return self._storage_file
