@@ -15,7 +15,6 @@ from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 
-# TODO: Adding new cross over when are different machines
 
 class GeneticIndividual():
     """Class to create a individual for genetic algorithm
@@ -190,9 +189,9 @@ class GeneticAlgorithm():
         child_2.set_features_chromosome(parent_2.features_chromosome[
             :crossover_point] + parent_1.features_chromosome[crossover_point:])
         # Apply mutation
-        hyper_parameters_1 = parent_1.machine.hyper_parameters
-        hyper_parameters_2 = parent_2.machine.hyper_parameters
         if parent_1.machine.machine_name == parent_2.machine.machine_name:
+            hyper_parameters_1 = parent_1.machine.hyper_parameters
+            hyper_parameters_2 = parent_2.machine.hyper_parameters
             for key, _ in parent_1.machine.hyper_parameters.items():
                 hyper_parameter_mean = round(
                     hyper_parameters_1[key].value +
@@ -205,10 +204,20 @@ class GeneticAlgorithm():
                 else:
                     hyper_parameters_1[key].value = hyper_parameters_1[key].value
                     hyper_parameters_2[key].value = hyper_parameter_mean
-        parent_1.machine.set_hyper_parameters(hyper_parameters_1)
-        child_1.set_machine(parent_1.machine)
-        parent_2.machine.set_hyper_parameters(hyper_parameters_2)
-        child_2.set_machine(parent_2.machine)
+            parent_1.machine.set_hyper_parameters(hyper_parameters_1)
+            child_1.set_machine(parent_1.machine)
+            parent_2.machine.set_hyper_parameters(hyper_parameters_2)
+            child_2.set_machine(parent_2.machine)
+        else:
+            child_1.set_machine(parent_1.machine)
+            child_2.set_machine(parent_2.machine)
+            child_2.machine.force_mutate_hyper_parameters(
+                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+            )
+            if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
+                child_1.machine.force_mutate_hyper_parameters(
+                    deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+                )
         return child_1, child_2
 
     def run(self):
@@ -249,7 +258,24 @@ class GeneticAlgorithm():
             mutation_rate=self._genetic_algorithm_parameters.mutation_rate,
             deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
         )
+        child_1 = self.mutate_machine(child=child_1)
+        child_2 = self.mutate_machine(child=child_2)
         return child_1, child_2
+
+    def mutate_machine(self, child: GeneticIndividual):
+        """Mutate machine
+
+        Args:
+            child_1 (GeneticIndividual): Child to mutate machine
+        """
+        if random.random() < self._genetic_algorithm_parameters.mutate_machine:
+            child.machine = machine_build_regression_optimization(
+                machine_name=random.choice(
+                    self._genetic_algorithm_parameters.machines_key
+                ),
+                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+            )
+        return child
 
     def export(self):
         """Export the best individual
@@ -269,7 +295,7 @@ class GeneticAlgorithm():
         sampled_data_frame = data_frame_metric.sample(n=ten_percent)
         self._file_machine.storage_file.save_data_frame_to_csv(
             data_frame=sampled_data_frame,
-            prefix="optimization_quick",
+            prefix="optimization_overlap",
         )
 
     def selection(self):
@@ -290,7 +316,7 @@ class GeneticAlgorithm():
         self._new_population = []
 
 
-def optimization_run(
+def optimization_run_from_task(
     file_date: FileData,
     search_mode: SearchMode,
 ) -> None:
