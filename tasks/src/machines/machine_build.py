@@ -2,10 +2,14 @@
     """
 
 from src.machines.machine_enums import MachineNames
-from src.machines.machine import MachineRegression, BayesianRegression
+from src.machines.machine import (
+    MachineRegression, BayesianRegression, ExtremeGradientBoostRegression)
 
 
-def machine_build_regression_optimization(machine_name: MachineNames, deep_decimal: int) -> MachineRegression:
+def machine_build_regression_optimization(
+        machine_name: MachineNames,
+        deep_decimal: int,
+) -> MachineRegression:
     """Build some machine for optimization with random values
 
     Args:
@@ -23,8 +27,10 @@ def machine_build_regression_optimization(machine_name: MachineNames, deep_decim
     #         random_sate=machine_definition.random_state,
     #         n_jobs=machine_definition.n_jobs,
     #     )
-    # if machine_definition.name_machine == MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION:
-    #     return ExtremeGradientBoostRegression()
+    if machine_name == MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION:
+        machine = ExtremeGradientBoostRegression()
+        machine.force_mutate_hyper_parameters(deep_decimal=deep_decimal)
+        return machine
     if machine_name == MachineNames.BAYESIAN_REGRESSION:
         machine = BayesianRegression()
         machine.force_mutate_hyper_parameters(deep_decimal=deep_decimal)

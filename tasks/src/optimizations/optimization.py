@@ -269,11 +269,12 @@ class GeneticAlgorithm():
             child_1 (GeneticIndividual): Child to mutate machine
         """
         if random.random() < self._genetic_algorithm_parameters.mutate_machine:
-            child.machine = machine_build_regression_optimization(
+            child.set_machine(machine=machine_build_regression_optimization(
                 machine_name=random.choice(
                     self._genetic_algorithm_parameters.machines_key
                 ),
-                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
+            ),
             )
         return child
 

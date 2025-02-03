@@ -2,6 +2,8 @@
 
 import random
 import time
+import json
+from enum import Enum
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import timedelta
@@ -10,21 +12,27 @@ from numpy import ndarray
 # from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import BayesianRidge
 # from sklearn.svm import SVR
-# from xgboost import XGBRegressor
+from xgboost import XGBRegressor
 
 # from src.machines.machine_enums import (SupportVectorKernelEnum)
 from src.metrics.metric import Metric
 from src.machines.machine_enums import MachineNames
+
+HyperTypeValueEnum = Enum('HyperTypeValueEnum', [
+    ('FLOAT', 'float'),
+    ('INT', 'int'),
+    ('CLASS', 'class'),
+])
 
 
 @dataclass
 class HyperParametersDefinition:
     """General definition for hyperparameters
     """
-    value: float = None
-    name: str = None
+    value = None
     low: float = None
     high: float = None
+    type_value: HyperTypeValueEnum = HyperTypeValueEnum.FLOAT
 
 
 class MachineRegression(ABC):
@@ -39,10 +47,34 @@ class MachineRegression(ABC):
         self._hyper_parameters: dict[HyperParametersDefinition] = None
         self._default_hyper_parameters: dict[HyperParametersDefinition] = None
 
+    @property
+    def hyper_parameters(self) -> list[HyperParametersDefinition]:
+        """Create a random hyper parameters
+        """
+        return self._hyper_parameters
+
+    @property
+    def machine_name(self) -> MachineNames:
+        """Get the machine name by enum"""
+        return self._machine_name
+
     @abstractmethod
     def build_machine(self) -> None:
         """Create a machine for training and predict
         """
+
+    def identity(self) -> dict:
+        """Return the str that identify the machine and the features
+        """
+        identity_dict = {
+            "name": self._machine_name,
+        }
+        identity_dict.update(self._hyper_parameters)
+        return identity_dict
+
+    def __str__(self):
+        """Create str with name and hyper parameters"""
+        return json.dumps(self.identity())
 
     def set_hyper_parameters(self, hyper_parameters: list[HyperParametersDefinition]) -> None:
         """Set hyper parameters to machine
@@ -99,6 +131,7 @@ class MachineRegression(ABC):
                 low=self._hyper_parameters[key].low,
                 high=self._hyper_parameters[key].high,
                 deep_decimal=deep_decimal,
+                type_value=self._hyper_parameters[key].type_value,
             )
 
     def mutate_hyper_parameters(self, mutation_rate: float, deep_decimal: int):
@@ -113,9 +146,16 @@ class MachineRegression(ABC):
                     low=self._hyper_parameters[key].low,
                     high=self._hyper_parameters[key].high,
                     deep_decimal=deep_decimal,
+                    type_value=self._hyper_parameters[key].type_value,
                 )
 
-    def generate_random_hyperparameter(self, low: float, high: float, deep_decimal: int) -> float:
+    def generate_random_hyperparameter(
+            self,
+            low: float,
+            high: float,
+            deep_decimal: int,
+            type_value: HyperTypeValueEnum,
+    ) -> float:
         """Generate a random hyperparameter value between low and high
 
         Args:
@@ -125,23 +165,11 @@ class MachineRegression(ABC):
         Returns:
             float: Randomly generated hyperparameter value
         """
-        return round(random.uniform(low, high), deep_decimal)
-
-    @property
-    def hyper_parameters(self) -> list[HyperParametersDefinition]:
-        """Create a random hyper parameters
-        """
-        return self._hyper_parameters
-
-    @abstractmethod
-    def identity(self) -> dict:
-        """Return the str that identify the machine and the features
-        """
-
-    @property
-    def machine_name(self) -> MachineNames:
-        """Get the machine name by enum"""
-        return self._machine_name
+        if type_value == HyperTypeValueEnum.FLOAT:
+            return round(random.uniform(low, high), deep_decimal)
+        if type_value == HyperTypeValueEnum.INT:
+            return int(round(random.uniform(low, high), deep_decimal))
+        raise ValueError("Not valid type of value")
 
 
 class BayesianRegression(MachineRegression):
@@ -154,16 +182,16 @@ class BayesianRegression(MachineRegression):
         self._default_hyper_parameters = {}
         self._hyper_parameters = {}
         self._default_hyper_parameters["alpha_1"] = HyperParametersDefinition(
-            name="alpha_1",
             low=1e-6,
             high=1e-1,
             value=0.000001,
+            type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["lambda_1"] = HyperParametersDefinition(
-            name="lambda_1",
             low=1e-6,
             high=1e-1,
             value=0.000001,
+            type_value=HyperTypeValueEnum.FLOAT,
         )
         if is_default_parameters:
             self._hyper_parameters = self._default_hyper_parameters
@@ -173,18 +201,6 @@ class BayesianRegression(MachineRegression):
             alpha_1=self._hyper_parameters["alpha_1"].value,
             lambda_1=self._hyper_parameters["lambda_1"].value
         )
-
-    def __str__(self) -> str:
-        alpha = f"alpha 1: {self._hyper_parameters["alpha_1"].value}"
-        lambda_ = f"lambda 1: {self._hyper_parameters["lambda_1"].value}"
-        return f"Bayesian - {alpha}, {lambda_} "
-
-    def identity(self) -> dict:
-        return {
-            "name": self._machine_name,
-            "alpha_1": self._hyper_parameters["alpha_1"].value,
-            "lambda_1": self._hyper_parameters["lambda_1"].value,
-        }
 
 
 # class LinearRRegression(MachineRegression):
@@ -309,25 +325,92 @@ class BayesianRegression(MachineRegression):
 #         self.epsilon = epsilon
 
 
-# class ExtremeGradientBoostRegression(MachineRegression):
-#     """Machine for prediction on Extreme Gradient Boosting
+class ExtremeGradientBoostRegression(MachineRegression):
+    """Machine for prediction on Extreme Gradient Boosting
 
-#     Args:
-#         MachinePrediction (_type_): Abstract method
-#     """
+    Args:
+        MachinePrediction (_type_): Abstract method
+    """
 
-#     def __init__(self, n_estimators: int = 1000, max_depth: int = -1, max_leaves: int = 0) -> None:
-#         super().__init__()
-#         self.n_estimators = n_estimators
-#         self.max_depth = max_depth
-#         self.max_leaves = max_leaves
+    def __init__(self) -> None:
+        super().__init__()
+        self._machine_name = MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION.value
+        self._default_hyper_parameters = {}
+        self._hyper_parameters = {}
+        self._default_hyper_parameters["n_estimators"] = HyperParametersDefinition(
+            low=10,
+            high=10000,
+            value=100,
+            type_value=HyperTypeValueEnum.INT,
+        )
+        self._default_hyper_parameters["eta"] = HyperParametersDefinition(
+            low=0,
+            high=1,
+            value=0.3,
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["gamma"] = HyperParametersDefinition(
+            low=0,
+            high=1,
+            value=0.3,
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["max_depth"] = HyperParametersDefinition(
+            low=0,
+            high=300,
+            value=6,
+            type_value=HyperTypeValueEnum.INT,
+        )
+        self._default_hyper_parameters["min_child_weight"] = HyperParametersDefinition(
+            low=0,
+            high=300,
+            value=1,
+            type_value=HyperTypeValueEnum.INT,
+        )
+        self._default_hyper_parameters["max_delta_step"] = HyperParametersDefinition(
+            low=0,
+            high=300,
+            value=0,
+            type_value=HyperTypeValueEnum.INT,
+        )
+        self._default_hyper_parameters["subsample"] = HyperParametersDefinition(
+            low=0,
+            high=1,
+            value=0,
+            type_value=HyperTypeValueEnum.INT,
+        )
+        self._default_hyper_parameters["learning_rate"] = HyperParametersDefinition(
+            low=0,
+            high=1,
+            value=1,
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["alpha"] = HyperParametersDefinition(
+            low=0.01,
+            high=1,
+            value=0.01,
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._hyper_parameters = self._default_hyper_parameters
+        self._default_hyper_parameters["lambda"] = HyperParametersDefinition(
+            low=0.01,
+            high=1,
+            value=.01,
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._hyper_parameters = self._default_hyper_parameters
 
-#     def build_hyper_parameters_random(self) -> None:
-#         self.machine = XGBRegressor(
-#             # n_estimators=self.n_estimators,
-#             # max_depth=self.max_depth,
-#             # max_leaves=self.max_leaves,
-#         )
+    def build_machine(self) -> None:
 
-#     def __str__(self) -> str:
-#         return f"Extreme Gradient Boost - {self.n_estimators} "
+        self._machine = XGBRegressor(
+            n_estimators=self._hyper_parameters["n_estimators"].value,
+            eta=self._hyper_parameters["eta"].value,
+            gamma=self._hyper_parameters["gamma"].value,
+            max_depth=self._hyper_parameters["max_depth"].value,
+            min_child_weight=self._hyper_parameters["min_child_weight"].value,
+            max_delta_step=self._hyper_parameters["max_delta_step"].value,
+            subsample=self._hyper_parameters["subsample"].value,
+            alpha=self._default_hyper_parameters["alpha"].value,
+            learning_rate=self._hyper_parameters["learning_rate"].value,
+            reg_lambda=self._hyper_parameters["lambda"].value,
+        )
