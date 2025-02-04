@@ -7,6 +7,8 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import timedelta
+from typing import Union
+
 
 from numpy import ndarray
 # from sklearn.ensemble import RandomForestRegressor
@@ -21,18 +23,91 @@ from src.machines.machine_enums import MachineNames
 HyperTypeValueEnum = Enum('HyperTypeValueEnum', [
     ('FLOAT', 'float'),
     ('INT', 'int'),
-    ('CLASS', 'class'),
+    ('CATEGORY', 'category'),
 ])
 
 
 @dataclass
+class LimitHyperParameter():
+    """Limit for hyper parameter
+    """
+    low_value: str = None
+    high_value: str = None
+    catalogue_values: list[str] = None
+
+
 class HyperParametersDefinition:
     """General definition for hyperparameters
     """
-    value = None
-    low: float = None
-    high: float = None
-    type_value: HyperTypeValueEnum = HyperTypeValueEnum.FLOAT
+
+    def __init__(
+        self,
+        value: str,
+        limit_hyper_parameter: LimitHyperParameter = LimitHyperParameter(),
+        type_value: HyperTypeValueEnum = HyperTypeValueEnum.FLOAT,
+    ):
+        self._type_value = type_value
+        self._value_str = value
+        self._low_str = limit_hyper_parameter.low_value
+        self._high_str = limit_hyper_parameter.high_value
+        self._catalogue_values = limit_hyper_parameter.catalogue_values
+        if self._low_str is None and self._catalogue_values is None:
+            raise ValueError(f"Not valid hyper parameter with value - {value}")
+
+    @property
+    def type_value(self) -> HyperTypeValueEnum:
+        """Return the type of hyper parameter"""
+        return self._type_value
+
+    def set_value(self, value: str) -> None:
+        """Set a new value on str"""
+        if self._type_value == HyperTypeValueEnum.INT:
+            self._value_str = f"{int(value)}"
+        if self._type_value == HyperTypeValueEnum.FLOAT:
+            self._value_str = f"{float(value)}"
+        if self._type_value == HyperTypeValueEnum.CATEGORY:
+            if value not in self._catalogue_values:
+                raise ValueError(f"Value: {value} is not on category")
+            self._value_str = f"{int(value)}"
+
+    @property
+    def value(self) -> Union[str, float, int]:
+        """Return the cast to really value
+
+        Raises:
+            ValueError: Not value to return
+
+        Returns:
+            Union[str, float, int]: Value
+        """
+        if self._type_value == HyperTypeValueEnum.INT:
+            return int(self._value_str)
+        if self._type_value == HyperTypeValueEnum.FLOAT:
+            return float(self._value_str)
+        if self._type_value == HyperTypeValueEnum.CATEGORY:
+            return self._value_str
+        raise ValueError("Not value to return")
+
+    def mutate_value(self, deep_decimal: int) -> None:
+        """Mutate a value 
+
+        Args:
+            deep_decimal (int): deep of decimal to mutate
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
+        if self._type_value == HyperTypeValueEnum.FLOAT:
+            self.set_value(value=f"{round(random.uniform(
+                float(self._low_str), float(self._high_str)),
+                deep_decimal
+            )}")
+        if self._type_value == HyperTypeValueEnum.INT:
+            self.set_value(
+                value=f"{int(random.randint(int(self._low_str), int(self._high_str)))}")
 
 
 class MachineRegression(ABC):
@@ -127,11 +202,8 @@ class MachineRegression(ABC):
             deep_decimal (int): Decimal to round the hyper parameters
         """
         for key, _ in self._hyper_parameters.items():
-            self._hyper_parameters[key].value = self.generate_random_hyperparameter(
-                low=self._hyper_parameters[key].low,
-                high=self._hyper_parameters[key].high,
+            self._hyper_parameters[key].mutate_value(
                 deep_decimal=deep_decimal,
-                type_value=self._hyper_parameters[key].type_value,
             )
 
     def mutate_hyper_parameters(self, mutation_rate: float, deep_decimal: int):
@@ -142,34 +214,9 @@ class MachineRegression(ABC):
         """
         for key, _ in self._hyper_parameters.items():
             if random.random() < mutation_rate:
-                self._hyper_parameters[key].value = self.generate_random_hyperparameter(
-                    low=self._hyper_parameters[key].low,
-                    high=self._hyper_parameters[key].high,
+                self._hyper_parameters[key].mutate_value(
                     deep_decimal=deep_decimal,
-                    type_value=self._hyper_parameters[key].type_value,
                 )
-
-    def generate_random_hyperparameter(
-            self,
-            low: float,
-            high: float,
-            deep_decimal: int,
-            type_value: HyperTypeValueEnum,
-    ) -> float:
-        """Generate a random hyperparameter value between low and high
-
-        Args:
-            low (float): Lower bound of the range
-            high (float): Upper bound of the range
-
-        Returns:
-            float: Randomly generated hyperparameter value
-        """
-        if type_value == HyperTypeValueEnum.FLOAT:
-            return round(random.uniform(low, high), deep_decimal)
-        if type_value == HyperTypeValueEnum.INT:
-            return int(round(random.uniform(low, high), deep_decimal))
-        raise ValueError("Not valid type of value")
 
 
 class BayesianRegression(MachineRegression):
@@ -182,15 +229,15 @@ class BayesianRegression(MachineRegression):
         self._default_hyper_parameters = {}
         self._hyper_parameters = {}
         self._default_hyper_parameters["alpha_1"] = HyperParametersDefinition(
-            low=1e-6,
-            high=1e-1,
-            value=0.000001,
+            value="0.000001",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="1e-6", high_value="1e-1"),
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["lambda_1"] = HyperParametersDefinition(
-            low=1e-6,
-            high=1e-1,
-            value=0.000001,
+            value="0.000001",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="1e-6", high_value="1e-1",),
             type_value=HyperTypeValueEnum.FLOAT,
         )
         if is_default_parameters:
@@ -332,70 +379,71 @@ class ExtremeGradientBoostRegression(MachineRegression):
         MachinePrediction (_type_): Abstract method
     """
 
+# TODO: continue convert this values
     def __init__(self) -> None:
         super().__init__()
         self._machine_name = MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION.value
         self._default_hyper_parameters = {}
         self._hyper_parameters = {}
         self._default_hyper_parameters["n_estimators"] = HyperParametersDefinition(
-            low=10,
-            high=10000,
-            value=100,
+            low_float=10,
+            high_float=10000,
+            value_float=100,
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["eta"] = HyperParametersDefinition(
-            low=0,
-            high=1,
-            value=0.3,
+            low_float=0,
+            high_float=1,
+            value_float=0.3,
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["gamma"] = HyperParametersDefinition(
-            low=0,
-            high=1,
-            value=0.3,
+            low_float=0,
+            high_float=1,
+            value_float=0.3,
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["max_depth"] = HyperParametersDefinition(
-            low=0,
-            high=300,
-            value=6,
+            low_float=0,
+            high_float=300,
+            value_float=6,
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["min_child_weight"] = HyperParametersDefinition(
-            low=0,
-            high=300,
-            value=1,
+            low_float=0,
+            high_float=300,
+            value_float=1,
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["max_delta_step"] = HyperParametersDefinition(
-            low=0,
-            high=300,
-            value=0,
+            low_float=0,
+            high_float=300,
+            value_float=0,
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["subsample"] = HyperParametersDefinition(
-            low=0,
-            high=1,
-            value=0,
+            low_float=0,
+            high_float=1,
+            value_float=0,
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["learning_rate"] = HyperParametersDefinition(
-            low=0,
-            high=1,
-            value=1,
+            low_float=0,
+            high_float=1,
+            value_float=1,
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["alpha"] = HyperParametersDefinition(
-            low=0.01,
-            high=1,
-            value=0.01,
+            low_float=0.01,
+            high_float=1,
+            value_float=0.01,
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._hyper_parameters = self._default_hyper_parameters
         self._default_hyper_parameters["lambda"] = HyperParametersDefinition(
-            low=0.01,
-            high=1,
-            value=.01,
+            low_float=0.01,
+            high_float=1,
+            value_float=.01,
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._hyper_parameters = self._default_hyper_parameters

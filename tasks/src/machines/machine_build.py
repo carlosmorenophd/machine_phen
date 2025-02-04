@@ -21,12 +21,10 @@ def machine_build_regression_optimization(
     Returns:
         MachineJson: Return child of Machine Json to run it
     """
-    # if machine_definition.name_machine == MachineNames.RANDOM_FOREST_REGRESSION:
-    #     return RandomForestRegression(
-    #         n_estimators=machine_definition.n_estimators,
-    #         random_sate=machine_definition.random_state,
-    #         n_jobs=machine_definition.n_jobs,
-    #     )
+    if machine_name == MachineNames.RANDOM_FOREST_REGRESSION:
+        machine = RandomForestRegression()
+        machine.force_mutate_hyper_parameters(deep_decimal=deep_decimal)
+        return machine
     if machine_name == MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION:
         machine = ExtremeGradientBoostRegression()
         machine.force_mutate_hyper_parameters(deep_decimal=deep_decimal)
