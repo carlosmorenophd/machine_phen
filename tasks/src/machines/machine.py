@@ -379,71 +379,90 @@ class ExtremeGradientBoostRegression(MachineRegression):
         MachinePrediction (_type_): Abstract method
     """
 
-# TODO: continue convert this values
     def __init__(self) -> None:
         super().__init__()
         self._machine_name = MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION.value
         self._default_hyper_parameters = {}
         self._hyper_parameters = {}
         self._default_hyper_parameters["n_estimators"] = HyperParametersDefinition(
-            low_float=10,
-            high_float=10000,
-            value_float=100,
+            value="100",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="10",
+                high_value="10000",
+            ),
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["eta"] = HyperParametersDefinition(
-            low_float=0,
-            high_float=1,
-            value_float=0.3,
+            value=0.3,
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0',
+                high_value='1',
+            ),
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["gamma"] = HyperParametersDefinition(
-            low_float=0,
-            high_float=1,
-            value_float=0.3,
+            value='0.3',
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0',
+                high_value='1',
+            ),
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["max_depth"] = HyperParametersDefinition(
-            low_float=0,
-            high_float=300,
-            value_float=6,
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0',
+                high_value='300',
+            ),
+            value='6',
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["min_child_weight"] = HyperParametersDefinition(
-            low_float=0,
-            high_float=300,
-            value_float=1,
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0',
+                high_value='300',
+            ),
+            value='1',
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["max_delta_step"] = HyperParametersDefinition(
-            low_float=0,
-            high_float=300,
-            value_float=0,
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0',
+                high_value='300',
+            ),
+            value='0',
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["subsample"] = HyperParametersDefinition(
-            low_float=0,
-            high_float=1,
-            value_float=0,
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0',
+                high_value='1',
+            ),
+            value='0',
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["learning_rate"] = HyperParametersDefinition(
-            low_float=0,
-            high_float=1,
-            value_float=1,
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0',
+                high_value='1',
+            ),
+            value='1',
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["alpha"] = HyperParametersDefinition(
-            low_float=0.01,
-            high_float=1,
-            value_float=0.01,
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0.01',
+                high_value='1',
+            ),
+            value='0.01',
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._hyper_parameters = self._default_hyper_parameters
         self._default_hyper_parameters["lambda"] = HyperParametersDefinition(
-            low_float=0.01,
-            high_float=1,
-            value_float=.01,
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value='0.01',
+                high_value='1',
+            ),
+            value='0.01',
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._hyper_parameters = self._default_hyper_parameters
