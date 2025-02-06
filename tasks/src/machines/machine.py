@@ -3,37 +3,19 @@
 import random
 import time
 import json
-from enum import Enum
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import timedelta
 from typing import Union
 
 
 from numpy import ndarray
-# from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import BayesianRidge
-# from sklearn.svm import SVR
+from sklearn.svm import SVR
 from xgboost import XGBRegressor
 
-# from src.machines.machine_enums import (SupportVectorKernelEnum)
 from src.metrics.metric import Metric
-from src.machines.machine_enums import MachineNames
-
-HyperTypeValueEnum = Enum('HyperTypeValueEnum', [
-    ('FLOAT', 'float'),
-    ('INT', 'int'),
-    ('CATEGORY', 'category'),
-])
-
-
-@dataclass
-class LimitHyperParameter():
-    """Limit for hyper parameter
-    """
-    low_value: str = None
-    high_value: str = None
-    catalogue_values: list[str] = None
+from src.machines.machine_enums import MachineNames, HyperTypeValueEnum, LimitHyperParameter
 
 
 class HyperParametersDefinition:
@@ -68,7 +50,7 @@ class HyperParametersDefinition:
         if self._type_value == HyperTypeValueEnum.CATEGORY:
             if value not in self._catalogue_values:
                 raise ValueError(f"Value: {value} is not on category")
-            self._value_str = f"{int(value)}"
+            self._value_str = f"{value}"
 
     @property
     def value(self) -> Union[str, float, int]:
@@ -108,6 +90,9 @@ class HyperParametersDefinition:
         if self._type_value == HyperTypeValueEnum.INT:
             self.set_value(
                 value=f"{int(random.randint(int(self._low_str), int(self._high_str)))}")
+        if self._type_value == HyperTypeValueEnum.CATEGORY:
+            self.set_value(
+                value=f"{random.choice(self._catalogue_values)}")
 
 
 class MachineRegression(ABC):
@@ -311,65 +296,130 @@ class BayesianRegression(MachineRegression):
 #         return f"LASSO - {self.alpha} "
 
 
-# class RandomForestRegression(MachineRegression):
-#     """Machine for Random forest
+class RandomForestRegression(MachineRegression):
+    """Machine for Random forest
 
-#     Args:
-#         MachinePrediction (_type_): Abstract method
-#     """
+    Args:
+        MachinePrediction (_type_): Abstract method
+    """
 
-#     def __init__(self, n_estimators: int = 1000, random_sate: int = 42, n_jobs: int = -1) -> None:
-#         super().__init__()
-#         self.n_estimators = n_estimators
-#         self.random_sate = random_sate
-#         self.n_jobs = n_jobs
+    def __init__(self, is_default_parameters: bool = True) -> None:
+        super().__init__()
+        self._machine_name = MachineNames.RANDOM_FOREST_REGRESSION.value
+        self._default_hyper_parameters = {}
+        self._hyper_parameters = {}
+        self._default_hyper_parameters["n_estimators"] = HyperParametersDefinition(
+            value="100",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="100", high_value="1000000"),
+            type_value=HyperTypeValueEnum.INT,
+        )
+        self._default_hyper_parameters["min_samples_split"] = HyperParametersDefinition(
+            value="0.1",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="0.1", high_value="1",),
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["ccp_alpha"] = HyperParametersDefinition(
+            value="0.1",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="0.1", high_value="100",),
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["max_leaf_nodes"] = HyperParametersDefinition(
+            value="100",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="100", high_value="10000",),
+            type_value=HyperTypeValueEnum.INT,
+        )
+        self._default_hyper_parameters["min_impurity_decrease"] = HyperParametersDefinition(
+            value="0.0",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="0.0", high_value="1",),
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
 
-#     def build_hyper_parameters_random(self) -> None:
-#         self.machine = RandomForestRegressor(
-#             n_estimators=self.n_estimators,
-#             random_state=self.random_sate,
-#             n_jobs=self.n_jobs,
-#         )
+        if is_default_parameters:
+            self._hyper_parameters = self._default_hyper_parameters
 
-#     def __str__(self) -> str:
-#         return f"Random Forest Prediction - {self.n_estimators} "
+    def build_machine(self) -> None:
+        self._machine = RandomForestRegressor(
+            n_estimators=self._hyper_parameters["n_estimators"].value,
+            min_samples_split=self._hyper_parameters["min_samples_split"].value,
+            ccp_alpha=self._hyper_parameters["ccp_alpha"].value,
+            max_leaf_nodes=self._hyper_parameters["max_leaf_nodes"].value,
+            min_impurity_decrease=self._hyper_parameters["min_impurity_decrease"].value
+        )
 
 
-# class SupportVectorRegression(MachineRegression):
-#     """Machine for Support Vector Regression
+class SupportVectorRegression(MachineRegression):
+    """Machine for Support Vector Regression
 
-#     Args:
-#         MachinePrediction (_type_): Abstract method
-#     """
+    Args:
+        MachinePrediction (_type_): Abstract method
+    """
 
-#     def build_hyper_parameters_random(self) -> None:
-#         self.machine = SVR(
-#             kernel=self.kernel.value,
-#             C=self.c,
-#             epsilon=self.epsilon,
-#         )
+    def __init__(self, is_default_parameters: bool = True) -> None:
+        super().__init__()
+        self._machine_name = MachineNames.SUPPORT_VECTOR_REGRESSION.value
+        self._default_hyper_parameters = {}
+        self._hyper_parameters = {}
+        self._default_hyper_parameters["kernel"] = HyperParametersDefinition(
+            value="linear",
+            limit_hyper_parameter=LimitHyperParameter(
+                catalogue_values=[
+                    'linear',
+                    'poly',
+                    'precomputed',
+                    'rbf',
+                    'sigmoid'
+                ],
+            ),
+            type_value=HyperTypeValueEnum.CATEGORY,
+        )
+        self._default_hyper_parameters["degree"] = HyperParametersDefinition(
+            value="3",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="1", high_value="10",),
+            type_value=HyperTypeValueEnum.INT,
+        )
+        self._default_hyper_parameters["gama"] = HyperParametersDefinition(
+            value="scale",
+            limit_hyper_parameter=LimitHyperParameter(
+                catalogue_values=[
+                    'scale',
+                    'auto'
+                ],
+            ),
+            type_value=HyperTypeValueEnum.CATEGORY,
+        )
+        self._default_hyper_parameters["c"] = HyperParametersDefinition(
+            value="1",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="0.1",
+                high_value="100",
+            ),
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["epsilon"] = HyperParametersDefinition(
+            value="0.1",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="0.1",
+                high_value="100",
+            ),
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        if is_default_parameters:
+            self._hyper_parameters = self._default_hyper_parameters
 
-#     def build_hyper_parameters_random(self) -> list:
-#         return [
-#             {
-#                 "C": self.generate_random_hyperparameter(),
-#                 "epsilon": self.generate_random_hyperparameter(),
-#             }
-#         ]
-
-#     def __str__(self) -> str:
-#         return f"Support Vector Regression - {self.kernel.value}"
-
-#     def __init__(
-#         self,
-#         kernel: SupportVectorKernelEnum = SupportVectorKernelEnum.LINEAR,
-#         c: float = 1.0,
-#         epsilon: float = 0.1,
-#     ) -> None:
-#         super().__init__()
-#         self.kernel = kernel
-#         self.c = c
-#         self.epsilon = epsilon
+    def build_machine(self) -> None:
+        self._machine = SVR(
+            kernel=self._hyper_parameters["kernel"].value,
+            C=self._hyper_parameters["c"].value,
+            epsilon=self._hyper_parameters["epsilon"].value,
+            degree=self._hyper_parameters["degree"].value,
+            gamma=self._hyper_parameters["gama"].value
+        )
 
 
 class ExtremeGradientBoostRegression(MachineRegression):
@@ -465,6 +515,17 @@ class ExtremeGradientBoostRegression(MachineRegression):
             value='0.01',
             type_value=HyperTypeValueEnum.FLOAT,
         )
+        self._default_hyper_parameters["sampling_method"] = HyperParametersDefinition(
+            limit_hyper_parameter=LimitHyperParameter(
+                catalogue_values=["uniform", "gradient_based", "subsample"],
+            ),
+            value='uniform',
+            type_value=HyperTypeValueEnum.CATEGORY,
+        )
+        # TODO:
+        # [02:35:24] /workspace/src/tree/hist/sampler.h:51: Check failed: param.sampling_method == TrainParam::kUniform (1 vs. 0) : Only uniform sampling is supported, gradient-based sampling is only support by GPU Hist.
+
+
         self._hyper_parameters = self._default_hyper_parameters
 
     def build_machine(self) -> None:
@@ -480,4 +541,5 @@ class ExtremeGradientBoostRegression(MachineRegression):
             alpha=self._default_hyper_parameters["alpha"].value,
             learning_rate=self._hyper_parameters["learning_rate"].value,
             reg_lambda=self._hyper_parameters["lambda"].value,
+            sampling_method=self._hyper_parameters["sampling_method"].value,
         )
