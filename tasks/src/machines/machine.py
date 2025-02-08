@@ -208,7 +208,7 @@ class BayesianRegression(MachineRegression):
     """Class to run a Bayesian Prediction
     """
 
-    def __init__(self, is_default_parameters: bool = True) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self._machine_name = MachineNames.BAYESIAN_REGRESSION.value
         self._default_hyper_parameters = {}
@@ -225,8 +225,7 @@ class BayesianRegression(MachineRegression):
                 low_value="1e-6", high_value="1e-1",),
             type_value=HyperTypeValueEnum.FLOAT,
         )
-        if is_default_parameters:
-            self._hyper_parameters = self._default_hyper_parameters
+        self._hyper_parameters = self._default_hyper_parameters
 
     def build_machine(self) -> None:
         self._machine = BayesianRidge(
@@ -303,7 +302,7 @@ class RandomForestRegression(MachineRegression):
         MachinePrediction (_type_): Abstract method
     """
 
-    def __init__(self, is_default_parameters: bool = True) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self._machine_name = MachineNames.RANDOM_FOREST_REGRESSION.value
         self._default_hyper_parameters = {}
@@ -338,9 +337,7 @@ class RandomForestRegression(MachineRegression):
                 low_value="0.0", high_value="1",),
             type_value=HyperTypeValueEnum.FLOAT,
         )
-
-        if is_default_parameters:
-            self._hyper_parameters = self._default_hyper_parameters
+        self._hyper_parameters = self._default_hyper_parameters
 
     def build_machine(self) -> None:
         self._machine = RandomForestRegressor(
@@ -359,7 +356,7 @@ class SupportVectorRegression(MachineRegression):
         MachinePrediction (_type_): Abstract method
     """
 
-    def __init__(self, is_default_parameters: bool = True) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self._machine_name = MachineNames.SUPPORT_VECTOR_REGRESSION.value
         self._default_hyper_parameters = {}
@@ -409,8 +406,7 @@ class SupportVectorRegression(MachineRegression):
             ),
             type_value=HyperTypeValueEnum.FLOAT,
         )
-        if is_default_parameters:
-            self._hyper_parameters = self._default_hyper_parameters
+        self._hyper_parameters = self._default_hyper_parameters
 
     def build_machine(self) -> None:
         self._machine = SVR(
@@ -515,17 +511,6 @@ class ExtremeGradientBoostRegression(MachineRegression):
             value='0.01',
             type_value=HyperTypeValueEnum.FLOAT,
         )
-        self._default_hyper_parameters["sampling_method"] = HyperParametersDefinition(
-            limit_hyper_parameter=LimitHyperParameter(
-                catalogue_values=["uniform", "gradient_based", "subsample"],
-            ),
-            value='uniform',
-            type_value=HyperTypeValueEnum.CATEGORY,
-        )
-        # TODO:
-        # [02:35:24] /workspace/src/tree/hist/sampler.h:51: Check failed: param.sampling_method == TrainParam::kUniform (1 vs. 0) : Only uniform sampling is supported, gradient-based sampling is only support by GPU Hist.
-
-
         self._hyper_parameters = self._default_hyper_parameters
 
     def build_machine(self) -> None:
@@ -541,5 +526,4 @@ class ExtremeGradientBoostRegression(MachineRegression):
             alpha=self._default_hyper_parameters["alpha"].value,
             learning_rate=self._hyper_parameters["learning_rate"].value,
             reg_lambda=self._hyper_parameters["lambda"].value,
-            sampling_method=self._hyper_parameters["sampling_method"].value,
         )
