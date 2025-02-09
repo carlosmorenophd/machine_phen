@@ -367,7 +367,6 @@ class SupportVectorRegression(MachineRegression):
                 catalogue_values=[
                     'linear',
                     'poly',
-                    'precomputed',
                     'rbf',
                     'sigmoid'
                 ],
@@ -393,8 +392,8 @@ class SupportVectorRegression(MachineRegression):
         self._default_hyper_parameters["c"] = HyperParametersDefinition(
             value="1",
             limit_hyper_parameter=LimitHyperParameter(
-                low_value="0.1",
-                high_value="100",
+                low_value="0.001",
+                high_value="1",
             ),
             type_value=HyperTypeValueEnum.FLOAT,
         )
@@ -402,7 +401,23 @@ class SupportVectorRegression(MachineRegression):
             value="0.1",
             limit_hyper_parameter=LimitHyperParameter(
                 low_value="0.1",
-                high_value="100",
+                high_value="10",
+            ),
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["coef0"] = HyperParametersDefinition(
+            value="0.0",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="0.001",
+                high_value="0",
+            ),
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["tol"] = HyperParametersDefinition(
+            value="0.001",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="0.0001",
+                high_value="1.0",
             ),
             type_value=HyperTypeValueEnum.FLOAT,
         )
@@ -414,7 +429,9 @@ class SupportVectorRegression(MachineRegression):
             C=self._hyper_parameters["c"].value,
             epsilon=self._hyper_parameters["epsilon"].value,
             degree=self._hyper_parameters["degree"].value,
-            gamma=self._hyper_parameters["gama"].value
+            gamma=self._hyper_parameters["gama"].value,
+            coef0=self._hyper_parameters["coef0"].value,
+            tol=self._hyper_parameters["tol"].value,
         )
 
 

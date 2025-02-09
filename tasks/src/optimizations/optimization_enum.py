@@ -71,9 +71,8 @@ class GeneticAlgorithmParameter(ABC):
         self._search_mode = search_mode
         self._machines_key = []
         if search_mode == SearchMode.QUICK_EXPLORATION:
-            # self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
-            self._machines_key.append(
-                MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
+            # self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
+            self._machines_key.append(MachineNames.BAYESIAN_REGRESSION)
             self._number_population = 10
             self._number_generation = 20
             self._mutation_rate = 0.05
@@ -95,7 +94,6 @@ class GeneticAlgorithmParameter(ABC):
             self._machines_key.append(
                 MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
-            self._machines_key.append(MachineNames.LASSO_REGRESSION)
             self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
             self._number_population = 300
             self._number_generation = 50
