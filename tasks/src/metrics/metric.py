@@ -1,0 +1,139 @@
+"""Get metric from machines    """
+from sklearn.metrics import (
+    d2_absolute_error_score,
+    d2_pinball_score,
+    d2_tweedie_score,
+    explained_variance_score,
+    max_error,
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_gamma_deviance,
+    mean_poisson_deviance,
+    mean_squared_error,
+    mean_squared_log_error,
+    median_absolute_error,
+    r2_score,
+    root_mean_squared_error,
+    root_mean_squared_log_error,
+)
+import numpy as np
+
+
+from src.metrics.metric_enums import MetricEnum
+from src.helpers.key_env import IS_DEBUG
+
+
+class Metric():
+    """Class to get error metrics
+    """
+
+    def __init__(self, y_predicted: np.ndarray, y_test, x_test) -> None:
+        self.y_predicted = y_predicted
+        self.y_true = y_test
+        self.x_true = x_test
+        self.metrics = {}
+        self.predict_versus_true = []
+        self.y_predicted_no_negative = y_predicted
+        self.y_predicted_no_negative[self.y_predicted_no_negative < 0] = 1
+        self.calculate_metric_prediction()
+
+    def calculate_metric_prediction(self) -> None:
+        """Calculate all metrics
+        """
+        self.metrics[MetricEnum.D2_ABSOLUTE_ERROR_SCORE.value] = d2_absolute_error_score(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.D2_PINBALL_SCORE.value] = d2_pinball_score(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.D2_TWEEDIE_SCORE.value] = d2_tweedie_score(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.EXPLAINED_VARIANCE_SCORE.value] = explained_variance_score(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.MAX_ERROR.value] = max_error(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.MEAN_ABSOLUTE_ERROR.value] = mean_absolute_error(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[
+            MetricEnum.MEAN_ABSOLUTE_PERCENTAGE_ERROR.value
+        ] = mean_absolute_percentage_error(
+            y_pred=self.y_predicted, y_true=self.y_true
+        )
+        self.metrics[MetricEnum.MEAN_GAMMA_DEVIANCE.value] = mean_gamma_deviance(
+            y_pred=self.y_predicted_no_negative, y_true=self.y_true)
+        self.metrics[MetricEnum.MEAN_POISSON_DEVIANCE.value] = mean_poisson_deviance(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.MEAN_SQUARED_ERROR.value] = mean_squared_error(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.MEAN_SQUARED_LOG_ERROR.value] = mean_squared_log_error(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.MEDIAN_ABSOLUTE_ERROR.value] = median_absolute_error(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.R2_SCORE.value] = r2_score(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.ROOT_MEAN_SQUARED_ERROR.value] = root_mean_squared_error(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[MetricEnum.ROOT_MEAN_SQUARED_LOG_ERROR.value] = root_mean_squared_log_error(
+            y_pred=self.y_predicted, y_true=self.y_true)
+        self.metrics[
+            MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR.value
+        ] = 1 - mean_absolute_percentage_error(
+            y_pred=self.y_predicted,
+            y_true=self.y_true,
+        )
+
+    def get_error_predict_versus_true(
+        self,
+        pivot: float,
+        sort: str = 'error',
+    ) -> None:
+        """List of error with upper first
+
+        Args:
+            pivot (float): Pivot to print
+            sort (str, optional): Way to sorter. Defaults to 'error'.
+
+        Returns:
+            ndarray: _description_
+        """
+        number_upper = 0
+        list_upper = []
+        if IS_DEBUG:
+            print(f"#### list on error upper -> {pivot}")
+        for predicted, true in zip(self.y_predicted, self.y_true):
+            error = abs(
+                (true - predicted) / true)
+            if error > pivot:
+                number_upper = number_upper + 1
+                list_upper.append(
+                    {'truth': true, 'predict': predicted, 'error': error})
+        if IS_DEBUG:
+            print(
+                f"Number of element -> {len(self.y_true)} number of upper error -> {number_upper}")
+        return sorted(
+            list_upper,
+            key=lambda x: x[sort],
+            reverse=True
+        )
+
+    def get_all_metric(self) -> np.ndarray:
+        """Get all metrics
+
+        Returns:
+            ndarray: List of metrics
+        """
+        return self.metrics
+
+    def get_single_metric(self, metric: MetricEnum) -> float:
+        """Get metric by enum
+
+        Args:
+            metric (MetricEnum): Metric to get
+
+        Raises:
+            KeyError: Not found the metric
+
+        Returns:
+            float: return the metric
+        """
+        if metric.value in self.metrics:
+            return self.metrics[metric.value]
+        raise KeyError("Metric is not valid")

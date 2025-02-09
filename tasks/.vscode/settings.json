@@ -1,5 +1,6 @@
 {
     "cSpell.ignoreWords": [
+        "Rendimiento",
         "SVRP",
         "XGBR",
         "annot",
@@ -46,6 +47,5 @@
     ],
     "workbench.colorCustomizations": {
         "activityBar.background": "#041f52",
-        // Otros colores personalizados
-    }
+    },
 }

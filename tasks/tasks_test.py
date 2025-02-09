@@ -1,88 +1,47 @@
 """To run test from files"""
 import sys
-import json
 
 from celery.app import Celery
 
-from src.helpers.key_env import REDIS_BROKEN, FolderCache
-from src.selection_variables.selection_run import selection_genetic_algorithm_run
-from src.machines.machine_enums import build_machine_definition
-from src.machines.machine_data_frame_handler import FileAccessRunnerProperties
-from src.selection_variables.genetic.genetic_enum import convert_str_genetic_parameters
+from src.helpers.key_env import REDIS_BROKEN
+from src.optimizations.optimization import optimization_run_from_task
+from src.optimizations.optimization_enum import convert_str_to_search_mode
+from src.files.file_machine import FileData, FolderCache
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         print(f"Run with props action - {sys.argv[1]}")
-        app = Celery('phen_transform', broker_url=REDIS_BROKEN)
+        app = Celery('phen_transform',
+                     broker_url=REDIS_BROKEN, queue='machine')
         action = sys.argv[1]
         if action == "version":
             print("Run - version")
             app.send_task(
                 name="version",
+                args=(),
+                queue='machine',
             )
-        elif action == "result_single-machine-single-file":
-            print("Run - result_single-machine-single-file")
-            print(f"file -> {
-                sys.argv[2]
-            }, target -> {
-                sys.argv[3]
-            }, machine - {
-                sys.argv[4]
-            }")
+        elif action == "regression_genetic":
+            print("Run - regression_genetic")
             app.send_task(
-                name="result_single-machine-single-file",
+                name="regression_genetic",
                 args=(
                     sys.argv[2],
                     sys.argv[3],
                     sys.argv[4],
-                )
+                ),
+                queue='machine',
             )
-        elif action == "regression_forward_force_single_machine_single_file":
-            print("Run - regression_forward_force_single_machine_single_file")
-            print(f"file -> {
-                sys.argv[2]
-            }, target -> {
-                sys.argv[3]
-            }, machine - {
-                sys.argv[4]
-            }")
-            app.send_task(
-                name="regression_forward_force_single_machine_single_file",
-                args=(
-                    sys.argv[2],
-                    sys.argv[3],
-                    sys.argv[4],
-                )
-            )
-        elif action == "regression_genetic_single_machine_single_file":
-            print("Run - regression_genetic_single_machine_single_file")
-            print(f"file -> {
-                sys.argv[2]
-            }, target -> {
-                sys.argv[3]
-            }, machine - {
-                sys.argv[4]
-            }")
-            app.send_task(
-                name="regression_genetic_single_machine_single_file",
-                args=(
-                    sys.argv[2],
-                    sys.argv[3],
-                    sys.argv[4],
-                    sys.argv[5],
-                )
-            )
+
     else:
-        # python tasks_test.py regression_genetic_single_machine_single_file    
-        selection_genetic_algorithm_run(
-            machine_definition=build_machine_definition(
-                machine_json=json.loads('{"name": "random_forest_regression"}')
-            ),
-            file_access_runner=FileAccessRunnerProperties(
-                file_in='lrace_all_clean_fill_normalize.csv',
-                target_feature='GrainYield',
+        print("No action to run")
+        optimization_run_from_task(
+            file_date=FileData(
+                file_in="3.14_lrace_geo_w_f_n.csv",
+                target_feature="Rendimiento",
                 folder_path=FolderCache.UPLOAD,
             ),
-            genetic_parameters=convert_str_genetic_parameters(
-                genetic_parameters_str='{"num_generations":5}'),
+            search_mode=convert_str_to_search_mode(
+                search_mode_str="quick_exploration",
+            ),
         )
