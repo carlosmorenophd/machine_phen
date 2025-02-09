@@ -12,10 +12,10 @@ from src.optimizations.optimization_enum import (
 from src.files.file_machine import FileData, TrainingData, FileMachine, DatasetOptimizationData
 from src.machines.machine_build import machine_build_regression_optimization
 from src.machines.machine import MachineRegression
+from src.machines.machine_enums import HyperTypeValueEnum
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 
-# TODO: Adding new cross over when are different machines
 
 class GeneticIndividual():
     """Class to create a individual for genetic algorithm
@@ -189,27 +189,104 @@ class GeneticAlgorithm():
 
         child_2.set_features_chromosome(parent_2.features_chromosome[
             :crossover_point] + parent_1.features_chromosome[crossover_point:])
-        # Apply mutation
-        hyper_parameters_1 = parent_1.machine.hyper_parameters
-        hyper_parameters_2 = parent_2.machine.hyper_parameters
         if parent_1.machine.machine_name == parent_2.machine.machine_name:
+            hyper_parameters_1 = parent_1.machine.hyper_parameters
+            hyper_parameters_2 = parent_2.machine.hyper_parameters
             for key, _ in parent_1.machine.hyper_parameters.items():
-                hyper_parameter_mean = round(
-                    hyper_parameters_1[key].value +
-                    hyper_parameters_2[key].value / 2,
-                    self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+                if hyper_parameters_1[key].type_value == HyperTypeValueEnum.FLOAT:
+                    value_1, value_2 = self.crossover_value_same_machine(
+                        value_1=hyper_parameters_1[key].value,
+                        value_2=hyper_parameters_2[key].value,
+                        type_value=hyper_parameters_1[key].type_value,
+                    )
+                    hyper_parameters_1[key].set_value(value_1)
+                    hyper_parameters_2[key].set_value(value_2)
+                elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.INT:
+                    value_1, value_2 = self.crossover_value_same_machine(
+                        value_1=hyper_parameters_1[key].value,
+                        value_2=hyper_parameters_2[key].value,
+                        type_value=hyper_parameters_1[key].type_value,
+                    )
+                    hyper_parameters_1[key].set_value(value_1)
+                    hyper_parameters_2[key].set_value(value_2)
+                elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.CATEGORY:
+                    if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
+                        hyper_parameters_1[key].set_value(
+                            hyper_parameters_1[key].value)
+                        hyper_parameters_2[key].set_value(
+                            hyper_parameters_1[key].value)
+                    else:
+                        hyper_parameters_1[key].set_value(
+                            hyper_parameters_2[key].value)
+                        hyper_parameters_2[key].set_value(
+                            hyper_parameters_1[key].value)
+            parent_1.machine.set_hyper_parameters(hyper_parameters_1)
+            child_1.set_machine(parent_1.machine)
+            parent_2.machine.set_hyper_parameters(hyper_parameters_2)
+            child_2.set_machine(parent_2.machine)
+        else:
+            child_1.set_machine(parent_1.machine)
+            child_2.set_machine(parent_2.machine)
+            child_2.machine.force_mutate_hyper_parameters(
+                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+            )
+            if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
+                child_1.machine.force_mutate_hyper_parameters(
+                    deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
                 )
-                if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
-                    hyper_parameters_1[key].value = hyper_parameter_mean
-                    hyper_parameters_2[key].value = hyper_parameter_mean
-                else:
-                    hyper_parameters_1[key].value = hyper_parameters_1[key].value
-                    hyper_parameters_2[key].value = hyper_parameter_mean
-        parent_1.machine.set_hyper_parameters(hyper_parameters_1)
-        child_1.set_machine(parent_1.machine)
-        parent_2.machine.set_hyper_parameters(hyper_parameters_2)
-        child_2.set_machine(parent_2.machine)
         return child_1, child_2
+
+    def crossover_value_same_machine(
+            self,
+            value_1: str,
+            value_2:  str,
+            type_value: HyperTypeValueEnum
+    ) -> tuple[str, str]:
+        """Cross over between two values of hyper parameters
+
+        Args:
+            value_1 (str): value of hyper parameter 1
+            value_2 (str): value of hyper parameter 2
+            type_value (HyperTypeValueEnum): type of hyper parameter
+
+        Returns:
+            tuple[str, str]: tuple of two new values of hyper parameters
+        """
+        mean_value = self.calculate_mean_str_hyper_parameter(
+            value_1=value_1, value_2=value_2, type_value=type_value)
+        if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
+            return mean_value, mean_value
+        return value_1, mean_value
+
+    def calculate_mean_str_hyper_parameter(
+            self,
+            value_1: str,
+            value_2:  str,
+            type_value: HyperTypeValueEnum
+    ) -> str:
+        """Calculate the mean between two str values
+
+        Args:
+            hyper_parameter_1 (str): First value of hyper parameter
+            hyper_parameter_2 (str): Second value of hyper parameter
+
+        Returns:
+            str: Mean value between two values of hyper parameters
+        """
+        if type_value == HyperTypeValueEnum.INT:
+            return str(
+                int(
+                    int(value_1) +
+                    int(value_2) / 2
+                )
+            )
+        if type_value == HyperTypeValueEnum.FLOAT:
+            return str(round(
+                float(value_1) +
+                float(value_2) / 2,
+                self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+            ))
+        raise ValueError("Type value not defined")
 
     def run(self):
         """Main function to run the genetic algorithm
@@ -249,7 +326,25 @@ class GeneticAlgorithm():
             mutation_rate=self._genetic_algorithm_parameters.mutation_rate,
             deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
         )
+        child_1 = self.mutate_machine(child=child_1)
+        child_2 = self.mutate_machine(child=child_2)
         return child_1, child_2
+
+    def mutate_machine(self, child: GeneticIndividual):
+        """Mutate machine
+
+        Args:
+            child_1 (GeneticIndividual): Child to mutate machine
+        """
+        if random.random() < self._genetic_algorithm_parameters.mutate_machine:
+            child.set_machine(machine=machine_build_regression_optimization(
+                machine_name=random.choice(
+                    self._genetic_algorithm_parameters.machines_key
+                ),
+                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
+            ),
+            )
+        return child
 
     def export(self):
         """Export the best individual
@@ -269,7 +364,7 @@ class GeneticAlgorithm():
         sampled_data_frame = data_frame_metric.sample(n=ten_percent)
         self._file_machine.storage_file.save_data_frame_to_csv(
             data_frame=sampled_data_frame,
-            prefix="optimization_quick",
+            prefix="optimization_overlap",
         )
 
     def selection(self):
@@ -290,7 +385,7 @@ class GeneticAlgorithm():
         self._new_population = []
 
 
-def optimization_run(
+def optimization_run_from_task(
     file_date: FileData,
     search_mode: SearchMode,
 ) -> None:

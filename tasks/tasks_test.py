@@ -4,7 +4,7 @@ import sys
 from celery.app import Celery
 
 from src.helpers.key_env import REDIS_BROKEN
-from src.optimizations.optimization import optimization_run
+from src.optimizations.optimization import optimization_run_from_task
 from src.optimizations.optimization_enum import convert_str_to_search_mode
 from src.files.file_machine import FileData, FolderCache
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     else:
         print("No action to run")
-        optimization_run(
+        optimization_run_from_task(
             file_date=FileData(
                 file_in="3.14_lrace_geo_w_f_n.csv",
                 target_feature="Rendimiento",

@@ -27,12 +27,14 @@ class Metric():
     """Class to get error metrics
     """
 
-    def __init__(self, y_predicted, y_test, x_test) -> None:
+    def __init__(self, y_predicted: np.ndarray, y_test, x_test) -> None:
         self.y_predicted = y_predicted
         self.y_true = y_test
         self.x_true = x_test
         self.metrics = {}
         self.predict_versus_true = []
+        self.y_predicted_no_negative = y_predicted
+        self.y_predicted_no_negative[self.y_predicted_no_negative < 0] = 1
         self.calculate_metric_prediction()
 
     def calculate_metric_prediction(self) -> None:
@@ -56,7 +58,7 @@ class Metric():
             y_pred=self.y_predicted, y_true=self.y_true
         )
         self.metrics[MetricEnum.MEAN_GAMMA_DEVIANCE.value] = mean_gamma_deviance(
-            y_pred=self.y_predicted, y_true=self.y_true)
+            y_pred=self.y_predicted_no_negative, y_true=self.y_true)
         self.metrics[MetricEnum.MEAN_POISSON_DEVIANCE.value] = mean_poisson_deviance(
             y_pred=self.y_predicted, y_true=self.y_true)
         self.metrics[MetricEnum.MEAN_SQUARED_ERROR.value] = mean_squared_error(

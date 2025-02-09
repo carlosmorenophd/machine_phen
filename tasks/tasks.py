@@ -6,7 +6,7 @@ from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
 from src.files.file_machine import FileData
 from src.optimizations.optimization_enum import convert_str_to_search_mode
-from src.optimizations.optimization import optimization_run
+from src.optimizations.optimization import optimization_run_from_task
 
 
 app = Celery('phen_machine', broker=REDIS_BROKEN, queue='machine')
@@ -27,7 +27,7 @@ def task_regression_genetic(
     """
     print(f" Inputs: file - {files_in}, column - {
           target_column}, Search mode - {search_mode_str}")
-    optimization_run(
+    optimization_run_from_task(
         file_date=FileData(
             file_in=files_in,
             target_feature=target_column,
