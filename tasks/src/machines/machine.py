@@ -270,6 +270,10 @@ class BayesianRegression(MachineRegression):
 #         return f"Ridge - {self.alpha} "
 
 
+# TODO: enable this model
+# TODO: put this model like first element
+# TODO: adding file with statistic of models
+# TODO: reduce the number of individual adding more machines and reduce the number of generation on 2 level
 # class LassoRegression(MachineRegression):
 #     """Machine for linear LASSO
 
