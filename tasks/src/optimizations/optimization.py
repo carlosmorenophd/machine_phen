@@ -12,7 +12,6 @@ from src.optimizations.optimization_enum import (
 from src.files.file_machine import FileData, TrainingData, FileMachine, DatasetOptimizationData
 from src.machines.machine_build import machine_build_regression_optimization
 from src.machines.machine import MachineRegression
-from src.machines.machine_enums import HyperTypeValueEnum
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 
@@ -142,6 +141,7 @@ class GeneticAlgorithm():
         self._population: list[GeneticIndividual] = []
         self._new_population: list[GeneticIndividual] = []
         self._global_population: list[GeneticIndividual] = []
+        self._message = ""
 
     def create_initial_population(self, population_number: int):
         """Create the initial population
@@ -189,37 +189,22 @@ class GeneticAlgorithm():
 
         child_2.set_features_chromosome(parent_2.features_chromosome[
             :crossover_point] + parent_1.features_chromosome[crossover_point:])
+        # Apply mutation
         if parent_1.machine.machine_name == parent_2.machine.machine_name:
             hyper_parameters_1 = parent_1.machine.hyper_parameters
             hyper_parameters_2 = parent_2.machine.hyper_parameters
             for key, _ in parent_1.machine.hyper_parameters.items():
-                if hyper_parameters_1[key].type_value == HyperTypeValueEnum.FLOAT:
-                    value_1, value_2 = self.crossover_value_same_machine(
-                        value_1=hyper_parameters_1[key].value,
-                        value_2=hyper_parameters_2[key].value,
-                        type_value=hyper_parameters_1[key].type_value,
-                    )
-                    hyper_parameters_1[key].set_value(value_1)
-                    hyper_parameters_2[key].set_value(value_2)
-                elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.INT:
-                    value_1, value_2 = self.crossover_value_same_machine(
-                        value_1=hyper_parameters_1[key].value,
-                        value_2=hyper_parameters_2[key].value,
-                        type_value=hyper_parameters_1[key].type_value,
-                    )
-                    hyper_parameters_1[key].set_value(value_1)
-                    hyper_parameters_2[key].set_value(value_2)
-                elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.CATEGORY:
-                    if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
-                        hyper_parameters_1[key].set_value(
-                            hyper_parameters_1[key].value)
-                        hyper_parameters_2[key].set_value(
-                            hyper_parameters_1[key].value)
-                    else:
-                        hyper_parameters_1[key].set_value(
-                            hyper_parameters_2[key].value)
-                        hyper_parameters_2[key].set_value(
-                            hyper_parameters_1[key].value)
+                hyper_parameter_mean = round(
+                    hyper_parameters_1[key].value +
+                    hyper_parameters_2[key].value / 2,
+                    self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+                )
+                if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
+                    hyper_parameters_1[key].value = hyper_parameter_mean
+                    hyper_parameters_2[key].value = hyper_parameter_mean
+                else:
+                    hyper_parameters_1[key].value = hyper_parameters_1[key].value
+                    hyper_parameters_2[key].value = hyper_parameter_mean
             parent_1.machine.set_hyper_parameters(hyper_parameters_1)
             child_1.set_machine(parent_1.machine)
             parent_2.machine.set_hyper_parameters(hyper_parameters_2)
@@ -236,64 +221,14 @@ class GeneticAlgorithm():
                 )
         return child_1, child_2
 
-    def crossover_value_same_machine(
-            self,
-            value_1: str,
-            value_2:  str,
-            type_value: HyperTypeValueEnum
-    ) -> tuple[str, str]:
-        """Cross over between two values of hyper parameters
-
-        Args:
-            value_1 (str): value of hyper parameter 1
-            value_2 (str): value of hyper parameter 2
-            type_value (HyperTypeValueEnum): type of hyper parameter
-
-        Returns:
-            tuple[str, str]: tuple of two new values of hyper parameters
-        """
-        mean_value = self.calculate_mean_str_hyper_parameter(
-            value_1=value_1, value_2=value_2, type_value=type_value)
-        if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
-            return mean_value, mean_value
-        return value_1, mean_value
-
-    def calculate_mean_str_hyper_parameter(
-            self,
-            value_1: str,
-            value_2:  str,
-            type_value: HyperTypeValueEnum
-    ) -> str:
-        """Calculate the mean between two str values
-
-        Args:
-            hyper_parameter_1 (str): First value of hyper parameter
-            hyper_parameter_2 (str): Second value of hyper parameter
-
-        Returns:
-            str: Mean value between two values of hyper parameters
-        """
-        if type_value == HyperTypeValueEnum.INT:
-            return str(
-                int(
-                    int(value_1) +
-                    int(value_2) / 2
-                )
-            )
-        if type_value == HyperTypeValueEnum.FLOAT:
-            return str(round(
-                float(value_1) +
-                float(value_2) / 2,
-                self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
-            ))
-        raise ValueError("Type value not defined")
-
     def run(self):
         """Main function to run the genetic algorithm
         """
         self.create_initial_population(
             population_number=self._genetic_algorithm_parameters.number_population)
-        for _ in range(self._genetic_algorithm_parameters.number_generation):
+        self.initial_log()
+        for generation_number in range(self._genetic_algorithm_parameters.number_generation):
+            self.generation_log(generation_number=generation_number)
             self.selection()
             for i in range(self._genetic_algorithm_parameters.number_population // 2):
                 child_1, child_2 = self.crossover(
@@ -309,6 +244,24 @@ class GeneticAlgorithm():
                 self._new_population.append(child_1)
                 self._new_population.append(child_2)
             self.store_population()
+
+    def initial_log(self):
+        """Initial log of algorithm
+        """
+        self.adding_message(message="Starting the genetic algorithm")
+        self.adding_message(
+            message=f"population: {self._genetic_algorithm_parameters.number_population}")
+        self.adding_message(
+            message=f"generations: {self._genetic_algorithm_parameters.number_generation}")
+        self.log_message()
+
+    def generation_log(self, generation_number: int):
+        """Log of the generation
+        """
+        self.adding_message(message=f"Generation: {generation_number}")
+        self.adding_message(
+            message=f"- {self._genetic_algorithm_parameters.number_generation}")
+        self.log_message()
 
     def mutation_two_children(self, child_1: GeneticIndividual, child_2: GeneticIndividual):
         "Mutation of the population"
@@ -370,10 +323,20 @@ class GeneticAlgorithm():
     def selection(self):
         """Run every model in all population and sort by best metric
         """
-        for individual in self._population:
+        for number_individual, individual  in enumerate(self._population):
+            self.selection_log(number_individual=number_individual)
             individual.run()
         self._population.sort(
             key=lambda individual: individual.index_metric, reverse=True)
+
+    def selection_log(self, number_individual: int):
+        """Log the selection
+        """
+        self.adding_message(
+            message=f"Individual {number_individual} ")
+        self.adding_message(
+            message=f" - {len(self._population)} ")
+        self.log_message()
 
     def store_population(self):
         """Store the population in a file
@@ -383,6 +346,23 @@ class GeneticAlgorithm():
             key=lambda individual: individual.index_metric, reverse=True)
         self._population = self._new_population
         self._new_population = []
+
+    def adding_message(self, message: str, prefix: bool = False) -> None:
+        """Adding message to the optimization
+        """
+        if prefix is False:
+            self._message = f"{self._message} {message}"
+        else:
+            self._message = f"{message} {self._message}"
+
+    def log_message(self, quick_message: str = None) -> None:
+        """Log the message
+        """
+        if quick_message is not None:
+            print(quick_message)
+        else:
+            print(self._message)
+            self._message = ""
 
 
 def optimization_run_from_task(
