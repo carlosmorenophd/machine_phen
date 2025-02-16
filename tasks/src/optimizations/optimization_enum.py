@@ -76,7 +76,7 @@ class GeneticAlgorithmParameter(ABC):
             self._number_generation = 10
             self._mutation_rate = 0.05
             self._cross_over_rate = 0.8
-            self._hyper_parameter_deep_decimal = 3
+            self._hyper_parameter_deep_decimal = 5
             self._mutation_machine = 0.1
         if search_mode == SearchMode.BASIC_SEARCH:
             self._machines_key.append(MachineNames.BAYESIAN_RIDGE_REGRESSION)
@@ -88,7 +88,7 @@ class GeneticAlgorithmParameter(ABC):
             self._number_generation = 30
             self._mutation_rate = 0.1
             self._cross_over_rate = 0.7
-            self._hyper_parameter_deep_decimal = 6
+            self._hyper_parameter_deep_decimal = 5
             self._mutation_machine = 0.2
         if search_mode == SearchMode.DEEP_SEARCH:
             self._machines_key.append(MachineNames.BAYESIAN_RIDGE_REGRESSION)
@@ -100,7 +100,7 @@ class GeneticAlgorithmParameter(ABC):
             self._number_generation = 60
             self._mutation_rate = 0.15
             self._cross_over_rate = 0.6
-            self._hyper_parameter_deep_decimal = 9
+            self._hyper_parameter_deep_decimal = 5
             self._mutation_machine = 0.3
 
     @property
