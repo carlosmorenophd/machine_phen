@@ -44,9 +44,9 @@ class HyperParametersDefinition:
     def set_value(self, value: str) -> None:
         """Set a new value on str"""
         if self._type_value == HyperTypeValueEnum.INT:
-            self._value_str = f"{int(value)}"
+            self._value_str = value
         if self._type_value == HyperTypeValueEnum.FLOAT:
-            self._value_str = f"{float(value)}"
+            self._value_str = value
         if self._type_value == HyperTypeValueEnum.CATEGORY:
             if value not in self._catalogue_values:
                 raise ValueError(f"Value: {value} is not on category")
@@ -83,10 +83,11 @@ class HyperParametersDefinition:
             _type_: _description_
         """
         if self._type_value == HyperTypeValueEnum.FLOAT:
-            self.set_value(value=f"{round(random.uniform(
+            value=round(random.uniform(
                 float(self._low_str), float(self._high_str)),
                 deep_decimal
-            )}")
+            )
+            self.set_value(value=f"{value}")
         if self._type_value == HyperTypeValueEnum.INT:
             self.set_value(
                 value=f"{int(random.randint(int(self._low_str), int(self._high_str)))}")
@@ -285,7 +286,7 @@ class LassoRegression(MachineRegression):
         self._default_hyper_parameters["alfa"] = HyperParametersDefinition(
             value="0.1",
             limit_hyper_parameter=LimitHyperParameter(
-                low_value="0.0001", high_value="1"),
+                low_value="0.0001", high_value="0.1"),
             type_value=HyperTypeValueEnum.FLOAT,
         )
         self._default_hyper_parameters["selection"] = HyperParametersDefinition(
