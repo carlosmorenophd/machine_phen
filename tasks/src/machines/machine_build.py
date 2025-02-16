@@ -4,7 +4,7 @@
 from src.machines.machine_enums import MachineNames
 from src.machines.machine import (
     MachineRegression,
-    BayesianRegression,
+    BayesianRidgeRegression,
     ExtremeGradientBoostRegression,
     RandomForestRegression,
     SupportVectorRegression,
@@ -31,8 +31,8 @@ def machine_build_regression_optimization(
         machine = RandomForestRegression()
     if machine_name == MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION:
         machine = ExtremeGradientBoostRegression()
-    if machine_name == MachineNames.BAYESIAN_REGRESSION:
-        machine = BayesianRegression()
+    if machine_name == MachineNames.BAYESIAN_RIDGE_REGRESSION:
+        machine = BayesianRidgeRegression()
     # if machine_definition.name_machine == MachineNames.LASSO_REGRESSION:
     #     return LassoRegression()
     if machine_name == MachineNames.SUPPORT_VECTOR_REGRESSION:

@@ -10,7 +10,7 @@ from typing import Union
 
 from numpy import ndarray
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import BayesianRidge
+from sklearn.linear_model import BayesianRidge, Lasso
 from sklearn.svm import SVR
 from xgboost import XGBRegressor
 
@@ -204,13 +204,13 @@ class MachineRegression(ABC):
                 )
 
 
-class BayesianRegression(MachineRegression):
+class BayesianRidgeRegression(MachineRegression):
     """Class to run a Bayesian Prediction
     """
 
     def __init__(self) -> None:
         super().__init__()
-        self._machine_name = MachineNames.BAYESIAN_REGRESSION.value
+        self._machine_name = MachineNames.BAYESIAN_RIDGE_REGRESSION.value
         self._default_hyper_parameters = {}
         self._hyper_parameters = {}
         self._default_hyper_parameters["alpha_1"] = HyperParametersDefinition(
@@ -270,33 +270,41 @@ class BayesianRegression(MachineRegression):
 #         return f"Ridge - {self.alpha} "
 
 
-# TODO: enable this model
-# TODO: put this model like first element
-# TODO: adding file with statistic of models
-# TODO: reduce the number of individual adding more machines and reduce the number of generation on 2 level
-# class LassoRegression(MachineRegression):
-#     """Machine for linear LASSO
+class LassoRegression(MachineRegression):
+    """Machine for linear LASSO
 
-#     Args:
-#         MachinePrediction (_type_): Abstract method
-#     """
+    Args:
+        MachinePrediction (_type_): Abstract method
+    """
 
-#     def __init__(self, alpha: float = 0.1) -> None:
-#         super().__init__()
-#         self.alpha = alpha
+    def __init__(self) -> None:
+        super().__init__()
+        self._machine_name = MachineNames.LASSO_REGRESSION.value
+        self._default_hyper_parameters = {}
+        self._hyper_parameters = {}
+        self._default_hyper_parameters["alfa"] = HyperParametersDefinition(
+            value="0.1",
+            limit_hyper_parameter=LimitHyperParameter(
+                low_value="0.0001", high_value="1"),
+            type_value=HyperTypeValueEnum.FLOAT,
+        )
+        self._default_hyper_parameters["selection"] = HyperParametersDefinition(
+            value="cyclic",
+            limit_hyper_parameter=LimitHyperParameter(
+                catalogue_values=[
+                    'cyclic',
+                    'random'
+                ],
+            ),
+            type_value=HyperTypeValueEnum.CATEGORY,
+        )
+        self._hyper_parameters = self._default_hyper_parameters
 
-#     def build_hyper_parameters_random(self) -> None:
-#         self._machine = Lasso(alpha=self.alpha)
-
-#     def build_hyper_parameters_random(self) -> list:
-#         return [
-#             {
-#                 "alpha": self.generate_random_hyperparameter(),
-#             }
-#         ]
-
-#     def __str__(self) -> str:
-#         return f"LASSO - {self.alpha} "
+    def build_machine(self) -> None:
+        self._machine = Lasso(
+            alpha=self._hyper_parameters["alfa"].value,
+            selection=self._hyper_parameters["selection"].value,
+        )
 
 
 class RandomForestRegression(MachineRegression):
