@@ -141,6 +141,7 @@ class GeneticAlgorithm():
         self._population: list[GeneticIndividual] = []
         self._new_population: list[GeneticIndividual] = []
         self._global_population: list[GeneticIndividual] = []
+        self._message = ""
 
     def create_initial_population(self, population_number: int):
         """Create the initial population
@@ -225,7 +226,9 @@ class GeneticAlgorithm():
         """
         self.create_initial_population(
             population_number=self._genetic_algorithm_parameters.number_population)
-        for _ in range(self._genetic_algorithm_parameters.number_generation):
+        self.initial_log()
+        for generation_number in range(self._genetic_algorithm_parameters.number_generation):
+            self.generation_log(generation_number=generation_number)
             self.selection()
             for i in range(self._genetic_algorithm_parameters.number_population // 2):
                 child_1, child_2 = self.crossover(
@@ -241,6 +244,24 @@ class GeneticAlgorithm():
                 self._new_population.append(child_1)
                 self._new_population.append(child_2)
             self.store_population()
+
+    def initial_log(self):
+        """Initial log of algorithm
+        """
+        self.adding_message(message="Starting the genetic algorithm")
+        self.adding_message(
+            message=f"population: {self._genetic_algorithm_parameters.number_population}")
+        self.adding_message(
+            message=f"generations: {self._genetic_algorithm_parameters.number_generation}")
+        self.log_message()
+
+    def generation_log(self, generation_number: int):
+        """Log of the generation
+        """
+        self.adding_message(message=f"Generation: {generation_number}")
+        self.adding_message(
+            message=f"- {self._genetic_algorithm_parameters.number_generation}")
+        self.log_message()
 
     def mutation_two_children(self, child_1: GeneticIndividual, child_2: GeneticIndividual):
         "Mutation of the population"
@@ -302,10 +323,20 @@ class GeneticAlgorithm():
     def selection(self):
         """Run every model in all population and sort by best metric
         """
-        for individual in self._population:
+        for number_individual, individual  in enumerate(self._population):
+            self.selection_log(number_individual=number_individual)
             individual.run()
         self._population.sort(
             key=lambda individual: individual.index_metric, reverse=True)
+
+    def selection_log(self, number_individual: int):
+        """Log the selection
+        """
+        self.adding_message(
+            message=f"Individual {number_individual} ")
+        self.adding_message(
+            message=f" - {len(self._population)} ")
+        self.log_message()
 
     def store_population(self):
         """Store the population in a file
@@ -315,6 +346,23 @@ class GeneticAlgorithm():
             key=lambda individual: individual.index_metric, reverse=True)
         self._population = self._new_population
         self._new_population = []
+
+    def adding_message(self, message: str, prefix: bool = False) -> None:
+        """Adding message to the optimization
+        """
+        if prefix is False:
+            self._message = f"{self._message} {message}"
+        else:
+            self._message = f"{message} {self._message}"
+
+    def log_message(self, quick_message: str = None) -> None:
+        """Log the message
+        """
+        if quick_message is not None:
+            print(quick_message)
+        else:
+            print(self._message)
+            self._message = ""
 
 
 def optimization_run_from_task(
