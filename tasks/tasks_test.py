@@ -37,7 +37,7 @@ if __name__ == "__main__":
         print("No action to run")
         optimization_run_from_task(
             file_date=FileData(
-                file_in="3.14_lrace_geo_w_f_n.csv",
+                file_in="remove_outlier_zscore_3.14_lrace_geo_w_f_n.csv",
                 target_feature="Rendimiento",
                 folder_path=FolderCache.UPLOAD,
             ),

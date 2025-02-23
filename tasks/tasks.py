@@ -40,6 +40,32 @@ def task_regression_genetic(
     gc.collect()
 
 
+@app.task(name="back_forward")
+def task_back_forward_feature(
+    files_in: str,
+    target_column: str,
+    file_models: str,
+) -> None:
+    """Search the best machine for regression on one file
+
+    Args:
+        files_in (str): file to get data
+        target_column (str): column target on file
+        genetic_parameters_str (str): basic parameters for genetic algorithm
+    """
+    print(f" Inputs: file - {files_in}, column - {
+          target_column}, file models - {file_models}")
+    optimization_run_from_task(
+        file_date=FileData(
+            file_in=files_in,
+            target_feature=target_column,
+            folder_path=FolderCache.UPLOAD,
+        ),
+        file_models=
+    )
+    gc.collect()
+
+
 @app.task(name="version")
 def version() -> str:
     """Version of system
