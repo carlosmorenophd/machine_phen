@@ -3,6 +3,7 @@
 from src.files.file_machine import FileDataRegression
 from src.helpers.file_access import FileData, StorageFile
 from src.machines.machine_build import build_machine_regression
+from src.machines.machine_enums import HyperParameterRebuild, convert_str_to_machine_name
 
 
 class FeatureForwardBackwardSelection:
@@ -26,7 +27,7 @@ class FeatureForwardBackwardSelection:
             folder_file=self._file_models.folder_path,
         )
         self._original_df_models = self._storage_file_models.get_csv_to_data_frame()
-        self._model = None
+        self._machine = None
 
     def run(self) -> None:
         """Run the backward feature selection and whe it finish run the forward feature selection
@@ -48,11 +49,15 @@ class FeatureForwardBackwardSelection:
     def create_model(self) -> None:
         """Create the model from file models
         """
-        model_name = self._original_df_models.iloc[0, 0]
+        model_name = convert_str_to_machine_name(self._original_df_models.iloc[0, 0])
         parameters = []
-        for column in self._original_df_models.columns:
-            if model_name in column:
-                parameters.append(column.replace(f"_{model_name}", ''))
-        print(f"Parameters : {parameters}")
-        self._model = build_machine_regression(machine_name=model_name)
-        
+        for index, column in enumerate(self._original_df_models.columns):
+            if model_name.value in column:
+                parameter = HyperParameterRebuild(
+                    name=column.replace(f"_{model_name.value}", ''),
+                    value=self._original_df_models.iloc[0, index]
+                )
+                parameters.append(parameter)
+        self._machine = build_machine_regression(machine_name=model_name)
+        self._machine.rebuild_machine(parameters=parameters)
+        print(f"Machine : {self._machine}")

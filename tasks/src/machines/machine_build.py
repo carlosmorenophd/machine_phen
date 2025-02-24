@@ -20,9 +20,7 @@ def machine_build_regression_optimization_decimal(
 
     Args:
         machine_definition (MachineJson): Machine definition
-
-    Raises:
-        NotImplementedError: The machine don't exist
+        deep_decimal (int): Number of decimal to mutate
 
     Returns:
         MachineJson: Return child of Machine Json to run it
@@ -35,7 +33,7 @@ def machine_build_regression_optimization_decimal(
 def build_machine_regression(
         machine_name: MachineNames,
 ) -> MachineRegression:
-    """Build some machine for optimization with random values
+    """Build some machine for optimization
 
     Args:
         machine_definition (MachineJson): Machine definition

@@ -6,7 +6,6 @@ import json
 from abc import ABC, abstractmethod
 from datetime import timedelta
 from typing import Union
-from dataclasses import dataclass
 
 
 from numpy import ndarray
@@ -16,13 +15,12 @@ from sklearn.svm import SVR
 from xgboost import XGBRegressor
 
 from src.metrics.metric import Metric
-from src.machines.machine_enums import MachineNames, HyperTypeValueEnum, LimitHyperParameter
-
-@dataclass
-class HyperParameterRebuild:
-    """Basic hyper parameters for rebuild"""
-    name: str
-    value: str
+from src.machines.machine_enums import (
+    MachineNames,
+    HyperTypeValueEnum,
+    LimitHyperParameter,
+    HyperParameterRebuild,
+)
 
 
 class HyperParametersDefinition:
@@ -131,10 +129,10 @@ class MachineRegression(ABC):
         """Create a machine for training and predict
         """
 
-    @abstractmethod
-    def rebuild_machine(self) -> None:
-        """Create a machine for training and predict
-        """
+    def rebuild_machine(self, parameters: list[HyperParameterRebuild]) -> None:
+        """Rebuild the machine with old parameters"""
+        for parameter in parameters:
+            self._hyper_parameters[parameter.name].set_value(parameter.value)
 
     def identity(self) -> dict:
         """Return the str that identify the machine and the features
@@ -142,7 +140,10 @@ class MachineRegression(ABC):
         identity_dict = {
             "name": self._machine_name,
         }
-        identity_dict.update(self._hyper_parameters)
+        identity_parameters = []
+        for key, value in self._hyper_parameters.items():
+            identity_parameters.append({"name": key, "value": value.value})
+        identity_dict["parameters"] = identity_parameters
         return identity_dict
 
     def __str__(self):
@@ -318,9 +319,6 @@ class LassoRegression(MachineRegression):
             alpha=self._hyper_parameters["alfa"].value,
             selection=self._hyper_parameters["selection"].value,
         )
-
-    def rebuild_machine(self, list_hyperpatameters) -> None:
-        s
 
 
 class RandomForestRegression(MachineRegression):
