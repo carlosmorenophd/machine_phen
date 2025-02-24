@@ -6,6 +6,7 @@ import json
 from abc import ABC, abstractmethod
 from datetime import timedelta
 from typing import Union
+from dataclasses import dataclass
 
 
 from numpy import ndarray
@@ -16,6 +17,12 @@ from xgboost import XGBRegressor
 
 from src.metrics.metric import Metric
 from src.machines.machine_enums import MachineNames, HyperTypeValueEnum, LimitHyperParameter
+
+@dataclass
+class HyperParameterRebuild:
+    """Basic hyper parameters for rebuild"""
+    name: str
+    value: str
 
 
 class HyperParametersDefinition:
@@ -83,7 +90,7 @@ class HyperParametersDefinition:
             _type_: _description_
         """
         if self._type_value == HyperTypeValueEnum.FLOAT:
-            value=round(random.uniform(
+            value = round(random.uniform(
                 float(self._low_str), float(self._high_str)),
                 deep_decimal
             )
@@ -121,6 +128,11 @@ class MachineRegression(ABC):
 
     @abstractmethod
     def build_machine(self) -> None:
+        """Create a machine for training and predict
+        """
+
+    @abstractmethod
+    def rebuild_machine(self) -> None:
         """Create a machine for training and predict
         """
 
@@ -306,6 +318,9 @@ class LassoRegression(MachineRegression):
             alpha=self._hyper_parameters["alfa"].value,
             selection=self._hyper_parameters["selection"].value,
         )
+
+    def rebuild_machine(self, list_hyperpatameters) -> None:
+        s
 
 
 class RandomForestRegression(MachineRegression):

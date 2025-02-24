@@ -2,6 +2,8 @@
 import os
 import json
 import warnings
+from dataclasses import dataclass
+
 
 import pandas as pd
 from src.helpers.key_env import IS_DEBUG, FolderCache, FOLDER_DATA
@@ -95,6 +97,13 @@ def get_name_file_without_extension(file_name: str, folder: FolderCache) -> str:
     complete_name = os.path.basename(file)
     name = os.path.splitext(complete_name)
     return name[0]
+
+
+@dataclass
+class FileData():
+    """ Minimal parameter for file"""
+    file_in: str
+    folder_path: FolderCache
 
 
 class StorageFile():

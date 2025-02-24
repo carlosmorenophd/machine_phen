@@ -4,9 +4,10 @@ import sys
 from celery.app import Celery
 
 from src.helpers.key_env import REDIS_BROKEN
-from src.optimizations.optimization import optimization_run_from_task
-from src.optimizations.optimization_enum import convert_str_to_search_mode
-from src.files.file_machine import FileData, FolderCache
+from src.optimizations.optimization import forward_backward_features
+from src.files.file_machine import FileDataRegression
+from src.helpers.key_env import FolderCache
+from src.helpers.file_access import FileData
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -35,13 +36,15 @@ if __name__ == "__main__":
 # python tasks_test.py regression_genetic 3.14_lrace_geo_w_f_n.csv Rendimiento basic_search
     else:
         print("No action to run")
-        optimization_run_from_task(
-            file_date=FileData(
+        forward_backward_features(
+            file_data=FileDataRegression(
                 file_in="remove_outlier_zscore_3.14_lrace_geo_w_f_n.csv",
                 target_feature="Rendimiento",
                 folder_path=FolderCache.UPLOAD,
             ),
-            search_mode=convert_str_to_search_mode(
-                search_mode_str="quick_exploration",
+            file_models=FileData(
+                file_in="optimization_remove_outlier_zscore_3.14_lrace_geo_w_f_n.csv",
+                folder_path=FolderCache.UPLOAD,
             ),
         )
+        print("Finish")

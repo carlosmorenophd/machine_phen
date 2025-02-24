@@ -12,9 +12,28 @@ from src.machines.machine import (
 )
 
 
-def machine_build_regression_optimization(
+def machine_build_regression_optimization_decimal(
         machine_name: MachineNames,
         deep_decimal: int,
+) -> MachineRegression:
+    """Build some machine for optimization with random values
+
+    Args:
+        machine_definition (MachineJson): Machine definition
+
+    Raises:
+        NotImplementedError: The machine don't exist
+
+    Returns:
+        MachineJson: Return child of Machine Json to run it
+    """
+    machine = build_machine_regression(machine_name)
+    machine.force_mutate_hyper_parameters(deep_decimal=deep_decimal)
+    return machine
+
+
+def build_machine_regression(
+        machine_name: MachineNames,
 ) -> MachineRegression:
     """Build some machine for optimization with random values
 
@@ -40,5 +59,4 @@ def machine_build_regression_optimization(
         machine = SupportVectorRegression()
     if machine is None:
         raise NotImplementedError("Don't exist machine to run it")
-    machine.force_mutate_hyper_parameters(deep_decimal=deep_decimal)
     return machine

@@ -8,15 +8,13 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-from src.helpers.file_access import FolderCache, StorageFile
+from src.helpers.file_access import FileData, StorageFile
 
 
 @dataclass
-class FileData():
+class FileDataRegression(FileData):
     """File information
     """
-    file_in: str
-    folder_path: FolderCache
     target_feature: str
 
 
@@ -47,7 +45,7 @@ class FileMachine():
 
     def __init__(
         self,
-        file_data: FileData,
+        file_data: FileDataRegression,
         training_info: TrainingData,
     ) -> None:
         self._file_data = file_data
@@ -120,7 +118,7 @@ class FileMachine():
         return list(self.without_target.columns)
 
     @property
-    def file_data(self) -> FileData:
+    def file_data(self) -> FileDataRegression:
         """Get the file data
         """
         return self._file_data
@@ -130,7 +128,7 @@ class FileMachine():
         """Get the training data
         """
         return self._training_data
-    
+
     @property
     def storage_file(self) -> StorageFile:
         """Get the storage file

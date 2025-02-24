@@ -4,9 +4,9 @@ import gc
 
 from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
-from src.files.file_machine import FileData
+from src.files.file_machine import FileDataRegression
 from src.optimizations.optimization_enum import convert_str_to_search_mode
-from src.optimizations.optimization import optimization_run_from_task
+from src.optimizations.optimization import optimization_run_from_task, forward_backward_features
 
 
 app = Celery('phen_machine', broker=REDIS_BROKEN, queue='machine')
@@ -28,7 +28,7 @@ def task_regression_genetic(
     print(f" Inputs: file - {files_in}, column - {
           target_column}, Search mode - {search_mode_str}")
     optimization_run_from_task(
-        file_date=FileData(
+        file_data=FileDataRegression(
             file_in=files_in,
             target_feature=target_column,
             folder_path=FolderCache.UPLOAD,
@@ -46,7 +46,7 @@ def task_back_forward_feature(
     target_column: str,
     file_models: str,
 ) -> None:
-    """Search the best machine for regression on one file
+    """Search the best features selection with backward adn forward action 
 
     Args:
         files_in (str): file to get data
@@ -55,13 +55,17 @@ def task_back_forward_feature(
     """
     print(f" Inputs: file - {files_in}, column - {
           target_column}, file models - {file_models}")
-    optimization_run_from_task(
-        file_date=FileData(
+    forward_backward_features(
+        file_data=FileDataRegression(
             file_in=files_in,
             target_feature=target_column,
             folder_path=FolderCache.UPLOAD,
         ),
-        file_models=
+        file_models=FileDataRegression(
+            file_in=file_models,
+            target_feature=target_column,
+            folder_path=FolderCache.UPLOAD,
+        ),
     )
     gc.collect()
 
