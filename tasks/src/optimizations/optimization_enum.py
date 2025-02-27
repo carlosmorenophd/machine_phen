@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from src.machines.machine_enums import MachineNames
 from src.files.file_machine import TrainingData
+from src.metrics.metric_enums import MetricEnum
 
 
 class SearchMode(Enum):
@@ -70,6 +71,7 @@ class GeneticAlgorithmParameter(ABC):
     def __init__(self, search_mode: SearchMode) -> None:
         self._search_mode = search_mode
         self._machines_key = []
+        self._metric_selection = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR
         if search_mode == SearchMode.QUICK_EXPLORATION:
             self._machines_key.append(MachineNames.LASSO_REGRESSION)
             self._number_population = 40
@@ -172,6 +174,15 @@ class GeneticAlgorithmParameter(ABC):
     def mutate_machine(self) -> float:
         """Return the mutate machine"""
         return self._mutation_machine
+
+    @property
+    def metric_selection(self) -> MetricEnum:
+        """Return the metric selection
+
+        Returns:
+            MetricEnum: metric selection
+        """
+        return self._metric_selection
 
 
 def convert_parameters_str_to_optimization(search_mode_str: str) -> GeneticAlgorithmParameter:

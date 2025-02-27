@@ -32,3 +32,20 @@ class LimitHyperParameter():
     low_value: str = None
     high_value: str = None
     catalogue_values: list[str] = None
+
+@dataclass
+class HyperParameterRebuild:
+    """Basic hyper parameters for rebuild"""
+    name: str
+    value: str
+
+def convert_str_to_machine_name(machine_name: str) -> MachineNames:
+    """Convert string to machine name
+
+    Args:
+        machine_name (str): Machine name
+
+    Returns:
+        MachineNames: Machine name
+    """
+    return MachineNames(machine_name)

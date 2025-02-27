@@ -15,7 +15,12 @@ from sklearn.svm import SVR
 from xgboost import XGBRegressor
 
 from src.metrics.metric import Metric
-from src.machines.machine_enums import MachineNames, HyperTypeValueEnum, LimitHyperParameter
+from src.machines.machine_enums import (
+    MachineNames,
+    HyperTypeValueEnum,
+    LimitHyperParameter,
+    HyperParameterRebuild,
+)
 
 
 class HyperParametersDefinition:
@@ -83,7 +88,7 @@ class HyperParametersDefinition:
             _type_: _description_
         """
         if self._type_value == HyperTypeValueEnum.FLOAT:
-            value=round(random.uniform(
+            value = round(random.uniform(
                 float(self._low_str), float(self._high_str)),
                 deep_decimal
             )
@@ -124,13 +129,21 @@ class MachineRegression(ABC):
         """Create a machine for training and predict
         """
 
+    def rebuild_machine(self, parameters: list[HyperParameterRebuild]) -> None:
+        """Rebuild the machine with old parameters"""
+        for parameter in parameters:
+            self._hyper_parameters[parameter.name].set_value(parameter.value)
+
     def identity(self) -> dict:
         """Return the str that identify the machine and the features
         """
         identity_dict = {
             "name": self._machine_name,
         }
-        identity_dict.update(self._hyper_parameters)
+        identity_parameters = []
+        for key, value in self._hyper_parameters.items():
+            identity_parameters.append({"name": key, "value": value.value})
+        identity_dict["parameters"] = identity_parameters
         return identity_dict
 
     def __str__(self):
