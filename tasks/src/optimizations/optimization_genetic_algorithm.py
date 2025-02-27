@@ -9,7 +9,12 @@ import pandas as pd
 from src.optimizations.optimization_enum import (
     GeneticAlgorithmParameter,
 )
-from src.files.file_machine import FileDataRegression, TrainingData, FileMachine, DatasetOptimizationData
+from src.files.file_machine import (
+    FileDataRegression,
+    TrainingData,
+    FileMachine,
+    DatasetOptimizationData
+)
 from src.machines.machine_build import machine_build_regression_optimization_decimal
 from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
@@ -21,7 +26,11 @@ class GeneticIndividual():
     """Class to create a individual for genetic algorithm
     """
 
-    def __init__(self, machine: MachineRegression = None) -> None:
+    def __init__(
+        self,
+        machine: MachineRegression = None,
+        metric_selection: MetricEnum = None,
+    ) -> None:
         self._dataset: DatasetOptimizationData = None
         self._machine = None
         if machine is not None:
@@ -29,6 +38,9 @@ class GeneticIndividual():
         self._features_chromosome:  list[bool] = None
         self._metric: Metric = None
         self._index_metric: float = None
+        self._metric_selection = None
+        if metric_selection is not None:
+            self._metric_selection = metric_selection
 
     def __str__(self) -> str:
         return f"machine: {self._machine}  features: {self._dataset.features_name_that_be_true}"
@@ -62,8 +74,10 @@ class GeneticIndividual():
                                y_train=self._dataset.y_train)
         self._metric = self._machine.test(
             x_test=self._dataset.x_test, y_test=self._dataset.y_test)
+        if self._metric_selection is None:
+            raise ValueError("Metric selection is not defined")
         self._index_metric = self._metric.get_single_metric(
-            metric=MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR)
+            metric=self._metric_selection)
 
     def set_features_chromosome(self, features_chromosome: list[bool]):
         """Set the features chromosome"""
@@ -72,6 +86,10 @@ class GeneticIndividual():
     def set_machine(self, machine: MachineRegression):
         """Set the machine"""
         self._machine = machine
+
+    def set_metric_selection(self, metric_selection: MetricEnum):
+        """Set the metric selection"""
+        self._metric_selection = metric_selection
 
     def apply_dataset(self, file_machine: FileMachine, features_chromosome: list[bool] = None):
         """Convert the features chromosome to dataset
@@ -169,7 +187,8 @@ class GeneticAlgorithm():
                     self._genetic_algorithm_parameters.machines_key
                 ),
                 deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
-            )
+            ),
+            metric_selection=self._genetic_algorithm_parameters.metric_selection,
         )
         genetic_individual.apply_dataset(
             file_machine=self._file_machine,
@@ -183,8 +202,12 @@ class GeneticAlgorithm():
         """
         crossover_point = random.randint(
             1, len(self._file_machine.columns_name_with_out_target) - 1)
-        child_1 = GeneticIndividual()
-        child_2 = GeneticIndividual()
+        child_1 = GeneticIndividual(
+            metric_selection=self._genetic_algorithm_parameters.metric_selection
+        )
+        child_2 = GeneticIndividual(
+            metric_selection=self._genetic_algorithm_parameters.metric_selection
+        )
         child_1.set_features_chromosome(parent_1.features_chromosome[
             :crossover_point] + parent_2.features_chromosome[crossover_point:])
 
@@ -395,7 +418,30 @@ class GeneticAlgorithm():
             self.selection_log(number_individual=number_individual)
             individual.run()
         self._population.sort(
-            key=lambda individual: individual.index_metric, reverse=True)
+            key=lambda individual: individual.index_metric,
+            reverse=self.selection_reverse()
+        )
+
+    def selection_reverse(self) -> bool:
+        """Get if the best model is the lowest or the highest
+
+        Raises:
+            ValueError: Model no define
+
+        Returns:
+            _type_: sort ascending or descending
+        """
+        if self._genetic_algorithm_parameters.metric_selection in [
+            MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
+            MetricEnum.R2_SCORE,
+        ]:
+            return False
+        if self._genetic_algorithm_parameters.metric_selection in [
+            MetricEnum.MEAN_ABSOLUTE_ERROR,
+            MetricEnum.MEAN_SQUARED_ERROR
+        ]:
+            return True
+        raise ValueError("Metric not defined, to select the best model")
 
     def selection_log(self, number_individual: int):
         """Log the selection
