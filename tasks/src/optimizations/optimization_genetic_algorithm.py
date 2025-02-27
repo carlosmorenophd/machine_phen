@@ -335,6 +335,7 @@ class GeneticAlgorithm():
                 self._new_population.append(child_1)
                 self._new_population.append(child_2)
             self.store_population()
+            self.export()
 
     def initial_log(self):
         """Initial log of algorithm
