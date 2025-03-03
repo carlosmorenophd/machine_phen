@@ -37,6 +37,13 @@ class Metric():
         self.y_predicted_no_negative[self.y_predicted_no_negative < 0] = 1
         self.calculate_metric_prediction()
 
+    def calculate_quantile_base_discretization(self, quantile: int) -> None:
+        """Generate matrix confusion from quantile base discretization
+
+        Args:
+            quantile (int): _description_
+        """
+
     def calculate_metric_prediction(self) -> None:
         """Calculate all metrics
         """

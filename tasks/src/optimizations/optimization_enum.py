@@ -52,12 +52,12 @@ def search_mode_from_search_mode(search_mode: SearchMode) -> TrainingData:
         )
     if search_mode == SearchMode.BASIC_SEARCH:
         return TrainingData(
-            test_size=0.7,
+            test_size=0.8,
             random_state=42
         )
     if search_mode == SearchMode.DEEP_SEARCH:
         return TrainingData(
-            test_size=0.6,
+            test_size=0.8,
             random_state=42
         )
     raise ValueError(f"Search mode '{search_mode}' is not valid")
@@ -81,19 +81,19 @@ class GeneticAlgorithmParameter(ABC):
             self._hyper_parameter_deep_decimal = 5
             self._mutation_machine = 0.1
         if search_mode == SearchMode.BASIC_SEARCH:
-            self._machines_key.append(MachineNames.BAYESIAN_RIDGE_REGRESSION)
+            self._machines_key.append(MachineNames.LASSO_REGRESSION)
             self._machines_key.append(
                 MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
             self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
-            self._number_population = 80
-            self._number_generation = 30
+            self._number_population = 40
+            self._number_generation = 20
             self._mutation_rate = 0.1
             self._cross_over_rate = 0.7
             self._hyper_parameter_deep_decimal = 5
             self._mutation_machine = 0.2
         if search_mode == SearchMode.DEEP_SEARCH:
-            self._machines_key.append(MachineNames.BAYESIAN_RIDGE_REGRESSION)
+            self._machines_key.append(MachineNames.LASSO_REGRESSION)
             self._machines_key.append(
                 MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
