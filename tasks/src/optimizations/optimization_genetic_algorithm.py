@@ -70,10 +70,14 @@ class GeneticIndividual():
     def run(self):
         """Run the machine with the features selected"""
         self._machine.build_machine()
-        self._machine.training(x_train=self._dataset.x_train,
-                               y_train=self._dataset.y_train)
+        self._machine.training(
+            x_train=self._dataset.x_train,
+            y_train=self._dataset.y_train,
+        )
         self._metric = self._machine.test(
-            x_test=self._dataset.x_test, y_test=self._dataset.y_test)
+            x_test=self._dataset.x_test,
+            y_test=self._dataset.y_test,
+        )
         if self._metric_selection is None:
             raise ValueError("Metric selection is not defined")
         self._index_metric = self._metric.get_single_metric(

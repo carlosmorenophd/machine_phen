@@ -92,10 +92,16 @@ class HyperParametersDefinition:
                 float(self._low_str), float(self._high_str)),
                 deep_decimal
             )
+            value = min(value, float(self._low_str))
+            value = max(value, float(self._high_str))
             self.set_value(value=f"{value}")
         if self._type_value == HyperTypeValueEnum.INT:
+            value = random.randint(int(self._low_str), int(self._high_str))
+            value = min(value, float(self._low_str))
+            value = max(value, float(self._high_str))
+            value = int(value)
             self.set_value(
-                value=f"{int(random.randint(int(self._low_str), int(self._high_str)))}")
+                value=f"{value}")
         if self._type_value == HyperTypeValueEnum.CATEGORY:
             self.set_value(
                 value=f"{random.choice(self._catalogue_values)}")
