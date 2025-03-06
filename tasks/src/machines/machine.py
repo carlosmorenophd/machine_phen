@@ -49,9 +49,15 @@ class HyperParametersDefinition:
     def set_value(self, value: str) -> None:
         """Set a new value on str"""
         if self._type_value == HyperTypeValueEnum.INT:
-            self._value_str = value
+            value_number = int(value)
+            value_number = max(value_number, float(self._low_str))
+            value_number = min(value_number, float(self._high_str))
+            self._value_str = f"{value_number}"
         if self._type_value == HyperTypeValueEnum.FLOAT:
-            self._value_str = value
+            value_number = float(value)
+            value_number = max(value_number, float(self._low_str))
+            value_number = min(value_number, float(self._high_str))
+            self._value_str = f"{value_number}"
         if self._type_value == HyperTypeValueEnum.CATEGORY:
             if value not in self._catalogue_values:
                 raise ValueError(f"Value: {value} is not on category")
@@ -92,13 +98,9 @@ class HyperParametersDefinition:
                 float(self._low_str), float(self._high_str)),
                 deep_decimal
             )
-            value = min(value, float(self._low_str))
-            value = max(value, float(self._high_str))
             self.set_value(value=f"{value}")
         if self._type_value == HyperTypeValueEnum.INT:
             value = random.randint(int(self._low_str), int(self._high_str))
-            value = min(value, float(self._low_str))
-            value = max(value, float(self._high_str))
             value = int(value)
             self.set_value(
                 value=f"{value}")
