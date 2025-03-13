@@ -86,8 +86,8 @@ class GeneticAlgorithmParameter(ABC):
                 MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
             self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
-            self._number_population = 40
-            self._number_generation = 20
+            self._number_population = 140
+            self._number_generation = 40
             self._mutation_rate = 0.1
             self._cross_over_rate = 0.7
             self._hyper_parameter_deep_decimal = 5
@@ -98,8 +98,8 @@ class GeneticAlgorithmParameter(ABC):
                 MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
             self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
             self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
-            self._number_population = 40
-            self._number_generation = 60
+            self._number_population = 8000
+            self._number_generation = 40
             self._mutation_rate = 0.15
             self._cross_over_rate = 0.6
             self._hyper_parameter_deep_decimal = 5
