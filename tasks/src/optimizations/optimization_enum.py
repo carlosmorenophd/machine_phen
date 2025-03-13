@@ -74,7 +74,7 @@ class GeneticAlgorithmParameter(ABC):
         self._metric_selection = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR
         if search_mode == SearchMode.QUICK_EXPLORATION:
             self._machines_key.append(MachineNames.LASSO_REGRESSION)
-            self._number_population = 40
+            self._number_population = 100
             self._number_generation = 40
             self._mutation_rate = 0.05
             self._cross_over_rate = 0.8
