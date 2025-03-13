@@ -52,7 +52,7 @@ class HyperParametersDefinition:
             value_number = int(value)
             value_number = max(value_number, float(self._low_str))
             value_number = min(value_number, float(self._high_str))
-            self._value_str = f"{value_number}"
+            self._value_str = f"{int(value_number)}"
         if self._type_value == HyperTypeValueEnum.FLOAT:
             value_number = float(value)
             value_number = max(value_number, float(self._low_str))
