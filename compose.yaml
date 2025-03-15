@@ -5,13 +5,13 @@ services:
       context: tasks/
     environment:
       - REDIS_URL=${REDIS_URL}
-      - FOLDER_DATA=${FOLDER_DATA}
+      - FOLDER_DATA=/app/data
     networks:
       phen-net:
         aliases:
           - phen-net-machine
     volumes:
-      - "${PATH_TO_CACHE}:${FOLDER_DATA}"
+      - "${PATH_TO_CACHE}:/app/data"
     tty: true
     stdin_open: true
 
