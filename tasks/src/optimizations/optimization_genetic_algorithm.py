@@ -421,7 +421,7 @@ class GeneticAlgorithm():
         """Run every model in all population and sort by best metric
         """
         for number_individual, individual in enumerate(self._population):
-            self.selection_log(number_individual=number_individual)
+            # self.selection_log(number_individual=number_individual)
             individual.run()
         self._population.sort(
             key=lambda individual: individual.index_metric,
