@@ -320,10 +320,11 @@ class GeneticAlgorithm():
         """Main function to run the genetic algorithm
         """
         self.create_initial_population(
-            population_number=self._genetic_algorithm_parameters.number_population)
+            population_number=self._genetic_algorithm_parameters.number_population
+        )
         self.initial_log()
         for generation_number in range(self._genetic_algorithm_parameters.number_generation):
-            self.generation_log(generation_number=generation_number)
+            self.progress_log(generation_number=generation_number)
             self.selection()
             for i in range(self._genetic_algorithm_parameters.number_population // 2):
                 child_1, child_2 = self.crossover(
@@ -351,12 +352,12 @@ class GeneticAlgorithm():
             message=f"generations: {self._genetic_algorithm_parameters.number_generation}")
         self.log_message()
 
-    def generation_log(self, generation_number: int):
+    def progress_log(self, generation_number: int):
         """Log of the generation
         """
-        self.adding_message(message=f"Generation: {generation_number}")
-        self.adding_message(
-            message=f"- {self._genetic_algorithm_parameters.number_generation}")
+        self.adding_message(message=f"Progress: {
+            generation_number / self._genetic_algorithm_parameters.number_generation
+        }")
         self.log_message()
 
     def mutation_two_children(self, child_1: GeneticIndividual, child_2: GeneticIndividual):
