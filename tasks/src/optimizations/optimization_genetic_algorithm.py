@@ -320,7 +320,8 @@ class GeneticAlgorithm():
         """Main function to run the genetic algorithm
         """
         self.create_initial_population(
-            population_number=self._genetic_algorithm_parameters.number_population)
+            population_number=self._genetic_algorithm_parameters.number_population
+        )
         self.initial_log()
         for generation_number in range(self._genetic_algorithm_parameters.number_generation):
             self.progress_log(generation_number=generation_number)

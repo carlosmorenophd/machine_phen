@@ -8,6 +8,8 @@ from src.optimizations.optimization import forward_backward_features
 from src.files.file_machine import FileDataRegression
 from src.helpers.key_env import FolderCache
 from src.helpers.file_access import FileData
+from src.optimizations.optimization_enum import convert_str_to_search_mode
+from src.optimizations.optimization import optimization_run_from_task
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -36,15 +38,14 @@ if __name__ == "__main__":
 # python tasks_test.py regression_genetic 3.14_lrace_geo_w_f_n.csv Rendimiento basic_search
     else:
         print("No action to run")
-        forward_backward_features(
+        optimization_run_from_task(
             file_data=FileDataRegression(
-                file_in="remove_outlier_zscore_3.14_lrace_geo_w_f_n.csv",
+                file_in="8.LRACE_FGNTWMFN.csv",
                 target_feature="Rendimiento",
                 folder_path=FolderCache.UPLOAD,
             ),
-            file_models=FileData(
-                file_in="optimization_remove_outlier_zscore_3.14_lrace_geo_w_f_n.csv",
-                folder_path=FolderCache.UPLOAD,
+            search_mode=convert_str_to_search_mode(
+                search_mode_str="quick_exploration",
             ),
         )
         print("Finish")
