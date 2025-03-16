@@ -1,5 +1,6 @@
 """ All basic concepts and enums for work with genetics values"""
-from enum import Enum
+from typing import List
+
 from abc import ABC
 from dataclasses import dataclass
 
@@ -8,59 +9,49 @@ from src.files.file_machine import TrainingData
 from src.metrics.metric_enums import MetricEnum
 
 
-class SearchMode(Enum):
-    """Type of search, define the number of population, the generation and the mutation rate
+class GeneticIndividualParameter():
+    """Parameter to create a individual for genetic algorithm
     """
 
-    QUICK_EXPLORATION = "quick_exploration"
-    BASIC_SEARCH = "basic_search"
-    DEEP_SEARCH = "deep_search"
+    def __init__(self) -> None:
+        self._number_population: int = 4
+        self._hyper_parameter_deep_decimal: int = 5
+        self._metric_selection: MetricEnum = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR
+        self._machines_key: List[MachineNames] = [
+            MachineNames.LASSO_REGRESSION,
+            MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION,
+            MachineNames.RANDOM_FOREST_REGRESSION,
+            MachineNames.SUPPORT_VECTOR_REGRESSION,
+        ]
+
+    @property
+    def number_population(self) -> int:
+        """Return the number of population"""
+        return self._number_population
+
+    @property
+    def hyper_parameter_deep_decimal(self) -> int:
+        """Return the deep decimal"""
+        return self._hyper_parameter_deep_decimal
+
+    @property
+    def metric_selection(self) -> MetricEnum:
+        """Return the metric selection"""
+        return self._metric_selection
+
+    @property
+    def machines_key(self) -> List[MachineNames]:
+        """Return the list of machines key"""
+        return self._machines_key
 
 
-def convert_str_to_search_mode(search_mode_str: str) -> SearchMode:
-    """Convert str to a valid search mode for genetic algorithm
-
-    Args:
-        search_mode_str (str): search mode
-
-    Raises:
-        ValueError: value not valid
-
-    Returns:
-        SearchMode: Search mode from enum
+@dataclass
+class GeneticMutationParameter():
+    """Parameter to create a mutation for genetic algorithm
     """
-    try:
-        return SearchMode(search_mode_str)
-    except ValueError as e:
-        raise ValueError(
-            f"Parameter '{search_mode_str}' is not a valid SearchMode") from e
-
-
-def search_mode_from_search_mode(search_mode: SearchMode) -> TrainingData:
-    """Return the training information from search mode
-
-    Args:
-        search_mode (SearchMode): search mode
-
-    Returns:
-        TrainingData: training information
-    """
-    if search_mode == SearchMode.QUICK_EXPLORATION:
-        return TrainingData(
-            test_size=0.8,
-            random_state=42
-        )
-    if search_mode == SearchMode.BASIC_SEARCH:
-        return TrainingData(
-            test_size=0.8,
-            random_state=42
-        )
-    if search_mode == SearchMode.DEEP_SEARCH:
-        return TrainingData(
-            test_size=0.8,
-            random_state=42
-        )
-    raise ValueError(f"Search mode '{search_mode}' is not valid")
+    mutation_rate: float = 0.05
+    cross_over_rate: float = 0.8
+    mutate_machine: float = 0.1
 
 
 @dataclass
@@ -68,42 +59,29 @@ class GeneticAlgorithmParameter(ABC):
     """Configuration to run the genetic algorithm
     """
 
-    def __init__(self, search_mode: SearchMode) -> None:
-        self._search_mode = search_mode
-        self._machines_key = []
-        self._metric_selection = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR
-        if search_mode == SearchMode.QUICK_EXPLORATION:
-            self._machines_key.append(MachineNames.LASSO_REGRESSION)
-            self._number_population = 10
-            self._number_generation = 40
-            self._mutation_rate = 0.05
-            self._cross_over_rate = 0.8
-            self._hyper_parameter_deep_decimal = 5
-            self._mutation_machine = 0.1
-        if search_mode == SearchMode.BASIC_SEARCH:
-            self._machines_key.append(MachineNames.LASSO_REGRESSION)
-            self._machines_key.append(
-                MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
-            self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
-            self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
-            self._number_population = 140
-            self._number_generation = 100
-            self._mutation_rate = 0.1
-            self._cross_over_rate = 0.7
-            self._hyper_parameter_deep_decimal = 5
-            self._mutation_machine = 0.2
-        if search_mode == SearchMode.DEEP_SEARCH:
-            self._machines_key.append(MachineNames.LASSO_REGRESSION)
-            self._machines_key.append(
-                MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION)
-            self._machines_key.append(MachineNames.RANDOM_FOREST_REGRESSION)
-            self._machines_key.append(MachineNames.SUPPORT_VECTOR_REGRESSION)
-            self._number_population = 240
-            self._number_generation = 100
-            self._mutation_rate = 0.35
-            self._cross_over_rate = 0.6
-            self._hyper_parameter_deep_decimal = 5
-            self._mutation_machine = 0.4
+    def __init__(self) -> None:
+
+        self._individual_parameter = GeneticIndividualParameter()
+        self._mutation_parameters = [
+            GeneticMutationParameter(
+                mutate_machine=0.8,
+                cross_over_rate=0.8,
+                mutation_rate=0.8,
+            ),
+            GeneticMutationParameter(
+                mutate_machine=0.6,
+                cross_over_rate=0.6,
+                mutation_rate=0.6,
+            ),
+            GeneticMutationParameter(
+                mutate_machine=0.2,
+                cross_over_rate=0.3,
+                mutation_rate=0.2,
+            ),
+        ]
+        self._training_data = TrainingData()
+        self._number_generation: int = 4
+        self._training_data = TrainingData()
 
     @property
     def machines_key(self) -> list[MachineNames]:
@@ -112,16 +90,7 @@ class GeneticAlgorithmParameter(ABC):
         Returns:
             list[MachineNames]: machines key
         """
-        return self._machines_key
-
-    @property
-    def search_mode(self) -> SearchMode:
-        """Return the search mode
-
-        Returns:
-            SearchMode: search mode
-        """
-        return self._search_mode
+        return self._individual_parameter.machines_key
 
     @property
     def number_population(self) -> int:
@@ -131,7 +100,7 @@ class GeneticAlgorithmParameter(ABC):
             int: population
         """
 
-        return self._number_population
+        return self._individual_parameter.number_population
 
     @property
     def number_generation(self) -> int:
@@ -143,23 +112,42 @@ class GeneticAlgorithmParameter(ABC):
         """
         return self._number_generation
 
-    @property
-    def mutation_rate(self) -> float:
+    def get_mutation_rate(self, number_generation: int) -> float:
         """Return the mutation rate
 
         Returns:
             float: mutation rate
         """
-        return self._mutation_rate
+        return self._get_parameters_by_number_generation(
+            number_generation=number_generation
+        ).mutation_rate
 
-    @property
-    def cross_over_rate(self) -> float:
+    def _get_parameters_by_number_generation(
+            self,
+            number_generation: int,
+    ) -> GeneticMutationParameter:
+        """Return the mutation parameters
+
+        Returns:
+            GeneticMutationParameter: mutation parameters
+        """
+        if self._number_generation * .40 < number_generation:
+            return self._mutation_parameters[0]
+        if self._number_generation * .80 < number_generation:
+            return self._mutation_parameters[1]
+        return self._mutation_parameters[2]
+
+    def get_cross_over_rate(
+            self, number_generation: int,
+    ) -> float:
         """Return the cross over rate
 
         Returns:
             float: cross over rate
         """
-        return self._cross_over_rate
+        return self._get_parameters_by_number_generation(
+            number_generation=number_generation
+        ).cross_over_rate
 
     @property
     def hyper_parameter_deep_decimal(self) -> int:
@@ -168,12 +156,13 @@ class GeneticAlgorithmParameter(ABC):
         Returns:
             int: deep decimal
         """
-        return self._hyper_parameter_deep_decimal
+        return self._individual_parameter.hyper_parameter_deep_decimal
 
-    @property
-    def mutate_machine(self) -> float:
+    def get_mutate_machine(self, number_generation: int) -> float:
         """Return the mutate machine"""
-        return self._mutation_machine
+        return self._get_parameters_by_number_generation(
+            number_generation=number_generation
+        ).mutate_machine
 
     @property
     def metric_selection(self) -> MetricEnum:
@@ -182,23 +171,13 @@ class GeneticAlgorithmParameter(ABC):
         Returns:
             MetricEnum: metric selection
         """
-        return self._metric_selection
+        return self._individual_parameter.metric_selection
 
+    @property
+    def training_data(self) -> TrainingData:
+        """Return the training data
 
-def convert_parameters_str_to_optimization(search_mode_str: str) -> GeneticAlgorithmParameter:
-    """Convert str to a valid search mode for genetic algorithm
-
-    Args:
-        parameters_str (str): search mode
-
-    Raises:
-        ValueError: value not valid
-
-    Returns:
-        GeneticParameter: Search mode from enum
-    """
-    try:
-        return SearchMode(search_mode_str)
-    except ValueError as e:
-        raise ValueError(
-            f"Parameter '{search_mode_str}' is not a valid SearchMode") from e
+        Returns:
+            TrainingData: training data
+        """
+        return self._training_data
