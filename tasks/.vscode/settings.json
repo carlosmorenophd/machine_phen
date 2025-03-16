@@ -30,6 +30,7 @@
         "proba",
         "quantile",
         "ravel",
+        "scatterplot",
         "tournsize",
         "tweedie",
         "xgboost",

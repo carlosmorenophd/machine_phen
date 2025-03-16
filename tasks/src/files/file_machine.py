@@ -46,10 +46,10 @@ class FileMachine():
     def __init__(
         self,
         file_data: FileDataRegression,
-        training_info: TrainingData,
+        training_data: TrainingData,
     ) -> None:
         self._file_data = file_data
-        self._training_data = training_info
+        self._training_data = training_data
         self._storage_file = StorageFile(
             file_name=self._file_data.file_in,
             folder_file=self._file_data.folder_path,

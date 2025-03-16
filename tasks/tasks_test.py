@@ -4,11 +4,10 @@ import sys
 from celery.app import Celery
 
 from src.helpers.key_env import REDIS_BROKEN
-from src.optimizations.optimization import forward_backward_features
+# from src.optimizations.optimization import forward_backward_features
 from src.files.file_machine import FileDataRegression
 from src.helpers.key_env import FolderCache
-from src.helpers.file_access import FileData
-from src.optimizations.optimization_enum import convert_str_to_search_mode
+# from src.helpers.file_access import FileData
 from src.optimizations.optimization import optimization_run_from_task
 
 if __name__ == "__main__":
@@ -40,12 +39,9 @@ if __name__ == "__main__":
         print("No action to run")
         optimization_run_from_task(
             file_data=FileDataRegression(
-                file_in="8.LRACE_FGNTWMFN.csv",
-                target_feature="Rendimiento",
+                file_in="3.0.LRACE_FFN_Feno.csv",
+                target_feature="RendimientoKG/HA",
                 folder_path=FolderCache.UPLOAD,
-            ),
-            search_mode=convert_str_to_search_mode(
-                search_mode_str="quick_exploration",
             ),
         )
         print("Finish")
