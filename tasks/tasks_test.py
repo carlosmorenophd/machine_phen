@@ -9,6 +9,7 @@ from src.files.file_machine import FileDataRegression
 from src.helpers.key_env import FolderCache
 # from src.helpers.file_access import FileData
 from src.optimizations.optimization import optimization_run_from_task
+from src.results.result_genetic import create_graph_model_index
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -44,4 +45,5 @@ if __name__ == "__main__":
                 folder_path=FolderCache.UPLOAD,
             ),
         )
+
         print("Finish")
