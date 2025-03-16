@@ -117,7 +117,7 @@ class StorageFile():
             FOLDER_DATA, folder_file.value)
         self.absolute_file = os.path.join(
             FOLDER_DATA, folder_file.value, file_name)
-        self.file_name_only, _ = os.path.splitext(self.absolute_file)
+        self.file_name_only, _ = os.path.splitext(self.file_name)
 
     def adding_prefix_file_name(self, prefix: str) -> str:
         """Adding one prefix to file to save on same folder keep the same extension
