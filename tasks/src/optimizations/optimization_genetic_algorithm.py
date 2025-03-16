@@ -20,6 +20,7 @@ from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 from src.machines.machine_enums import HyperTypeValueEnum
+from src.results.result_genetic import create_graph_model_index
 
 
 class GeneticIndividual():
@@ -453,27 +454,6 @@ class GeneticAlgorithm():
             )
         return child
 
-    def export(self):
-        """Export the best individual
-        """
-        metric_to_csv = []
-        for individual in self._global_population:
-            metric_dict = individual.to_dictionary(
-                features_names=self._file_machine.columns_name_with_out_target,
-            )
-            metric_to_csv.append(metric_dict)
-        data_frame_metric = pd.DataFrame(metric_to_csv)
-        self._file_machine.storage_file.save_data_frame_to_csv(
-            data_frame=data_frame_metric,
-            prefix="optimization",
-        )
-        ten_percent = int(len(data_frame_metric) * 0.1)
-        sampled_data_frame = data_frame_metric.sample(n=ten_percent)
-        self._file_machine.storage_file.save_data_frame_to_csv(
-            data_frame=sampled_data_frame,
-            prefix="optimization_overlap",
-        )
-
     def selection(self):
         """Run every model in all population and sort by best metric
         """
@@ -515,3 +495,31 @@ class GeneticAlgorithm():
             key=lambda individual: individual.index_metric, reverse=True)
         self._population = copy.deepcopy(self._new_population)
         self._new_population = []
+
+    def export(self):
+        """Export the best individual
+        """
+        metric_to_csv = []
+        for individual in self._global_population:
+            metric_dict = individual.to_dictionary(
+                features_names=self._file_machine.columns_name_with_out_target,
+            )
+            metric_to_csv.append(metric_dict)
+        data_frame_metric = pd.DataFrame(metric_to_csv)
+        self._file_machine.storage_file.save_data_frame_to_csv(
+            data_frame=data_frame_metric,
+            prefix="optimization",
+        )
+        ten_percent = int(len(data_frame_metric) * 0.1)
+        sampled_data_frame = data_frame_metric.sample(n=ten_percent)
+        self._file_machine.storage_file.save_data_frame_to_csv(
+            data_frame=sampled_data_frame,
+            prefix="optimization_overlap",
+        )
+        file_save = self._file_machine.storage_file.adding_prefix_file_name(
+            prefix="optimization")
+        create_graph_model_index(
+            file_result=file_save,
+            prefix="optimization",
+            limit_rows=int(len(data_frame_metric) * 0.05)
+        )
