@@ -13,16 +13,24 @@ class GeneticIndividualParameter():
     """Parameter to create a individual for genetic algorithm
     """
 
-    def __init__(self) -> None:
-        self._number_population: int = 4
-        self._hyper_parameter_deep_decimal: int = 5
-        self._metric_selection: MetricEnum = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR
-        self._machines_key: List[MachineNames] = [
+    def __init__(
+        self,
+        number_population: int = 100,
+        hyper_parameter_deep_decimal: int = 5,
+        metric_selection: MetricEnum = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
+        machines_key: List[MachineNames] = None,
+    ) -> None:
+        self._number_population = number_population
+        self._hyper_parameter_deep_decimal = hyper_parameter_deep_decimal
+        self._metric_selection = metric_selection
+        self._machines_key = [
             MachineNames.LASSO_REGRESSION,
             MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION,
             MachineNames.RANDOM_FOREST_REGRESSION,
             MachineNames.SUPPORT_VECTOR_REGRESSION,
         ]
+        if machines_key is not None:
+            self._machines_key = machines_key
 
     @property
     def number_population(self) -> int:
@@ -60,8 +68,18 @@ class GeneticAlgorithmParameter(ABC):
     """
 
     def __init__(self) -> None:
-
-        self._individual_parameter = GeneticIndividualParameter()
+        self._number_generation: int = 4
+        self._individual_parameter = GeneticIndividualParameter(
+            hyper_parameter_deep_decimal=3,
+            machines_key=[
+                MachineNames.LASSO_REGRESSION,
+                MachineNames.SUPPORT_VECTOR_REGRESSION,
+            ],
+            metric_selection=MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
+            number_population=10,
+        )
+        # self._number_generation: int = 120
+        # self._individual_parameter = GeneticIndividualParameter()
         self._mutation_parameters = [
             GeneticMutationParameter(
                 mutate_machine=0.8,
@@ -79,8 +97,6 @@ class GeneticAlgorithmParameter(ABC):
                 mutation_rate=0.2,
             ),
         ]
-        self._training_data = TrainingData()
-        self._number_generation: int = 4
         self._training_data = TrainingData()
 
     @property

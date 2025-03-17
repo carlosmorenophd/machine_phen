@@ -26,3 +26,4 @@ def create_graph_model_index(file_result: str, prefix: str = "result", limit_row
         extension="png",
     )
     plt.savefig(file_to_save)
+    plt.close()

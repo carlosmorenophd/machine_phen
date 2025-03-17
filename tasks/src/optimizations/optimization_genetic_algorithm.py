@@ -516,10 +516,14 @@ class GeneticAlgorithm():
             data_frame=sampled_data_frame,
             prefix="optimization_overlap",
         )
-        file_save = self._file_machine.storage_file.adding_prefix_file_name(
+        file_save = self._file_machine.storage_file.adding_prefix_file_name_only_file(
             prefix="optimization")
         create_graph_model_index(
             file_result=file_save,
-            prefix="optimization",
+            prefix="optimization_overlap",
             limit_rows=int(len(data_frame_metric) * 0.05)
+        )
+        create_graph_model_index(
+            file_result=file_save,
+            prefix="optimization",
         )
