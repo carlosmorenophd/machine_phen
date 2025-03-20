@@ -15,7 +15,6 @@ app = Celery('phen_machine', broker=REDIS_BROKEN, queue='machine')
 def task_regression_genetic(
     files_in: str,
     target_column: str,
-    search_mode_str: str,
 ) -> None:
     """Search the best machine for regression on one file
 
@@ -24,8 +23,7 @@ def task_regression_genetic(
         target_column (str): column target on file
         genetic_parameters_str (str): basic parameters for genetic algorithm
     """
-    print(f" Inputs: file - {files_in}, column - {
-          target_column}, Search mode - {search_mode_str}")
+    print(f" Inputs: file - {files_in}, column - {target_column}")
     optimization_run_from_task(
         file_data=FileDataRegression(
             file_in=files_in,
