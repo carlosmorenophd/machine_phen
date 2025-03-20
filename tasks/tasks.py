@@ -5,7 +5,6 @@ import gc
 from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
 from src.files.file_machine import FileDataRegression
-from src.optimizations.optimization_enum import convert_str_to_search_mode
 from src.optimizations.optimization import optimization_run_from_task, forward_backward_features
 
 
@@ -32,9 +31,6 @@ def task_regression_genetic(
             file_in=files_in,
             target_feature=target_column,
             folder_path=FolderCache.UPLOAD,
-        ),
-        search_mode=convert_str_to_search_mode(
-            search_mode_str=search_mode_str,
         ),
     )
     gc.collect()
