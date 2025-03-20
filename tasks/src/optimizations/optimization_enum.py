@@ -72,7 +72,7 @@ class GeneticAlgorithmParameter(ABC):
         self._individual_parameter = GeneticIndividualParameter(
             hyper_parameter_deep_decimal=5,
             machines_key=[
-                MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION,
+                MachineNames.RANDOM_FOREST_REGRESSION,
             ],
             metric_selection=MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
             number_population=120,

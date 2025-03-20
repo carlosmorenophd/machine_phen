@@ -344,7 +344,7 @@ class RandomForestRegression(MachineRegression):
         self._default_hyper_parameters["n_estimators"] = HyperParametersDefinition(
             value="100",
             limit_hyper_parameter=LimitHyperParameter(
-                low_value="100", high_value="1000000"),
+                low_value="10", high_value="10000"),
             type_value=HyperTypeValueEnum.INT,
         )
         self._default_hyper_parameters["min_samples_split"] = HyperParametersDefinition(
