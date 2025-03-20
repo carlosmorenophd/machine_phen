@@ -1,71 +1,64 @@
-# To run don docker
+# A Machine Learning Process Orchestrated by a Genetic Algorithm
 
-## Run on production
-Command to build image
+This project utilizes a genetic algorithm to optimize a machine learning pipeline for predicting phenotypic data.
 
-```
-docker build --tag phen/machine:24.06 .
-```
+**Recommended Environment:**
 
-To run the container
+* **Operating System:** Ubuntu 24.04
+* **Hardware:**
+    * 128GB RAM
+    * 256GB Swap Space
+    * 1TB SSD Storage
+    * Ryzen 5800X or later CPU
 
-```
-docker run --name machine -p 8082:8000 -d --network=net-phenotypic -e DATABASE_USERNAME=admin -e DATABASE_PASSWORD=Fantasy24 -e DATABASE=phenotypic_db -e DATABASE_HOST=mariadb_phenotypic -e DATABASE_SOCKET=3306 -e FTP_HOSTNAME=ftp_phenotypic -e FTP_PORT=21 -e FTP_USERNAME=user -e FTP_PASSWORD=ftp1221Wheat phen/machine:24.06
-```
+## Running the Project
 
-## Run on dev
+The project is containerized using Docker Compose. Follow these steps to run it:
 
-Create image to dev project
+1.  **Environment Configuration:**
+    * Create a new `.env` file in the project's root directory.
+    * You can use `.env.example` as a template.
+    * Modify the following variables in `.env`:
+        * `REDIS_URL`: Specifies the Redis server URL (e.g., `redis://redis:6379/0`).
+        * `PATH_TO_CACHE`: Defines the path where data files and cache will be stored. **Ensure this path is correctly set as it's crucial for the project's operation.**
 
-```
-docker build --tag phen/machine:00.dev -f Dockerfile.dev .
-```
+    ```
+    REDIS_URL=redis://redis:6379/0
+    PATH_TO_CACHE=path/to/store/files
+    ```
 
-Run image in a container
+2.  **Building Docker Images:**
+    * Open a terminal in the project's root directory.
+    * Execute the command: `docker compose build`
 
-```
-docker run -it -d --name dev_machine --network=net-phenotypic -v ${PWD}:/develop  phen/machine:00.dev
-```
+3.  **Running the Containers:**
+    * Execute the command: `docker compose up -d`
 
-# New documentation
-Run contained on dev
+## Example Usage
 
-Build the images
-```
-docker compose -f compose.dev.yaml build
-```
+The system provides functionality to run tests and identify the optimal machine learning model for phenotypic data prediction.
 
-Run the contained
-```
-docker compose -f compose.dev.yaml up -d
-```
-Access to docker
-`docker compose -f compose.dev.yaml exec -it tasksdd bash`
+**Instructions:**
 
-To run the celery task
+1.  **Dataset Placement:**
+    * Copy your dataset (in CSV format) to the directory specified by the `PATH_TO_CACHE` variable in your `.env` file.
 
-```
-watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A tasks worker --loglevel=INFO -Q machine
-```
+2.  **Attaching to the Container:**
+    * Open a terminal.
+    * Execute the command: `docker exec -it phen_machine /bin/bash`
 
-Run to some test
+3.  **Running the Genetic Algorithm:**
+    * Inside the container's bash prompt, execute the following command:
 
-selection variable by force brute 
+    ```bash
+    python tasks_test.py regression_genetic name_of_file.csv name_column_feature_to_predict
+    ```
 
-```
-python tasks_test.py regression_forward_force_single_machine_single_file lrace_trueba_fill_clean_normalize.csv Rendimiento '{"name": "random_forest_regression"}' 
+    * Replace:
+        * `name_of_file.csv`: with the actual name of your CSV dataset file.
+        * `name_column_feature_to_predict`: with the name of the column in your dataset that you want to predict.
 
-```
 
-selection variable by genetic algorithm
 
-```
-python tasks_test.py regression_genetic_single_machine_single_file lrace_trueba_fill_clean_normalize.csv Rendimiento '{"name": "random_forest_regression"}' '{"num_generations":100}'
-
-```
-
-```
-python tasks_test.py regression_genetic_single_machine_single_file lrace_all_clean_fill_normalize.csv GrainYield '{"name": "random_forest_regression"}' '{"num_generations":10000}'
-```
 
 

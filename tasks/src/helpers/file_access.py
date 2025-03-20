@@ -117,7 +117,7 @@ class StorageFile():
             FOLDER_DATA, folder_file.value)
         self.absolute_file = os.path.join(
             FOLDER_DATA, folder_file.value, file_name)
-        self.file_name_only, _ = os.path.splitext(self.absolute_file)
+        self.file_name_only, _ = os.path.splitext(self.file_name)
 
     def adding_prefix_file_name(self, prefix: str) -> str:
         """Adding one prefix to file to save on same folder keep the same extension
@@ -129,6 +129,17 @@ class StorageFile():
             str: absolute path to save file
         """
         return os.path.join(FOLDER_DATA, self.folder_file.value, f"{prefix}_{self.file_name}")
+    
+    def adding_prefix_file_name_only_file(self, prefix: str) -> str:
+        """Adding one prefix to file to save on same folder keep the same extension, but only return file
+
+        Args:
+            prefix (str): prefix of name
+
+        Returns:
+            str: absolute path to save file
+        """
+        return os.path.join(f"{prefix}_{self.file_name}")
 
     def adding_prefix_name_extension(self, prefix: str, extension: str) -> str:
         """Adding one prefix to file to save on same folder keep with other extension

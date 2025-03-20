@@ -20,6 +20,7 @@ from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
 from src.machines.machine_enums import HyperTypeValueEnum
+from src.results.result_genetic import create_graph_model_index
 
 
 class GeneticIndividual():
@@ -146,6 +147,60 @@ class GeneticIndividual():
         return general_dict
 
 
+class LogGenetic():
+    """Class to log the genetic algorithm
+    """
+
+    def __init__(self, number_generation: int, number_population: int) -> None:
+        self._message = ""
+        self._number_generation = number_generation
+        self._number_population = number_population
+
+    def progress_log(self, generation_number: int):
+        """Log of the generation
+        """
+        self.adding_message(message=f"Progress: {
+            generation_number / self._number_generation
+        }")
+        self.log_message()
+
+    def initial_log(self):
+        """Initial log of algorithm
+        """
+        self.adding_message(message="Starting the genetic algorithm")
+        self.adding_message(
+            message=f"population: {self._number_population}")
+        self.adding_message(
+            message=f"generations: {self._number_generation}")
+        self.log_message()
+
+    def adding_message(self, message: str, prefix: bool = False) -> None:
+        """Adding message to the optimization
+        """
+        if prefix is False:
+            self._message = f"{self._message} {message}"
+        else:
+            self._message = f"{message} {self._message}"
+
+    def log_message(self, quick_message: str = None) -> None:
+        """Log the message
+        """
+        if quick_message is not None:
+            print(quick_message)
+        else:
+            print(self._message)
+            self._message = ""
+
+    def selection_log(self, number_individual: int):
+        """Log the selection
+        """
+        self.adding_message(
+            message=f"Individual {number_individual} ")
+        self.adding_message(
+            message=f" - {self._number_population} ")
+        self.log_message()
+
+
 class GeneticAlgorithm():
     """Main class to run the genetic algorithm for optimization process.
     """
@@ -153,18 +208,22 @@ class GeneticAlgorithm():
     def __init__(
         self,
         file_data: FileDataRegression,
-        training_info: TrainingData,
+        training_data: TrainingData,
         genetic_algorithm_parameters:  GeneticAlgorithmParameter,
     ) -> None:
         self._file_machine = FileMachine(
             file_data=file_data,
-            training_info=training_info,
+            training_data=training_data,
         )
         self._genetic_algorithm_parameters = genetic_algorithm_parameters
         self._population: list[GeneticIndividual] = []
         self._new_population: list[GeneticIndividual] = []
         self._global_population: list[GeneticIndividual] = []
-        self._message = ""
+        self._log = LogGenetic(
+            number_generation=self._genetic_algorithm_parameters.number_generation,
+            number_population=self._genetic_algorithm_parameters.number_population,
+        )
+        self._current_generation_number = 0
 
     def create_initial_population(self, population_number: int):
         """Create the initial population
@@ -238,7 +297,9 @@ class GeneticAlgorithm():
                     hyper_parameters_1[key].set_value(value_1)
                     hyper_parameters_2[key].set_value(value_2)
                 elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.CATEGORY:
-                    if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
+                    if random.random() < self._genetic_algorithm_parameters.get_cross_over_rate(
+                        number_generation=self._current_generation_number
+                    ):
                         hyper_parameters_1[key].set_value(
                             hyper_parameters_1[key].value)
                         hyper_parameters_2[key].set_value(
@@ -258,7 +319,9 @@ class GeneticAlgorithm():
             child_2.machine.force_mutate_hyper_parameters(
                 deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
             )
-            if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
+            if random.random() < self._genetic_algorithm_parameters.get_cross_over_rate(
+                number_generation=self._current_generation_number
+            ):
                 child_1.machine.force_mutate_hyper_parameters(
                     deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
                 )
@@ -282,7 +345,9 @@ class GeneticAlgorithm():
         """
         mean_value = self.calculate_mean_str_hyper_parameter(
             value_1=value_1, value_2=value_2, type_value=type_value)
-        if random.random() < self._genetic_algorithm_parameters.cross_over_rate:
+        if random.random() < self._genetic_algorithm_parameters.get_cross_over_rate(
+            number_generation=self._current_generation_number
+        ):
             return mean_value, mean_value
         return value_1, mean_value
 
@@ -322,9 +387,10 @@ class GeneticAlgorithm():
         self.create_initial_population(
             population_number=self._genetic_algorithm_parameters.number_population
         )
-        self.initial_log()
+        self._log.initial_log()
         for generation_number in range(self._genetic_algorithm_parameters.number_generation):
-            self.progress_log(generation_number=generation_number)
+            self._current_generation_number = generation_number
+            self._log.progress_log(generation_number=generation_number)
             self.selection()
             for i in range(self._genetic_algorithm_parameters.number_population // 2):
                 child_1, child_2 = self.crossover(
@@ -342,38 +408,28 @@ class GeneticAlgorithm():
             self.store_population()
             self.export()
 
-    def initial_log(self):
-        """Initial log of algorithm
-        """
-        self.adding_message(message="Starting the genetic algorithm")
-        self.adding_message(
-            message=f"population: {self._genetic_algorithm_parameters.number_population}")
-        self.adding_message(
-            message=f"generations: {self._genetic_algorithm_parameters.number_generation}")
-        self.log_message()
-
-    def progress_log(self, generation_number: int):
-        """Log of the generation
-        """
-        self.adding_message(message=f"Progress: {
-            generation_number / self._genetic_algorithm_parameters.number_generation
-        }")
-        self.log_message()
-
     def mutation_two_children(self, child_1: GeneticIndividual, child_2: GeneticIndividual):
         "Mutation of the population"
         child_1.mutate_features_chromosome(
-            mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
+            mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
+                number_generation=self._current_generation_number
+            ))
         child_2.mutate_features_chromosome(
-            mutation_rate=self._genetic_algorithm_parameters.mutation_rate)
+            mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
+                number_generation=self._current_generation_number
+            ))
         child_1.apply_dataset(file_machine=self._file_machine)
         child_2.apply_dataset(file_machine=self._file_machine)
         child_1.machine.mutate_hyper_parameters(
-            mutation_rate=self._genetic_algorithm_parameters.mutation_rate,
+            mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
+                number_generation=self._current_generation_number
+            ),
             deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
         )
         child_2.machine.mutate_hyper_parameters(
-            mutation_rate=self._genetic_algorithm_parameters.mutation_rate,
+            mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
+                number_generation=self._current_generation_number
+            ),
             deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
         )
         child_1 = self.mutate_machine(child=child_1)
@@ -386,7 +442,9 @@ class GeneticAlgorithm():
         Args:
             child_1 (GeneticIndividual): Child to mutate machine
         """
-        if random.random() < self._genetic_algorithm_parameters.mutate_machine:
+        if random.random() < self._genetic_algorithm_parameters.get_mutate_machine(
+            number_generation=self._current_generation_number
+        ):
             child.set_machine(machine=machine_build_regression_optimization_decimal(
                 machine_name=random.choice(
                     self._genetic_algorithm_parameters.machines_key
@@ -396,32 +454,11 @@ class GeneticAlgorithm():
             )
         return child
 
-    def export(self):
-        """Export the best individual
-        """
-        metric_to_csv = []
-        for individual in self._global_population:
-            metric_dict = individual.to_dictionary(
-                features_names=self._file_machine.columns_name_with_out_target,
-            )
-            metric_to_csv.append(metric_dict)
-        data_frame_metric = pd.DataFrame(metric_to_csv)
-        self._file_machine.storage_file.save_data_frame_to_csv(
-            data_frame=data_frame_metric,
-            prefix="optimization",
-        )
-        ten_percent = int(len(data_frame_metric) * 0.1)
-        sampled_data_frame = data_frame_metric.sample(n=ten_percent)
-        self._file_machine.storage_file.save_data_frame_to_csv(
-            data_frame=sampled_data_frame,
-            prefix="optimization_overlap",
-        )
-
     def selection(self):
         """Run every model in all population and sort by best metric
         """
         for number_individual, individual in enumerate(self._population):
-            # self.selection_log(number_individual=number_individual)
+            self._log.selection_log(number_individual=number_individual)
             individual.run()
         self._population.sort(
             key=lambda individual: individual.index_metric,
@@ -449,15 +486,6 @@ class GeneticAlgorithm():
             return True
         raise ValueError("Metric not defined, to select the best model")
 
-    def selection_log(self, number_individual: int):
-        """Log the selection
-        """
-        self.adding_message(
-            message=f"Individual {number_individual} ")
-        self.adding_message(
-            message=f" - {len(self._population)} ")
-        self.log_message()
-
     def store_population(self):
         """Store the population in a file
         """
@@ -468,19 +496,34 @@ class GeneticAlgorithm():
         self._population = copy.deepcopy(self._new_population)
         self._new_population = []
 
-    def adding_message(self, message: str, prefix: bool = False) -> None:
-        """Adding message to the optimization
+    def export(self):
+        """Export the best individual
         """
-        if prefix is False:
-            self._message = f"{self._message} {message}"
-        else:
-            self._message = f"{message} {self._message}"
-
-    def log_message(self, quick_message: str = None) -> None:
-        """Log the message
-        """
-        if quick_message is not None:
-            print(quick_message)
-        else:
-            print(self._message)
-            self._message = ""
+        metric_to_csv = []
+        for individual in self._global_population:
+            metric_dict = individual.to_dictionary(
+                features_names=self._file_machine.columns_name_with_out_target,
+            )
+            metric_to_csv.append(metric_dict)
+        data_frame_metric = pd.DataFrame(metric_to_csv)
+        self._file_machine.storage_file.save_data_frame_to_csv(
+            data_frame=data_frame_metric,
+            prefix="optimization",
+        )
+        ten_percent = int(len(data_frame_metric) * 0.1)
+        sampled_data_frame = data_frame_metric.sample(n=ten_percent)
+        self._file_machine.storage_file.save_data_frame_to_csv(
+            data_frame=sampled_data_frame,
+            prefix="optimization_overlap",
+        )
+        file_save = self._file_machine.storage_file.adding_prefix_file_name_only_file(
+            prefix="optimization")
+        create_graph_model_index(
+            file_result=file_save,
+            prefix="optimization_overlap",
+            limit_rows=int(len(data_frame_metric) * 0.05)
+        )
+        create_graph_model_index(
+            file_result=file_save,
+            prefix="optimization",
+        )

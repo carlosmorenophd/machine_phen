@@ -4,12 +4,12 @@ import sys
 from celery.app import Celery
 
 from src.helpers.key_env import REDIS_BROKEN
-from src.optimizations.optimization import forward_backward_features
+# from src.optimizations.optimization import forward_backward_features
 from src.files.file_machine import FileDataRegression
 from src.helpers.key_env import FolderCache
-from src.helpers.file_access import FileData
-from src.optimizations.optimization_enum import convert_str_to_search_mode
+# from src.helpers.file_access import FileData
 from src.optimizations.optimization import optimization_run_from_task
+from src.results.result_genetic import create_graph_model_index
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -35,17 +35,14 @@ if __name__ == "__main__":
                 ),
                 queue='machine',
             )
-# python tasks_test.py regression_genetic 3.14_lrace_geo_w_f_n.csv Rendimiento basic_search
+# python tasks_test.py regression_genetic 3.0.LRACE_FFN_Feno.csv RendimientoKG/HA
     else:
         print("No action to run")
         optimization_run_from_task(
             file_data=FileDataRegression(
-                file_in="8.LRACE_FGNTWMFN.csv",
-                target_feature="Rendimiento",
+                file_in="3.0.LRACE_FFN_Feno.csv",
+                target_feature="RendimientoKG/HA",
                 folder_path=FolderCache.UPLOAD,
-            ),
-            search_mode=convert_str_to_search_mode(
-                search_mode_str="quick_exploration",
             ),
         )
         print("Finish")
