@@ -68,15 +68,14 @@ class GeneticAlgorithmParameter(ABC):
     """
 
     def __init__(self) -> None:
-        self._number_generation: int = 4
+        self._number_generation: int = 100
         self._individual_parameter = GeneticIndividualParameter(
-            hyper_parameter_deep_decimal=3,
+            hyper_parameter_deep_decimal=5,
             machines_key=[
                 MachineNames.LASSO_REGRESSION,
-                MachineNames.SUPPORT_VECTOR_REGRESSION,
             ],
             metric_selection=MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
-            number_population=10,
+            number_population=120,
         )
         # self._number_generation: int = 120
         # self._individual_parameter = GeneticIndividualParameter()
