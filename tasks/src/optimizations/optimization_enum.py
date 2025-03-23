@@ -68,17 +68,17 @@ class GeneticAlgorithmParameter(ABC):
     """
 
     def __init__(self) -> None:
-        self._number_generation: int = 100
-        self._individual_parameter = GeneticIndividualParameter(
-            hyper_parameter_deep_decimal=5,
-            machines_key=[
-                MachineNames.RANDOM_FOREST_REGRESSION,
-            ],
-            metric_selection=MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
-            number_population=120,
-        )
-        # self._number_generation: int = 120
-        # self._individual_parameter = GeneticIndividualParameter()
+        # self._number_generation: int = 100
+        # self._individual_parameter = GeneticIndividualParameter(
+        #     hyper_parameter_deep_decimal=5,
+        #     machines_key=[
+        #         MachineNames.RANDOM_FOREST_REGRESSION,
+        #     ],
+        #     metric_selection=MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
+        #     number_population=120,
+        # )
+        self._number_generation: int = 120
+        self._individual_parameter = GeneticIndividualParameter()
         self._mutation_parameters = [
             GeneticMutationParameter(
                 mutate_machine=0.8,
