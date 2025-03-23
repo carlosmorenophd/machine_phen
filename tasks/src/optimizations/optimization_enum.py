@@ -17,7 +17,8 @@ class GeneticIndividualParameter():
         self,
         number_population: int = 100,
         hyper_parameter_deep_decimal: int = 5,
-        metric_selection: MetricEnum = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
+        metric_selection:
+            MetricEnum = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
         machines_key: List[MachineNames] = None,
     ) -> None:
         self._number_population = number_population

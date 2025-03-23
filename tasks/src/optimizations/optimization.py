@@ -7,7 +7,9 @@ from src.optimizations.optimization_enum import (
 from src.files.file_machine import FileDataRegression
 from src.optimizations.optimization_genetic_algorithm import GeneticAlgorithm
 from src.helpers.file_access import FileData
-from src.optimizations.optimization_features import FeatureForwardBackwardSelection
+from src.optimizations.optimization_features import (
+    FeatureForwardBackwardSelection,
+)
 
 
 def optimization_run_from_task(
@@ -29,7 +31,8 @@ def forward_backward_features(
     file_data: FileDataRegression,
     file_models: FileData,
 ) -> None:
-    """Run the backward feature selection and whe it finish run the forward feature selection
+    """Run the backward feature selection and whe it finish 
+        run the forward feature selection
     """
     features = FeatureForwardBackwardSelection(
         file_data=file_data,

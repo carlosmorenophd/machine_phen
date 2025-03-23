@@ -3,6 +3,7 @@
 
 import random
 import copy
+from typing import Tuple, List
 
 import pandas as pd
 
@@ -15,7 +16,9 @@ from src.files.file_machine import (
     FileMachine,
     DatasetOptimizationData
 )
-from src.machines.machine_build import machine_build_regression_optimization_decimal
+from src.machines.machine_build import (
+    machine_build_regression_optimization_decimal,
+)
 from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
@@ -116,11 +119,15 @@ class GeneticIndividual():
                 [True, False]) for _ in self._features_chromosome]
         )
 
-    def mutate_features_chromosome(self, mutation_rate: float):
+    def mutate_features_chromosome(
+        self,
+        mutation_rate: float,
+    ) -> None:
         """Mutate the features chromosome
 
         Args:
-            rate_mutation (float): Range between 0 and 1 to mutate the chromosome
+            rate_mutation (float): Range between 0 and 1 to 
+                mutate the chromosome
         """
         self._features_chromosome = [
             not feature if random.random(
@@ -176,7 +183,13 @@ class LogGenetic():
 
     def adding_message(self, message: str, prefix: bool = False) -> None:
         """Adding message to the optimization
+
+        Args:
+            message (str): Message to store
+            prefix (bool, optional): If is True concatenate
+                the message, else overwrite message. Defaults to False.
         """
+
         if prefix is False:
             self._message = f"{self._message} {message}"
         else:
@@ -237,7 +250,10 @@ class GeneticAlgorithm():
                 )
             )
 
-    def create_initial_individual(self, features: list[str]) -> GeneticIndividual:
+    def create_initial_individual(
+        self,
+        features: List[str],
+    ) -> GeneticIndividual:
         """Create a individual with the features selected
 
         Args:
@@ -387,14 +403,18 @@ class GeneticAlgorithm():
         """Main function to run the genetic algorithm
         """
         self.create_initial_population(
-            population_number=self._genetic_algorithm_parameters.number_population
+            population_number=self._genetic_algorithm_parameters.number_population,
         )
         self._log.initial_log()
-        for generation_number in range(self._genetic_algorithm_parameters.number_generation):
+        for generation_number in range(
+            self._genetic_algorithm_parameters.number_generation
+        ):
             self._current_generation_number = generation_number
             self._log.progress_log(generation_number=generation_number)
             self.selection()
-            for i in range(self._genetic_algorithm_parameters.number_population // 2):
+            for i in range(
+                self._genetic_algorithm_parameters.number_population // 2
+            ):
                 child_1, child_2 = self.crossover(
                     parent_1=self._population[i],
                     parent_2=self._population[
@@ -410,8 +430,20 @@ class GeneticAlgorithm():
             self.store_population()
             self.export()
 
-    def mutation_two_children(self, child_1: GeneticIndividual, child_2: GeneticIndividual):
-        "Mutation of the population"
+    def mutation_two_children(
+            self,
+            child_1: GeneticIndividual,
+            child_2: GeneticIndividual
+    ) -> Tuple[GeneticIndividual, GeneticIndividual]:
+        """Mutation of the population
+
+        Args:
+            child_1 (GeneticIndividual): First child
+            child_2 (GeneticIndividual): Second child
+
+        Returns:
+            _type_: _description_
+        """
         child_1.mutate_features_chromosome(
             mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
                 number_generation=self._current_generation_number
@@ -447,12 +479,13 @@ class GeneticAlgorithm():
         if random.random() < self._genetic_algorithm_parameters.get_mutate_machine(
             number_generation=self._current_generation_number
         ):
-            child.set_machine(machine=machine_build_regression_optimization_decimal(
-                machine_name=random.choice(
-                    self._genetic_algorithm_parameters.machines_key
+            child.set_machine(
+                machine=machine_build_regression_optimization_decimal(
+                    machine_name=random.choice(
+                        self._genetic_algorithm_parameters.machines_key
+                    ),
+                    deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
                 ),
-                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
-            ),
             )
         return child
 
@@ -461,8 +494,8 @@ class GeneticAlgorithm():
         """
         for number_individual, individual in enumerate(self._population):
             self._log.selection_log(
-                number_individual=number_individual, 
-                machine=individual.machine.machine_name,
+                number_individual=number_individual,
+                machine_name=individual.machine.machine_name,
             )
             individual.run()
         self._population.sort(

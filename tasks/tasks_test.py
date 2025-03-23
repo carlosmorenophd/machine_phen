@@ -34,12 +34,11 @@ if __name__ == "__main__":
                 ),
                 queue='machine',
             )
-# python tasks_test.py regression_genetic 3.0.LRACE_FFN_Feno.csv RendimientoKG/HA
     else:
         print("No action to run")
         optimization_run_from_task(
             file_data=FileDataRegression(
-                file_in="3.0.LRACE_FFN_Feno.csv",
+                file_in="5.1.LRACE_FAWFSF_.csv",
                 target_feature="RendimientoKG/HA",
                 folder_path=FolderCache.UPLOAD,
             ),
