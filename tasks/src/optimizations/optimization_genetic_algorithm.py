@@ -191,11 +191,13 @@ class LogGenetic():
             print(self._message)
             self._message = ""
 
-    def selection_log(self, number_individual: int):
+    def selection_log(self, number_individual: int, machine_name: str):
         """Log the selection
         """
         self.adding_message(
             message=f"Individual {number_individual} ")
+        self.adding_message(
+            message=f" machine {machine_name} ")
         self.adding_message(
             message=f" - {self._number_population} ")
         self.log_message()
@@ -458,7 +460,10 @@ class GeneticAlgorithm():
         """Run every model in all population and sort by best metric
         """
         for number_individual, individual in enumerate(self._population):
-            self._log.selection_log(number_individual=number_individual)
+            self._log.selection_log(
+                number_individual=number_individual, 
+                machine=individual.machine.machine_name,
+            )
             individual.run()
         self._population.sort(
             key=lambda individual: individual.index_metric,
