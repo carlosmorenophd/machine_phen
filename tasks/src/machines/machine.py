@@ -341,31 +341,41 @@ class RandomForestRegression(MachineRegression):
         self._machine_name = MachineNames.RANDOM_FOREST_REGRESSION.value
         self._default_hyper_parameters = {}
         self._hyper_parameters = {}
-        self._default_hyper_parameters["n_estimators"] = HyperParametersDefinition(
+        self._default_hyper_parameters[
+            "n_estimators"
+        ] = HyperParametersDefinition(
             value="100",
             limit_hyper_parameter=LimitHyperParameter(
                 low_value="10", high_value="10000"),
             type_value=HyperTypeValueEnum.INT,
         )
-        self._default_hyper_parameters["min_samples_split"] = HyperParametersDefinition(
+        self._default_hyper_parameters[
+            "min_samples_split"
+        ] = HyperParametersDefinition(
             value="0.1",
             limit_hyper_parameter=LimitHyperParameter(
                 low_value="0.1", high_value="1",),
             type_value=HyperTypeValueEnum.FLOAT,
         )
-        self._default_hyper_parameters["ccp_alpha"] = HyperParametersDefinition(
+        self._default_hyper_parameters[
+            "ccp_alpha"
+        ] = HyperParametersDefinition(
             value="0.1",
             limit_hyper_parameter=LimitHyperParameter(
                 low_value="0.1", high_value="100",),
             type_value=HyperTypeValueEnum.FLOAT,
         )
-        self._default_hyper_parameters["max_leaf_nodes"] = HyperParametersDefinition(
+        self._default_hyper_parameters[
+            "max_leaf_nodes"
+        ] = HyperParametersDefinition(
             value="100",
             limit_hyper_parameter=LimitHyperParameter(
                 low_value="100", high_value="10000",),
             type_value=HyperTypeValueEnum.INT,
         )
-        self._default_hyper_parameters["min_impurity_decrease"] = HyperParametersDefinition(
+        self._default_hyper_parameters[
+            "min_impurity_decrease"
+        ] = HyperParametersDefinition(
             value="0.0",
             limit_hyper_parameter=LimitHyperParameter(
                 low_value="0.0", high_value="1",),
@@ -376,10 +386,13 @@ class RandomForestRegression(MachineRegression):
     def build_machine(self) -> None:
         self._machine = RandomForestRegressor(
             n_estimators=self._hyper_parameters["n_estimators"].value,
-            min_samples_split=self._hyper_parameters["min_samples_split"].value,
+            min_samples_split=self._hyper_parameters[
+                "min_samples_split"].value,
             ccp_alpha=self._hyper_parameters["ccp_alpha"].value,
             max_leaf_nodes=self._hyper_parameters["max_leaf_nodes"].value,
-            min_impurity_decrease=self._hyper_parameters["min_impurity_decrease"].value
+            min_impurity_decrease=self._hyper_parameters[
+                "min_impurity_decrease"].value,
+            n_jobs=-1,
         )
 
 

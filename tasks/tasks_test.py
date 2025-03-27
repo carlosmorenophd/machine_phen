@@ -38,7 +38,7 @@ if __name__ == "__main__":
         print("No action to run")
         optimization_run_from_task(
             file_data=FileDataRegression(
-                file_in="5.1.LRACE_FAWFSF_.csv",
+                file_in="3.1.LRACE_FA_W_FMN.csv",
                 target_feature="RendimientoKG/HA",
                 folder_path=FolderCache.UPLOAD,
             ),

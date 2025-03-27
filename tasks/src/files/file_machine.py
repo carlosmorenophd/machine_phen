@@ -1,5 +1,4 @@
-"""Work with data files for all machines
-    """
+"""Work with data files for all machines """
 
 
 from dataclasses import dataclass
@@ -56,12 +55,16 @@ class FileMachine():
         )
         self.original_df = self._storage_file.get_csv_to_data_frame()
 
-    def get_dataset(self, columns_to_keep: list[bool] = None) -> DatasetOptimizationData:
+    def get_dataset(
+            self,
+            columns_to_keep: list[bool] = None
+    ) -> DatasetOptimizationData:
         """Get some column of the dataset
 
         Args:
-            columns_to_keep (list[bool], optional): 
-                List of boolean values indicating which columns to keep. Defaults to None.
+            columns_to_keep (list[bool], optional):
+                List of boolean values indicating
+                 which columns to keep. Defaults to None.
 
         Returns:
             DatasetOptimizationData: The dataset with selected columns
@@ -70,7 +73,8 @@ class FileMachine():
         if columns_to_keep is not None:
             if len(columns_to_keep) != len(x.columns):
                 raise ValueError(
-                    "Length of columns_to_keep must match the number of columns in the dataset")
+                    "Length of columns_to_keep must match \
+                        the number of columns in the dataset")
             x = x.loc[:, columns_to_keep]
         y = self.only_target
         x_train, x_test, y_train, y_test = train_test_split(
