@@ -464,9 +464,7 @@ class GeneticAlgorithm():
             self._current_generation_number = generation_number
             self._log.progress_log(generation_number=generation_number)
             self._selection()
-            self._store_population()
             self._pheromone_build()
-            self.export()
             for i in range(
                 self._genetic_parameters.number_population // 2
             ):
@@ -482,7 +480,8 @@ class GeneticAlgorithm():
                 )
                 self._new_population.append(child_1)
                 self._new_population.append(child_2)
-            
+            self._store_population()
+            self.export()
 
     def _pheromone_build(self) -> None:
         """Calculate the table of pheromone
