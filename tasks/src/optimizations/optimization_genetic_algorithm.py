@@ -256,6 +256,7 @@ class GeneticAlgorithm():
         self._pheromone_tables_remove = np.zeros(
             len(self._file_machine.columns_name_with_out_target)
         )
+        self._umbral_remove_pheromone = 0.80
 
     def _create_initial_population(self, population_number: int):
         """Create the initial population
@@ -323,9 +324,8 @@ class GeneticAlgorithm():
         for index, phenom in enumerate(
             self._pheromone_tables_remove,
         ):
-            if phenom < random.random():
+            if phenom > self._umbral_remove_pheromone:
                 child_1_features_chromosome[index] = False
-            if phenom < random.random():
                 child_2_features_chromosome[index] = False
 
         child_2.set_features_chromosome(
@@ -464,7 +464,9 @@ class GeneticAlgorithm():
             self._current_generation_number = generation_number
             self._log.progress_log(generation_number=generation_number)
             self._selection()
+            self._store_population()
             self._pheromone_build()
+            self.export()
             for i in range(
                 self._genetic_parameters.number_population // 2
             ):
@@ -480,24 +482,24 @@ class GeneticAlgorithm():
                 )
                 self._new_population.append(child_1)
                 self._new_population.append(child_2)
-            self._store_population()
-            self.export()
+            
 
     def _pheromone_build(self) -> None:
         """Calculate the table of pheromone
         """
-        self._pheromone_tables_remove = np.zeros(
-            len(self._file_machine.columns_name_with_out_target)
-        )
-        for individual in self._population:
+        for individual in self._global_population:
             for index, feature in enumerate(individual.features_chromosome):
                 if feature is True:
-                    self._pheromone_tables_remove[index] = self._pheromone_tables_remove[index] + \
+                    self._pheromone_tables_remove[index] = \
+                        self._pheromone_tables_remove[index] + \
                         (1 - individual.index_metric)
-        self._pheromone_tables_remove = self._pheromone_tables_remove / len(
-            self._population
-        )
-        print("Finish")
+        min_val = np.min(self._pheromone_tables_remove)
+        max_val = np.max(self._pheromone_tables_remove)
+        if max_val - min_val > 0:
+            self._pheromone_tables_remove \
+                = (self._pheromone_tables_remove - min_val) \
+                / (max_val - min_val)
+        print("Finish pheromone")
 
     def _mutation_two_children(
             self,
