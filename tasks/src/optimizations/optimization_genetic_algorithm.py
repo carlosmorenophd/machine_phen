@@ -4,8 +4,10 @@
 import random
 import copy
 from typing import Tuple, List
+from dataclasses import dataclass
 
 import pandas as pd
+import numpy as np
 
 from src.optimizations.optimization_enum import (
     GeneticAlgorithmParameter,
@@ -47,7 +49,11 @@ class GeneticIndividual():
             self._metric_selection = metric_selection
 
     def __str__(self) -> str:
-        return f"machine: {self._machine}  features: {self._dataset.features_name_that_be_true}"
+        return f"machine: {
+            self._machine
+        }  features: {
+            self._dataset.features_name_that_be_true
+        }"
 
     @property
     def dataset(self):
@@ -99,13 +105,18 @@ class GeneticIndividual():
         """Set the metric selection"""
         self._metric_selection = metric_selection
 
-    def apply_dataset(self, file_machine: FileMachine, features_chromosome: list[bool] = None):
+    def apply_dataset(
+            self,
+            file_machine: FileMachine,
+            features_chromosome: list[bool] = None,
+    ):
         """Convert the features chromosome to dataset
 
         Args:
             file_machine (FileData): file with all information from dataset
             features_chromosome (list[bool], optional):
-                Features chromosome to define the column to keep of dataset  Defaults to None.
+                Features chromosome to define the column to keep of dataset
+                  Defaults to None.
 
         Raises:
             ValueError: Error if not was define features chromosome.
@@ -126,7 +137,7 @@ class GeneticIndividual():
         """Mutate the features chromosome
 
         Args:
-            rate_mutation (float): Range between 0 and 1 to 
+            rate_mutation (float): Range between 0 and 1 to
                 mutate the chromosome
         """
         self._features_chromosome = [
@@ -149,7 +160,10 @@ class GeneticIndividual():
         for key in self._machine.hyper_parameters:
             new_key = f"{key}_{self._machine.machine_name}"
             general_dict[new_key] = self._machine.hyper_parameters[key].value
-        for chromosome, feature in zip(self._features_chromosome, features_names):
+        for chromosome, feature in zip(
+            self._features_chromosome,
+            features_names
+        ):
             general_dict[f"feature_{feature}"] = chromosome
         return general_dict
 
@@ -230,27 +244,30 @@ class GeneticAlgorithm():
             file_data=file_data,
             training_data=training_data,
         )
-        self._genetic_algorithm_parameters = genetic_algorithm_parameters
+        self._genetic_parameters = genetic_algorithm_parameters
         self._population: list[GeneticIndividual] = []
         self._new_population: list[GeneticIndividual] = []
         self._global_population: list[GeneticIndividual] = []
         self._log = LogGenetic(
-            number_generation=self._genetic_algorithm_parameters.number_generation,
-            number_population=self._genetic_algorithm_parameters.number_population,
+            number_generation=self._genetic_parameters.number_generation,
+            number_population=self._genetic_parameters.number_population,
         )
         self._current_generation_number = 0
+        self._pheromone_tables_remove = np.zeros(
+            self._file_machine.columns_name_with_out_target
+        )
 
-    def create_initial_population(self, population_number: int):
+    def _create_initial_population(self, population_number: int):
         """Create the initial population
         """
         for _ in range(population_number):
             self._population.append(
-                self.create_initial_individual(
+                self._create_initial_individual(
                     features=self._file_machine.columns_name_with_out_target
                 )
             )
 
-    def create_initial_individual(
+    def _create_initial_individual(
         self,
         features: List[str],
     ) -> GeneticIndividual:
@@ -260,16 +277,17 @@ class GeneticAlgorithm():
             features (list[str]): list of columns of dataset
 
         Returns:
-            GeneticIndividual: Individual with the features selected and one machine by random
+            GeneticIndividual: Individual with the features
+                selected and one machine by random
         """
         genetic_individual = GeneticIndividual(
             machine=machine_build_regression_optimization_decimal(
                 machine_name=random.choice(
-                    self._genetic_algorithm_parameters.machines_key
+                    self._genetic_parameters.machines_key
                 ),
-                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
+                deep_decimal=self._genetic_parameters.deep_decimal,
             ),
-            metric_selection=self._genetic_algorithm_parameters.metric_selection,
+            metric_selection=self._genetic_parameters.metric_selection,
         )
         genetic_individual.apply_dataset(
             file_machine=self._file_machine,
@@ -278,28 +296,65 @@ class GeneticAlgorithm():
         )
         return genetic_individual
 
-    def crossover(self, parent_1: GeneticIndividual, parent_2: GeneticIndividual):
-        """Crossover between two parents
+    def _crossover_features(
+        self,
+        parent_1: GeneticIndividual,
+        parent_2: GeneticIndividual,
+    ) -> Tuple[GeneticIndividual, GeneticIndividual]:
+        """Create a cross of features
+
+        Returns:
+            Tuple[GeneticIndividual,
+                GeneticIndividual]: 2 child for new generation
         """
         crossover_point = random.randint(
             1, len(self._file_machine.columns_name_with_out_target) - 1)
         child_1 = GeneticIndividual(
-            metric_selection=self._genetic_algorithm_parameters.metric_selection
+            metric_selection=self._genetic_parameters.metric_selection
         )
         child_2 = GeneticIndividual(
-            metric_selection=self._genetic_algorithm_parameters.metric_selection
+            metric_selection=self._genetic_parameters.metric_selection
         )
-        child_1.set_features_chromosome(parent_1.features_chromosome[
-            :crossover_point] + parent_2.features_chromosome[crossover_point:])
+        child_1_features_chromosome = [
+            parent_1.features_chromosome[:crossover_point]
+            + parent_2.features_chromosome[crossover_point:]
+        ]
+        child_2_features_chromosome = [
+            parent_2.features_chromosome[:crossover_point]
+            + parent_1.features_chromosome[crossover_point:]
+        ]
+        for index, phenom in enumerate(
+            self._pheromone_tables_remove,
+        ):
+            if phenom < random.random():
+                child_1_features_chromosome[index] = False
+            if phenom < random.random():
+                child_2_features_chromosome[index] = False
 
-        child_2.set_features_chromosome(parent_2.features_chromosome[
-            :crossover_point] + parent_1.features_chromosome[crossover_point:])
+        child_2.set_features_chromosome(
+            child_2_features_chromosome
+        )
+        child_1.set_features_chromosome(
+            child_1_features_chromosome
+        )
+        return (child_1, child_2)
+
+    def _crossover(
+        self,
+        parent_1: GeneticIndividual,
+        parent_2: GeneticIndividual,
+    ):
+        """Crossover between two parents
+        """
+        child_1, child_2 = self._crossover_features(
+            parent_1=parent_1, parent_2=parent_2,
+        )
         if parent_1.machine.machine_name == parent_2.machine.machine_name:
             hyper_parameters_1 = parent_1.machine.hyper_parameters
             hyper_parameters_2 = parent_2.machine.hyper_parameters
             for key, _ in parent_1.machine.hyper_parameters.items():
                 if hyper_parameters_1[key].type_value == HyperTypeValueEnum.FLOAT:
-                    value_1, value_2 = self.crossover_value_same_machine(
+                    value_1, value_2 = self._crossover_value_same_machine(
                         value_1=hyper_parameters_1[key].value,
                         value_2=hyper_parameters_2[key].value,
                         type_value=hyper_parameters_1[key].type_value,
@@ -307,7 +362,7 @@ class GeneticAlgorithm():
                     hyper_parameters_1[key].set_value(value_1)
                     hyper_parameters_2[key].set_value(value_2)
                 elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.INT:
-                    value_1, value_2 = self.crossover_value_same_machine(
+                    value_1, value_2 = self._crossover_value_same_machine(
                         value_1=hyper_parameters_1[key].value,
                         value_2=hyper_parameters_2[key].value,
                         type_value=hyper_parameters_1[key].type_value,
@@ -315,7 +370,7 @@ class GeneticAlgorithm():
                     hyper_parameters_1[key].set_value(value_1)
                     hyper_parameters_2[key].set_value(value_2)
                 elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.CATEGORY:
-                    if random.random() < self._genetic_algorithm_parameters.get_cross_over_rate(
+                    if random.random() < self._genetic_parameters.get_cross_over_rate(
                         number_generation=self._current_generation_number
                     ):
                         hyper_parameters_1[key].set_value(
@@ -335,17 +390,17 @@ class GeneticAlgorithm():
             child_1.set_machine(parent_1.machine)
             child_2.set_machine(parent_2.machine)
             child_2.machine.force_mutate_hyper_parameters(
-                deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+                deep_decimal=self._genetic_parameters.deep_decimal
             )
-            if random.random() < self._genetic_algorithm_parameters.get_cross_over_rate(
+            if random.random() < self._genetic_parameters.get_cross_over_rate(
                 number_generation=self._current_generation_number
             ):
                 child_1.machine.force_mutate_hyper_parameters(
-                    deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+                    deep_decimal=self._genetic_parameters.deep_decimal
                 )
         return child_1, child_2
 
-    def crossover_value_same_machine(
+    def _crossover_value_same_machine(
             self,
             value_1: str,
             value_2:  str,
@@ -361,15 +416,15 @@ class GeneticAlgorithm():
         Returns:
             tuple[str, str]: tuple of two new values of hyper parameters
         """
-        mean_value = self.calculate_mean_str_hyper_parameter(
+        mean_value = self._calculate_mean_str_hyper_parameter(
             value_1=value_1, value_2=value_2, type_value=type_value)
-        if random.random() < self._genetic_algorithm_parameters.get_cross_over_rate(
+        if random.random() < self._genetic_parameters.get_cross_over_rate(
             number_generation=self._current_generation_number
         ):
             return mean_value, mean_value
         return value_1, mean_value
 
-    def calculate_mean_str_hyper_parameter(
+    def _calculate_mean_str_hyper_parameter(
             self,
             value_1: str,
             value_2:  str,
@@ -395,42 +450,59 @@ class GeneticAlgorithm():
             return str(round(
                 float(value_1) +
                 float(value_2) / 2,
-                self._genetic_algorithm_parameters.hyper_parameter_deep_decimal
+                self._genetic_parameters.deep_decimal
             ))
         raise ValueError("Type value not defined")
 
     def run(self):
         """Main function to run the genetic algorithm
         """
-        self.create_initial_population(
-            population_number=self._genetic_algorithm_parameters.number_population,
+        self._create_initial_population(
+            population_number=self._genetic_parameters.number_population,
         )
         self._log.initial_log()
         for generation_number in range(
-            self._genetic_algorithm_parameters.number_generation
+            self._genetic_parameters.number_generation
         ):
             self._current_generation_number = generation_number
             self._log.progress_log(generation_number=generation_number)
-            self.selection()
+            self._selection()
+            self._pheromone_build()
             for i in range(
-                self._genetic_algorithm_parameters.number_population // 2
+                self._genetic_parameters.number_population // 2
             ):
-                child_1, child_2 = self.crossover(
+                child_1, child_2 = self._crossover(
                     parent_1=self._population[i],
                     parent_2=self._population[
-                        self._genetic_algorithm_parameters.number_population - 1
+                        self._genetic_parameters.number_population - 1
                     ],
                 )
-                child_1, child_2 = self.mutation_two_children(
+                child_1, child_2 = self._mutation_two_children(
                     child_1=child_1,
                     child_2=child_2,
                 )
                 self._new_population.append(child_1)
                 self._new_population.append(child_2)
-            self.store_population()
+            self._store_population()
             self.export()
 
-    def mutation_two_children(
+    def _pheromone_build(self) -> None:
+        """Calculate the table of pheromone
+        """
+        self._pheromone_tables_remove = np.zeros(
+            len(self._file_machine.columns_name_with_out_target)
+        )
+        for index, individual in enumerate(self._population):
+            self._pheromone_tables_remove[
+                index
+            ] = self._pheromone_tables_remove[
+                index
+            ] + (1 - individual.index_metric)
+        self._pheromone_tables_remove = self._pheromone_tables_remove / len(
+            self._population
+        )
+
+    def _mutation_two_children(
             self,
             child_1: GeneticIndividual,
             child_2: GeneticIndividual
@@ -445,51 +517,51 @@ class GeneticAlgorithm():
             _type_: _description_
         """
         child_1.mutate_features_chromosome(
-            mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
+            mutation_rate=self._genetic_parameters.get_mutation_rate(
                 number_generation=self._current_generation_number
             ))
         child_2.mutate_features_chromosome(
-            mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
+            mutation_rate=self._genetic_parameters.get_mutation_rate(
                 number_generation=self._current_generation_number
             ))
         child_1.apply_dataset(file_machine=self._file_machine)
         child_2.apply_dataset(file_machine=self._file_machine)
         child_1.machine.mutate_hyper_parameters(
-            mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
+            mutation_rate=self._genetic_parameters.get_mutation_rate(
                 number_generation=self._current_generation_number
             ),
-            deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
+            deep_decimal=self._genetic_parameters.deep_decimal,
         )
         child_2.machine.mutate_hyper_parameters(
-            mutation_rate=self._genetic_algorithm_parameters.get_mutation_rate(
+            mutation_rate=self._genetic_parameters.get_mutation_rate(
                 number_generation=self._current_generation_number
             ),
-            deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
+            deep_decimal=self._genetic_parameters.deep_decimal,
         )
-        child_1 = self.mutate_machine(child=child_1)
-        child_2 = self.mutate_machine(child=child_2)
+        child_1 = self._mutate_machine(child=child_1)
+        child_2 = self._mutate_machine(child=child_2)
         return child_1, child_2
 
-    def mutate_machine(self, child: GeneticIndividual):
+    def _mutate_machine(self, child: GeneticIndividual):
         """Mutate machine
 
         Args:
             child_1 (GeneticIndividual): Child to mutate machine
         """
-        if random.random() < self._genetic_algorithm_parameters.get_mutate_machine(
+        if random.random() < self._genetic_parameters.get_mutate_machine(
             number_generation=self._current_generation_number
         ):
             child.set_machine(
                 machine=machine_build_regression_optimization_decimal(
                     machine_name=random.choice(
-                        self._genetic_algorithm_parameters.machines_key
+                        self._genetic_parameters.machines_key
                     ),
-                    deep_decimal=self._genetic_algorithm_parameters.hyper_parameter_deep_decimal,
+                    deep_decimal=self._genetic_parameters.deep_decimal,
                 ),
             )
         return child
 
-    def selection(self):
+    def _selection(self):
         """Run every model in all population and sort by best metric
         """
         for number_individual, individual in enumerate(self._population):
@@ -500,10 +572,10 @@ class GeneticAlgorithm():
             individual.run()
         self._population.sort(
             key=lambda individual: individual.index_metric,
-            reverse=self.selection_reverse()
+            reverse=self._selection_reverse()
         )
 
-    def selection_reverse(self) -> bool:
+    def _selection_reverse(self) -> bool:
         """Get if the best model is the lowest or the highest
 
         Raises:
@@ -512,19 +584,19 @@ class GeneticAlgorithm():
         Returns:
             _type_: sort ascending or descending
         """
-        if self._genetic_algorithm_parameters.metric_selection in [
+        if self._genetic_parameters.metric_selection in [
             MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
             MetricEnum.R2_SCORE,
         ]:
             return False
-        if self._genetic_algorithm_parameters.metric_selection in [
+        if self._genetic_parameters.metric_selection in [
             MetricEnum.MEAN_ABSOLUTE_ERROR,
             MetricEnum.MEAN_SQUARED_ERROR
         ]:
             return True
         raise ValueError("Metric not defined, to select the best model")
 
-    def store_population(self):
+    def _store_population(self):
         """Store the population in a file
         """
         self._global_population += copy.deepcopy(self._population)

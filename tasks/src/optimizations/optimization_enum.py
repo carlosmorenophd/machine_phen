@@ -16,13 +16,13 @@ class GeneticIndividualParameter():
     def __init__(
         self,
         number_population: int = 100,
-        hyper_parameter_deep_decimal: int = 5,
+        deep_decimal: int = 5,
         metric_selection:
             MetricEnum = MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
         machines_key: List[MachineNames] = None,
     ) -> None:
         self._number_population = number_population
-        self._hyper_parameter_deep_decimal = hyper_parameter_deep_decimal
+        self._deep_decimal = deep_decimal
         self._metric_selection = metric_selection
         self._machines_key = [
             MachineNames.LASSO_REGRESSION,
@@ -39,9 +39,9 @@ class GeneticIndividualParameter():
         return self._number_population
 
     @property
-    def hyper_parameter_deep_decimal(self) -> int:
+    def deep_decimal(self) -> int:
         """Return the deep decimal"""
-        return self._hyper_parameter_deep_decimal
+        return self._deep_decimal
 
     @property
     def metric_selection(self) -> MetricEnum:
@@ -166,13 +166,13 @@ class GeneticAlgorithmParameter(ABC):
         ).cross_over_rate
 
     @property
-    def hyper_parameter_deep_decimal(self) -> int:
+    def deep_decimal(self) -> int:
         """Return the deep decimal
 
         Returns:
             int: deep decimal
         """
-        return self._individual_parameter.hyper_parameter_deep_decimal
+        return self._individual_parameter.deep_decimal
 
     def get_mutate_machine(self, number_generation: int) -> float:
         """Return the mutate machine"""
