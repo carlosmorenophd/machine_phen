@@ -254,7 +254,7 @@ class GeneticAlgorithm():
         )
         self._current_generation_number = 0
         self._pheromone_tables_remove = np.zeros(
-            self._file_machine.columns_name_with_out_target
+            len(self._file_machine.columns_name_with_out_target)
         )
 
     def _create_initial_population(self, population_number: int):
@@ -315,14 +315,11 @@ class GeneticAlgorithm():
         child_2 = GeneticIndividual(
             metric_selection=self._genetic_parameters.metric_selection
         )
-        child_1_features_chromosome = [
-            parent_1.features_chromosome[:crossover_point]
-            + parent_2.features_chromosome[crossover_point:]
-        ]
-        child_2_features_chromosome = [
-            parent_2.features_chromosome[:crossover_point]
-            + parent_1.features_chromosome[crossover_point:]
-        ]
+        child_1_features_chromosome = parent_1.features_chromosome[:crossover_point] + \
+            parent_2.features_chromosome[crossover_point:]
+        child_2_features_chromosome = parent_2.features_chromosome[:crossover_point] + \
+            parent_1.features_chromosome[crossover_point:]
+
         for index, phenom in enumerate(
             self._pheromone_tables_remove,
         ):
@@ -492,15 +489,15 @@ class GeneticAlgorithm():
         self._pheromone_tables_remove = np.zeros(
             len(self._file_machine.columns_name_with_out_target)
         )
-        for index, individual in enumerate(self._population):
-            self._pheromone_tables_remove[
-                index
-            ] = self._pheromone_tables_remove[
-                index
-            ] + (1 - individual.index_metric)
+        for individual in self._population:
+            for index, feature in enumerate(individual.features_chromosome):
+                if feature is True:
+                    self._pheromone_tables_remove[index] = self._pheromone_tables_remove[index] + \
+                        (1 - individual.index_metric)
         self._pheromone_tables_remove = self._pheromone_tables_remove / len(
             self._population
         )
+        print("Finish")
 
     def _mutation_two_children(
             self,
