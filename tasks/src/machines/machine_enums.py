@@ -1,6 +1,7 @@
 """Skelton for class to predict"""
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
 
 
 class MachineNames(Enum):
@@ -33,11 +34,13 @@ class LimitHyperParameter():
     high_value: str = None
     catalogue_values: list[str] = None
 
+
 @dataclass
 class HyperParameterRebuild:
     """Basic hyper parameters for rebuild"""
     name: str
     value: str
+
 
 def convert_str_to_machine_name(machine_name: str) -> MachineNames:
     """Convert string to machine name
@@ -49,3 +52,11 @@ def convert_str_to_machine_name(machine_name: str) -> MachineNames:
         MachineNames: Machine name
     """
     return MachineNames(machine_name)
+
+
+@dataclass
+class MachineDefaultDefinition:
+    """Definition machine from with use default
+    """
+    machine_name: MachineNames
+    hyper_parameters: List[HyperParameterRebuild] = None

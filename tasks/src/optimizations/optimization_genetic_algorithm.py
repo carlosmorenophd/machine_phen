@@ -4,7 +4,6 @@
 import random
 import copy
 from typing import Tuple, List
-from dataclasses import dataclass
 
 import pandas as pd
 import numpy as np
@@ -316,9 +315,11 @@ class GeneticAlgorithm():
         child_2 = GeneticIndividual(
             metric_selection=self._genetic_parameters.metric_selection
         )
-        child_1_features_chromosome = parent_1.features_chromosome[:crossover_point] + \
+        child_1_features_chromosome =\
+            parent_1.features_chromosome[:crossover_point] + \
             parent_2.features_chromosome[crossover_point:]
-        child_2_features_chromosome = parent_2.features_chromosome[:crossover_point] + \
+        child_2_features_chromosome =\
+            parent_2.features_chromosome[:crossover_point] + \
             parent_1.features_chromosome[crossover_point:]
 
         for index, phenom in enumerate(
@@ -350,7 +351,8 @@ class GeneticAlgorithm():
             hyper_parameters_1 = parent_1.machine.hyper_parameters
             hyper_parameters_2 = parent_2.machine.hyper_parameters
             for key, _ in parent_1.machine.hyper_parameters.items():
-                if hyper_parameters_1[key].type_value == HyperTypeValueEnum.FLOAT:
+                if hyper_parameters_1[key].type_value ==\
+                        HyperTypeValueEnum.FLOAT:
                     value_1, value_2 = self._crossover_value_same_machine(
                         value_1=hyper_parameters_1[key].value,
                         value_2=hyper_parameters_2[key].value,
@@ -358,7 +360,8 @@ class GeneticAlgorithm():
                     )
                     hyper_parameters_1[key].set_value(value_1)
                     hyper_parameters_2[key].set_value(value_2)
-                elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.INT:
+                elif hyper_parameters_1[key].type_value ==\
+                        HyperTypeValueEnum.INT:
                     value_1, value_2 = self._crossover_value_same_machine(
                         value_1=hyper_parameters_1[key].value,
                         value_2=hyper_parameters_2[key].value,
@@ -366,8 +369,10 @@ class GeneticAlgorithm():
                     )
                     hyper_parameters_1[key].set_value(value_1)
                     hyper_parameters_2[key].set_value(value_2)
-                elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.CATEGORY:
-                    if random.random() < self._genetic_parameters.get_cross_over_rate(
+                elif hyper_parameters_1[key].type_value ==\
+                        HyperTypeValueEnum.CATEGORY:
+                    if random.random() < \
+                        self._genetic_parameters.get_cross_over_rate(
                         number_generation=self._current_generation_number
                     ):
                         hyper_parameters_1[key].set_value(
@@ -624,8 +629,10 @@ class GeneticAlgorithm():
             data_frame=sampled_data_frame,
             prefix="optimization_overlap",
         )
-        file_save = self._file_machine.storage_file.adding_prefix_file_name_only_file(
-            prefix="optimization")
+        file_save =\
+            self._file_machine.storage_file.adding_prefix_file_name_only_file(
+                prefix="optimization"
+            )
         create_graph_model_index(
             file_result=file_save,
             prefix="optimization_overlap",

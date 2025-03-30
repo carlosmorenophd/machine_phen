@@ -1,12 +1,22 @@
 """ All basic concepts and enums for work with genetics values"""
-from typing import List
+from typing import List, Dict
 
 from abc import ABC
 from dataclasses import dataclass
+from enum import Enum
 
-from src.machines.machine_enums import MachineNames
+import pandas as pd
+
+from src.machines.machine_enums import (
+    MachineNames,
+    MachineDefaultDefinition,
+    convert_str_to_machine_name,
+    HyperParameterRebuild,
+)
 from src.files.file_machine import TrainingData
 from src.metrics.metric_enums import MetricEnum
+from src.files.file_machine import FileDataRegression
+from src.helpers.file_access import FolderCache, StorageFile
 
 
 class GeneticIndividualParameter():
@@ -199,3 +209,146 @@ class GeneticAlgorithmParameter(ABC):
             TrainingData: training data
         """
         return self._training_data
+
+
+class ActionProcedure(Enum):
+    """Action on Forward Backward method
+    """
+    FORWARD: 1
+    BACKWARD: 2
+
+
+@dataclass
+class ProcedureForwardBackward:
+    """Class to define de action to do in the process
+    """
+    step: int
+    action: ActionProcedure
+    metric: MetricEnum
+    models: List[MachineDefaultDefinition]
+
+
+class FileProcessForwardBackward:
+
+    """ Prepare all files and data to process for Forward and Backward"""
+
+    def __init__(
+        self,
+        file_json_definition: str,
+        file_name: str,
+    ):
+        self._store_file = StorageFile(file_name=file_name)
+        self._data_frame = self._store_file.get_csv_to_data_frame()
+        definitions = self._store_file.get_json_from_file(
+            file_name=file_json_definition,
+        )
+        self._file_data = FileDataRegression(
+            file_in=file_name,
+            target_feature=definitions["target_feature"],
+            folder_path=FolderCache.UPLOAD,
+        )
+        self._initial_features: List[str] = []
+        for feature_definition in definitions["start_features"]:
+            self._initial_features.append(
+                self._find_features(
+                    pattern=feature_definition["pattern"],
+                    value=feature_definition["value"],
+                ),
+            )
+        self._procedures: List[ProcedureForwardBackward] = []
+        for procedure in definitions["procedures"]:
+            self._procedures.append(
+                self._find_procedure(data=procedure)
+            )
+        self._current_step = min(self._procedures, key=lambda obj: obj.step)
+
+    def initial_features(self) -> List[str]:
+        """Get initial features
+
+        Returns:
+            List[str]: list features
+        """
+        return self._initial_features
+
+    def get_data_frame(self, features: List[str]) -> pd.DataFrame:
+        """Return initial data frame
+
+        Returns:
+            pd.DataFrame: data frame filter by initial rows
+        """
+        return self._data_frame[features]
+
+    def get_steps(self) -> List[ProcedureForwardBackward]:
+        """Get current procedure action
+
+        Returns:
+            ProcedureForwardBackward: current procedure
+        """
+        return self._procedures.sort(key=lambda obj: obj.step)
+
+    def _find_procedure(self, data: Dict) -> ProcedureForwardBackward:
+        """Extract from dictionary the procedure
+
+        Args:
+            data (Dict): Data to extract
+
+        Raises:
+            KeyError: Some key dont exist
+
+        Returns:
+            ProcedureForwardBackward: return procedure
+        """
+        try:
+            models: List[MachineDefaultDefinition] = []
+            if "models" in data:
+                raise KeyError("All procedure need a list of models")
+            for model_data in data["models"]:
+                machine_name = convert_str_to_machine_name(model_data["name"])
+                hyper_parameters = []
+                if "hyper_parameters" in model_data:
+                    for hyper_parameter_data in model_data["hyper_parameters"]:
+                        hyper_parameters.append(HyperParameterRebuild(
+                            name=hyper_parameter_data["name"],
+                            value=hyper_parameter_data["value"],
+                        ))
+                models.append(
+                    MachineDefaultDefinition(
+                        machine_name=machine_name,
+                        hyper_parameters=hyper_parameters,
+                    )
+                )
+            return ProcedureForwardBackward(
+                step=int(data["position"]),
+                action=ActionProcedure[data["action"].lower()],
+                metric=MetricEnum[data["metric"].lower()],
+                models=models
+            )
+        except Exception as e:
+            raise KeyError(f"Can't extract the procedure from f{e}") from e
+
+    def _find_features(self, pattern: str, value: str) -> List[str]:
+        """Search and get features by patterns
+
+        Args:
+            pattern (str): patter to search
+            value (str): value to search
+
+        Returns:
+            List[str]: list of features
+        """
+        if pattern.lower() == "like":
+            return [column for column in self._data_frame.columns
+                    if value.lower() in column.lower()]
+        if pattern.lower() == "equal":
+            if value in self._data_frame.columns:
+                return value
+        raise KeyError(f"Patter {pattern} or column {value} don't exist")
+
+    @property
+    def store_file(self) -> StorageFile:
+        """To operate with main file
+
+        Returns:
+            StorageFile: Return storage file
+        """
+        return self.store_file

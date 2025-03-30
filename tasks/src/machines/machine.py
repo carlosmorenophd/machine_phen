@@ -82,7 +82,7 @@ class HyperParametersDefinition:
         raise ValueError("Not value to return")
 
     def mutate_value(self, deep_decimal: int) -> None:
-        """Mutate a value 
+        """Mutate a value
 
         Args:
             deep_decimal (int): deep of decimal to mutate
@@ -136,6 +136,10 @@ class MachineRegression(ABC):
     def build_machine(self) -> None:
         """Create a machine for training and predict
         """
+    @abstractmethod
+    def build_machine_default(self) -> None:
+        """Create a machine with minimal parameters
+        """
 
     def rebuild_machine(self, parameters: list[HyperParameterRebuild]) -> None:
         """Rebuild the machine with old parameters"""
@@ -147,6 +151,7 @@ class MachineRegression(ABC):
         """
         identity_dict = {
             "name": self._machine_name,
+            "training_time": self._time_training,
         }
         identity_parameters = []
         for key, value in self._hyper_parameters.items():
@@ -158,7 +163,10 @@ class MachineRegression(ABC):
         """Create str with name and hyper parameters"""
         return json.dumps(self.identity())
 
-    def set_hyper_parameters(self, hyper_parameters: list[HyperParametersDefinition]) -> None:
+    def set_hyper_parameters(
+            self,
+            hyper_parameters: list[HyperParametersDefinition],
+    ) -> None:
         """Set hyper parameters to machine
         """
         self._hyper_parameters = hyper_parameters
@@ -217,13 +225,25 @@ class MachineRegression(ABC):
         """Mutate the hyper parameters
 
         Args:
-            mutation_rate (float): Range between 0 and 1 to mutate the hyper parameters
+            mutation_rate (float): Range between 0 and 1 to mutate the
+                hyper parameters
         """
         for key, _ in self._hyper_parameters.items():
             if random.random() < mutation_rate:
                 self._hyper_parameters[key].mutate_value(
                     deep_decimal=deep_decimal,
                 )
+
+    def set_one_hyper_parameter(self, hyper: HyperParameterRebuild) -> None:
+        """Set one value on one hyper parameter
+
+        Args:
+            value (str): value to set
+            key_hyper (str): key of hyper parameter
+        """
+        if hyper.name not in self._hyper_parameters:
+            raise KeyError(f"Don't exist the hyper parameter {hyper.name}")
+        self._hyper_parameters[hyper.name].setValue(value=hyper.value)
 
 
 class BayesianRidgeRegression(MachineRegression):
@@ -254,6 +274,9 @@ class BayesianRidgeRegression(MachineRegression):
             alpha_1=self._hyper_parameters["alpha_1"].value,
             lambda_1=self._hyper_parameters["lambda_1"].value
         )
+
+    def build_machine_default(self) -> None:
+        self._machine = BayesianRidge()
 
 
 # class LinearRRegression(MachineRegression):
@@ -310,7 +333,8 @@ class LassoRegression(MachineRegression):
                 low_value="0.0001", high_value="0.1"),
             type_value=HyperTypeValueEnum.FLOAT,
         )
-        self._default_hyper_parameters["selection"] = HyperParametersDefinition(
+        self._default_hyper_parameters["selection"] = \
+            HyperParametersDefinition(
             value="cyclic",
             limit_hyper_parameter=LimitHyperParameter(
                 catalogue_values=[
@@ -327,6 +351,9 @@ class LassoRegression(MachineRegression):
             alpha=self._hyper_parameters["alfa"].value,
             selection=self._hyper_parameters["selection"].value,
         )
+
+    def build_machine_default(self):
+        self._machine = Lasso()
 
 
 class RandomForestRegression(MachineRegression):
@@ -393,6 +420,12 @@ class RandomForestRegression(MachineRegression):
             min_impurity_decrease=self._hyper_parameters[
                 "min_impurity_decrease"].value,
             n_jobs=-1,
+        )
+
+    def build_machine_default(self):
+        self._machine = RandomForestRegressor(
+            n_jobs=-1,
+            n_estimators=self._hyper_parameters["n_estimators"].value,
         )
 
 
@@ -481,6 +514,11 @@ class SupportVectorRegression(MachineRegression):
             tol=self._hyper_parameters["tol"].value,
         )
 
+    def build_machine_default(self):
+        self._machine = SVR(
+            kernel=self._hyper_parameters["kernel"].value,
+        )
+
 
 class ExtremeGradientBoostRegression(MachineRegression):
     """Machine for prediction on Extreme Gradient Boosting
@@ -491,10 +529,12 @@ class ExtremeGradientBoostRegression(MachineRegression):
 
     def __init__(self) -> None:
         super().__init__()
-        self._machine_name = MachineNames.EXTREME_GRADIENT_BOOSTING_REGRESSION.value
+        self._machine_name = MachineNames.\
+            EXTREME_GRADIENT_BOOSTING_REGRESSION.value
         self._default_hyper_parameters = {}
         self._hyper_parameters = {}
-        self._default_hyper_parameters["n_estimators"] = HyperParametersDefinition(
+        self._default_hyper_parameters["n_estimators"] = \
+            HyperParametersDefinition(
             value="100",
             limit_hyper_parameter=LimitHyperParameter(
                 low_value="10",
@@ -518,7 +558,8 @@ class ExtremeGradientBoostRegression(MachineRegression):
             ),
             type_value=HyperTypeValueEnum.FLOAT,
         )
-        self._default_hyper_parameters["max_depth"] = HyperParametersDefinition(
+        self._default_hyper_parameters["max_depth"] = \
+            HyperParametersDefinition(
             limit_hyper_parameter=LimitHyperParameter(
                 low_value='0',
                 high_value='300',
@@ -526,7 +567,8 @@ class ExtremeGradientBoostRegression(MachineRegression):
             value='6',
             type_value=HyperTypeValueEnum.INT,
         )
-        self._default_hyper_parameters["min_child_weight"] = HyperParametersDefinition(
+        self._default_hyper_parameters["min_child_weight"] = \
+            HyperParametersDefinition(
             limit_hyper_parameter=LimitHyperParameter(
                 low_value='0',
                 high_value='300',
@@ -534,7 +576,8 @@ class ExtremeGradientBoostRegression(MachineRegression):
             value='1',
             type_value=HyperTypeValueEnum.INT,
         )
-        self._default_hyper_parameters["max_delta_step"] = HyperParametersDefinition(
+        self._default_hyper_parameters["max_delta_step"] = \
+            HyperParametersDefinition(
             limit_hyper_parameter=LimitHyperParameter(
                 low_value='0',
                 high_value='300',
@@ -542,7 +585,8 @@ class ExtremeGradientBoostRegression(MachineRegression):
             value='0',
             type_value=HyperTypeValueEnum.INT,
         )
-        self._default_hyper_parameters["subsample"] = HyperParametersDefinition(
+        self._default_hyper_parameters["subsample"] = \
+            HyperParametersDefinition(
             limit_hyper_parameter=LimitHyperParameter(
                 low_value='0',
                 high_value='1',
@@ -550,7 +594,8 @@ class ExtremeGradientBoostRegression(MachineRegression):
             value='0',
             type_value=HyperTypeValueEnum.INT,
         )
-        self._default_hyper_parameters["learning_rate"] = HyperParametersDefinition(
+        self._default_hyper_parameters["learning_rate"] = \
+            HyperParametersDefinition(
             limit_hyper_parameter=LimitHyperParameter(
                 low_value='0',
                 high_value='1',
@@ -578,7 +623,6 @@ class ExtremeGradientBoostRegression(MachineRegression):
         self._hyper_parameters = self._default_hyper_parameters
 
     def build_machine(self) -> None:
-
         self._machine = XGBRegressor(
             n_estimators=self._hyper_parameters["n_estimators"].value,
             eta=self._hyper_parameters["eta"].value,
@@ -590,4 +634,11 @@ class ExtremeGradientBoostRegression(MachineRegression):
             alpha=self._default_hyper_parameters["alpha"].value,
             learning_rate=self._hyper_parameters["learning_rate"].value,
             reg_lambda=self._hyper_parameters["lambda"].value,
+            n_jobs=-1,
+        )
+
+    def build_machine_default(self):
+        self._machine = XGBRegressor(
+            n_estimators=self._hyper_parameters["n_estimators"].value,
+            n_jobs=-1,
         )

@@ -1,5 +1,10 @@
 {
     "cSpell.ignoreWords": [
+        "Biomasa",
+        "Condensacion",
+        "Copa",
+        "Evaporacion",
+        "Indice",
         "Rendimiento",
         "SVRP",
         "XGBR",
@@ -22,6 +27,7 @@
         "linestyle",
         "linewidth",
         "lrace",
+        "mape",
         "meshgrid",
         "ndarray",
         "ndvi",
@@ -31,6 +37,7 @@
         "quantile",
         "ravel",
         "scatterplot",
+        "temperatura",
         "tournsize",
         "tweedie",
         "xgboost",

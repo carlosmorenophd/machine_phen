@@ -34,11 +34,11 @@ def task_regression_genetic(
     gc.collect()
 
 
-@app.task(name="back_forward")
-def task_back_forward_feature(
-    files_in: str,
-    target_column: str,
-    file_models: str,
+@app.task(name="backward_forward")
+def task_backward_forward(
+    folder_main: str,
+    file_data: str,
+    file_json_definition: str,
 ) -> None:
     """Search the best features selection with backward adn forward action 
 
@@ -47,19 +47,14 @@ def task_back_forward_feature(
         target_column (str): column target on file
         genetic_parameters_str (str): basic parameters for genetic algorithm
     """
-    print(f" Inputs: file - {files_in}, column - {
-          target_column}, file models - {file_models}")
+    log_print = f"folder main - {folder_main}"
+    log_print = f"{log_print} file data - {file_data}"
+    log_print = f"{log_print} file json definition - {file_json_definition}"
+    print(log_print)
     forward_backward_features(
-        file_data=FileDataRegression(
-            file_in=files_in,
-            target_feature=target_column,
-            folder_path=FolderCache.UPLOAD,
-        ),
-        file_models=FileDataRegression(
-            file_in=file_models,
-            target_feature=target_column,
-            folder_path=FolderCache.UPLOAD,
-        ),
+        folder_main,
+        file_data,
+        file_json_definition,
     )
     gc.collect()
 
@@ -71,4 +66,4 @@ def version() -> str:
     Returns:
         str: version number
     """
-    return "25.01.171"
+    return "25.03.28"
