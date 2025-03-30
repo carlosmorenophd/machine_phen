@@ -4,7 +4,6 @@
 import random
 import copy
 from typing import Tuple, List
-from dataclasses import dataclass
 
 import pandas as pd
 import numpy as np
@@ -113,7 +112,7 @@ class GeneticIndividual():
         """Convert the features chromosome to dataset
 
         Args:
-            file_machine (FileData): file with all information from dataset
+            file_machine (FileMachine): file with all information from dataset
             features_chromosome (list[bool], optional):
                 Features chromosome to define the column to keep of dataset
                   Defaults to None.
@@ -256,6 +255,7 @@ class GeneticAlgorithm():
         self._pheromone_tables_remove = np.zeros(
             len(self._file_machine.columns_name_with_out_target)
         )
+        self._umbral_remove_pheromone = 0.80
 
     def _create_initial_population(self, population_number: int):
         """Create the initial population
@@ -315,17 +315,18 @@ class GeneticAlgorithm():
         child_2 = GeneticIndividual(
             metric_selection=self._genetic_parameters.metric_selection
         )
-        child_1_features_chromosome = parent_1.features_chromosome[:crossover_point] + \
+        child_1_features_chromosome =\
+            parent_1.features_chromosome[:crossover_point] + \
             parent_2.features_chromosome[crossover_point:]
-        child_2_features_chromosome = parent_2.features_chromosome[:crossover_point] + \
+        child_2_features_chromosome =\
+            parent_2.features_chromosome[:crossover_point] + \
             parent_1.features_chromosome[crossover_point:]
 
         for index, phenom in enumerate(
             self._pheromone_tables_remove,
         ):
-            if phenom < random.random():
+            if phenom > self._umbral_remove_pheromone:
                 child_1_features_chromosome[index] = False
-            if phenom < random.random():
                 child_2_features_chromosome[index] = False
 
         child_2.set_features_chromosome(
@@ -350,7 +351,8 @@ class GeneticAlgorithm():
             hyper_parameters_1 = parent_1.machine.hyper_parameters
             hyper_parameters_2 = parent_2.machine.hyper_parameters
             for key, _ in parent_1.machine.hyper_parameters.items():
-                if hyper_parameters_1[key].type_value == HyperTypeValueEnum.FLOAT:
+                if hyper_parameters_1[key].type_value ==\
+                        HyperTypeValueEnum.FLOAT:
                     value_1, value_2 = self._crossover_value_same_machine(
                         value_1=hyper_parameters_1[key].value,
                         value_2=hyper_parameters_2[key].value,
@@ -358,7 +360,8 @@ class GeneticAlgorithm():
                     )
                     hyper_parameters_1[key].set_value(value_1)
                     hyper_parameters_2[key].set_value(value_2)
-                elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.INT:
+                elif hyper_parameters_1[key].type_value ==\
+                        HyperTypeValueEnum.INT:
                     value_1, value_2 = self._crossover_value_same_machine(
                         value_1=hyper_parameters_1[key].value,
                         value_2=hyper_parameters_2[key].value,
@@ -366,8 +369,10 @@ class GeneticAlgorithm():
                     )
                     hyper_parameters_1[key].set_value(value_1)
                     hyper_parameters_2[key].set_value(value_2)
-                elif hyper_parameters_1[key].type_value == HyperTypeValueEnum.CATEGORY:
-                    if random.random() < self._genetic_parameters.get_cross_over_rate(
+                elif hyper_parameters_1[key].type_value ==\
+                        HyperTypeValueEnum.CATEGORY:
+                    if random.random() < \
+                        self._genetic_parameters.get_cross_over_rate(
                         number_generation=self._current_generation_number
                     ):
                         hyper_parameters_1[key].set_value(
@@ -486,18 +491,19 @@ class GeneticAlgorithm():
     def _pheromone_build(self) -> None:
         """Calculate the table of pheromone
         """
-        self._pheromone_tables_remove = np.zeros(
-            len(self._file_machine.columns_name_with_out_target)
-        )
-        for individual in self._population:
+        for individual in self._global_population:
             for index, feature in enumerate(individual.features_chromosome):
                 if feature is True:
-                    self._pheromone_tables_remove[index] = self._pheromone_tables_remove[index] + \
+                    self._pheromone_tables_remove[index] = \
+                        self._pheromone_tables_remove[index] + \
                         (1 - individual.index_metric)
-        self._pheromone_tables_remove = self._pheromone_tables_remove / len(
-            self._population
-        )
-        print("Finish")
+        min_val = np.min(self._pheromone_tables_remove)
+        max_val = np.max(self._pheromone_tables_remove)
+        if max_val - min_val > 0:
+            self._pheromone_tables_remove \
+                = (self._pheromone_tables_remove - min_val) \
+                / (max_val - min_val)
+        print("Finish pheromone")
 
     def _mutation_two_children(
             self,
@@ -623,8 +629,10 @@ class GeneticAlgorithm():
             data_frame=sampled_data_frame,
             prefix="optimization_overlap",
         )
-        file_save = self._file_machine.storage_file.adding_prefix_file_name_only_file(
-            prefix="optimization")
+        file_save =\
+            self._file_machine.storage_file.adding_prefix_file_name_only_file(
+                prefix="optimization"
+            )
         create_graph_model_index(
             file_result=file_save,
             prefix="optimization_overlap",

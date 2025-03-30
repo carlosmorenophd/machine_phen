@@ -3,7 +3,6 @@ from enum import Enum
 from dataclasses import dataclass
 
 
-
 class MetricEnum(Enum):
     """Definition for all metrics
 
@@ -26,6 +25,7 @@ class MetricEnum(Enum):
     R2_SCORE = "r2_score"
     ROOT_MEAN_SQUARED_ERROR = "root_mean_squared_error"
     ROOT_MEAN_SQUARED_LOG_ERROR = "root_mean_squared_log_error"
+
 
 @dataclass
 class PlotLegends():

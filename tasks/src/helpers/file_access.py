@@ -110,7 +110,11 @@ class StorageFile():
     """Convert file in access class to get it
     """
 
-    def __init__(self, file_name: str, folder_file: FolderCache = FolderCache.UPLOAD):
+    def __init__(
+            self,
+            file_name: str,
+            folder_file: FolderCache = FolderCache.UPLOAD
+    ):
         self.folder_file = folder_file
         self.file_name = file_name
         self.work_folder = os.path.join(
@@ -119,8 +123,27 @@ class StorageFile():
             FOLDER_DATA, folder_file.value, file_name)
         self.file_name_only, _ = os.path.splitext(self.file_name)
 
+    def get_json_from_file(self, file_name: str, ) -> dict:
+        """Util - load json str to json dictionary """
+        warnings.warn(
+            "Deprecate from 2024.11.14. Using the class 'FileInfoData' inside it.",
+            DeprecationWarning
+        )
+        file = os.path.join(self.work_folder, file_name)
+        if IS_DEBUG:
+            print(os.getcwd())
+            print(FOLDER_DATA)
+            print(file)
+        if os.path.isfile(file):
+            json_dict = None
+            with open(file, 'r', encoding="utf-8") as f:
+                json_dict = json.load(f)
+            return json_dict
+        raise FileNotFoundError(f"file not found - {file}")
+
     def adding_prefix_file_name(self, prefix: str) -> str:
-        """Adding one prefix to file to save on same folder keep the same extension
+        """Adding one prefix to file to save on same folder keep
+            the same extension
 
         Args:
             prefix (str): prefix of name
@@ -128,10 +151,18 @@ class StorageFile():
         Returns:
             str: absolute path to save file
         """
-        return os.path.join(FOLDER_DATA, self.folder_file.value, f"{prefix}_{self.file_name}")
-    
-    def adding_prefix_file_name_only_file(self, prefix: str) -> str:
-        """Adding one prefix to file to save on same folder keep the same extension, but only return file
+        return os.path.join(
+            FOLDER_DATA,
+            self.folder_file.value,
+            f"{prefix}_{self.file_name}",
+        )
+
+    def adding_prefix_file_name_only_file(
+            self,
+            prefix: str,
+    ) -> str:
+        """Adding one prefix to file to save on same folder keep
+            the same extension, but only return file
 
         Args:
             prefix (str): prefix of name
@@ -141,8 +172,13 @@ class StorageFile():
         """
         return os.path.join(f"{prefix}_{self.file_name}")
 
-    def adding_prefix_name_extension(self, prefix: str, extension: str) -> str:
-        """Adding one prefix to file to save on same folder keep with other extension
+    def adding_prefix_name_extension(
+            self,
+            prefix: str,
+            extension: str,
+    ) -> str:
+        """Adding one prefix to file to save on same folder keep
+            with other extension
 
         Args:
             prefix (str): prefix of name
