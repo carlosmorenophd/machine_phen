@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import BayesianRidge, Lasso
 from sklearn.svm import SVR
 from xgboost import XGBRegressor
+import pandas as pd
 
 from src.metrics.metric import Metric
 from src.machines.machine_enums import (
@@ -120,6 +121,7 @@ class MachineRegression(ABC):
         self._error_metric = None
         self._hyper_parameters: dict[HyperParametersDefinition] = None
         self._default_hyper_parameters: dict[HyperParametersDefinition] = None
+        self._rebuild_hyper_parameters: list[HyperParameterRebuild] = None
 
     @property
     def hyper_parameters(self) -> list[HyperParametersDefinition]:
@@ -132,6 +134,26 @@ class MachineRegression(ABC):
         """Get the machine name by enum"""
         return self._machine_name
 
+    @property
+    def time_training(self) -> float:
+        """Return time of training
+
+        Returns:
+            float: _description_
+        """
+        return self._time_training
+
+    @property
+    def rebuild_hyper_parameters(
+        self
+    ) -> list[HyperParameterRebuild]:
+        """Return a list of hyper parameter setter un rebuild
+
+        Returns:
+            list[HyperParameterRebuild]: list hyper parameters
+        """
+        return self._rebuild_hyper_parameters
+
     @abstractmethod
     def build_machine(self) -> None:
         """Create a machine for training and predict
@@ -141,9 +163,18 @@ class MachineRegression(ABC):
         """Create a machine with minimal parameters
         """
 
-    def rebuild_machine(self, parameters: list[HyperParameterRebuild]) -> None:
-        """Rebuild the machine with old parameters"""
-        for parameter in parameters:
+    def set_rebuild_hyper_parameters(
+            self,
+            rebuild_parameters: list[HyperParameterRebuild]
+    ) -> None:
+        """Rebuild the machine with old parameters
+
+        Args:
+            rebuild_parameters (list[HyperParameterRebuild]): List of new
+                hyper parameters
+        """
+        self._rebuild_hyper_parameters = rebuild_parameters
+        for parameter in rebuild_parameters:
             self._hyper_parameters[parameter.name].set_value(parameter.value)
 
     def identity(self) -> dict:
@@ -171,12 +202,12 @@ class MachineRegression(ABC):
         """
         self._hyper_parameters = hyper_parameters
 
-    def training(self, x_train: ndarray, y_train: ndarray) -> None:
+    def training(self, x_train: pd.Series, y_train: pd.Series) -> None:
         """Training function
 
         Args:
-            x_train (ndarray): Vector for training
-            y_train (ndarray): Vector to predict
+            x_train (pd.Series): Vector for training
+            y_train (pd.Series): Vector to predict
         """
         start = time.time()
         self._machine.fit(x_train, y_train)

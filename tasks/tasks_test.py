@@ -8,8 +8,8 @@ from src.helpers.key_env import REDIS_BROKEN
 from src.files.file_machine import FileDataRegression
 from src.helpers.key_env import FolderCache
 # from src.helpers.file_access import FileData
-from src.optimizations.optimization import optimization_run_from_task
-from src.results.result_genetic import create_graph_model_index
+from src.optimizations.optimization import optimization_run_from_task, forward_backward_features
+# from src.results.result_genetic import create_graph_model_index
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -46,11 +46,8 @@ if __name__ == "__main__":
             )
     else:
         print("No action to run")
-        optimization_run_from_task(
-            file_data=FileDataRegression(
-                file_in="3.1.LRACE_FA_W_FMN.csv",
-                target_feature="RendimientoKG/HA",
-                folder_path=FolderCache.UPLOAD,
-            ),
+        forward_backward_features(
+            file_name="3.1.LRACE_FA_W_FMN.csv",
+            file_json_definition="definition_backward.json",
         )
         print("Finish")
