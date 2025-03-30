@@ -228,7 +228,7 @@ class ProcedureForwardBackward:
     models: List[MachineDefaultDefinition]
 
 
-class FileProcessForwardBackward:
+class FileProcessFeatureSelection:
 
     """ Prepare all files and data to process for Forward and Backward"""
 

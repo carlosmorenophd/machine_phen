@@ -1,20 +1,20 @@
 """Techniques for selection best features by models """
 
 from src.optimizations.optimization_enum import (
-    FileProcessForwardBackward, 
+    FileProcessFeatureSelection, 
     ProcedureForwardBackward,
     ActionProcedure,
     )
 
 
-class FeatureForwardBackwardSelection:
+class FeatureSelection:
     """Run the backward feature selection and whe it finish
         run the forward feature selection
     """
 
     def __init__(
         self,
-        file_process: FileProcessForwardBackward,
+        file_process: FileProcessFeatureSelection,
     ) -> None:
         self._file_process = file_process
 

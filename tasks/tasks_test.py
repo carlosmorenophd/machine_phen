@@ -24,10 +24,20 @@ if __name__ == "__main__":
                 args=(),
                 queue='machine',
             )
-        elif action == "regression_genetic":
+        if action == "regression_genetic":
             print("Run - regression_genetic")
             app.send_task(
                 name="regression_genetic",
+                args=(
+                    sys.argv[2],
+                    sys.argv[3],
+                ),
+                queue='machine',
+            )
+        if action == "feature_selection":
+            print("Run - feature_selection")
+            app.send_task(
+                name="feature_selection",
                 args=(
                     sys.argv[2],
                     sys.argv[3],

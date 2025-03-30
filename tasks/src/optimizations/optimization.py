@@ -3,12 +3,12 @@
 
 from src.optimizations.optimization_enum import (
     GeneticAlgorithmParameter,
-    FileProcessForwardBackward,
+    FileProcessFeatureSelection,
 )
 from src.files.file_machine import FileDataRegression
 from src.optimizations.optimization_genetic_algorithm import GeneticAlgorithm
 from src.optimizations.optimization_features import (
-    FeatureForwardBackwardSelection,
+    FeatureSelection,
 )
 
 
@@ -34,12 +34,12 @@ def forward_backward_features(
     """Run the backward feature selection and whe it finish
         run the forward feature selection
     """
-    file_process = FileProcessForwardBackward(
+    file_process = FileProcessFeatureSelection(
         file_json_definition=file_json_definition,
         file_name=file_name
     )
 
-    features = FeatureForwardBackwardSelection(
+    features = FeatureSelection(
         file_process=file_process
     )
     features.run()

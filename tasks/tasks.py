@@ -34,9 +34,8 @@ def task_regression_genetic(
     gc.collect()
 
 
-@app.task(name="backward_forward")
-def task_backward_forward(
-    folder_main: str,
+@app.task(name="feature_selection")
+def task_feature_selection(
     file_data: str,
     file_json_definition: str,
 ) -> None:
@@ -47,7 +46,6 @@ def task_backward_forward(
         target_column (str): column target on file
         genetic_parameters_str (str): basic parameters for genetic algorithm
     """
-    log_print = f"folder main - {folder_main}"
     log_print = f"{log_print} file data - {file_data}"
     log_print = f"{log_print} file json definition - {file_json_definition}"
     print(log_print)
