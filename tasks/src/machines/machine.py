@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import BayesianRidge, Lasso
 from sklearn.svm import SVR
 from xgboost import XGBRegressor
+import pandas as pd
 
 from src.metrics.metric import Metric
 from src.machines.machine_enums import (
@@ -162,7 +163,7 @@ class MachineRegression(ABC):
         """Create a machine with minimal parameters
         """
 
-    def rebuild_hyper_parameters(
+    def set_rebuild_hyper_parameters(
             self,
             rebuild_parameters: list[HyperParameterRebuild]
     ) -> None:
@@ -201,12 +202,12 @@ class MachineRegression(ABC):
         """
         self._hyper_parameters = hyper_parameters
 
-    def training(self, x_train: ndarray, y_train: ndarray) -> None:
+    def training(self, x_train: pd.Series, y_train: pd.Series) -> None:
         """Training function
 
         Args:
-            x_train (ndarray): Vector for training
-            y_train (ndarray): Vector to predict
+            x_train (pd.Series): Vector for training
+            y_train (pd.Series): Vector to predict
         """
         start = time.time()
         self._machine.fit(x_train, y_train)

@@ -13,11 +13,13 @@ from src.machines.machine_enums import (
     convert_str_to_machine_name,
     HyperParameterRebuild,
 )
-from src.files.file_machine import TrainingData
+from src.files.file_machine import (
+    TrainingData,
+    FileMachine,
+)
 from src.metrics.metric_enums import MetricEnum
 from src.files.file_machine import FileDataRegression
 from src.helpers.file_access import FolderCache, StorageFile
-from src.files.file_machine import FileMachine, TrainingData
 
 
 class GeneticIndividualParameter():
@@ -217,6 +219,7 @@ class ActionProcedure(Enum):
     """
     FORWARD = 'forward'
     BACKWARD = 'backward'
+    COMBINATION = "combination"
 
 
 class FeatureModeEnum(Enum):
@@ -300,7 +303,7 @@ class FileProcessForwardBackward:
                 )
             if "features" not in data:
                 raise KeyError("All procedure need a list of feature")
-            features = self._find_feature_procedure(
+            features = self._find_features(
                 data=data,
             )
             return ForwardBackwardProcedure(
@@ -312,7 +315,7 @@ class FileProcessForwardBackward:
         except Exception as e:
             raise KeyError(f"Can't extract the procedure from f{e}") from e
 
-    def _find_feature_procedure(
+    def _find_features(
             self,
             data: Dict,
     ) -> List[str]:
@@ -327,17 +330,15 @@ class FileProcessForwardBackward:
         """
         feature_dict = data["features"]
         features = []
-        if "elements" in feature_dict["elements"]:
+        if "elements" in feature_dict:
             for feature_definition in feature_dict["elements"]:
-                features.append(
-                    self._find_features(
-                        pattern=feature_definition["pattern"],
-                        value=feature_definition["value"],
-                    ),
+                features = features + self._find_feature(
+                    pattern=feature_definition["pattern"],
+                    value=feature_definition["value"],
                 )
         return features
 
-    def _find_features(self, pattern: str, value: str) -> List[str]:
+    def _find_feature(self, pattern: str, value: str) -> List[str]:
         """Search and get features by patterns
 
         Args:
@@ -352,7 +353,7 @@ class FileProcessForwardBackward:
                     if value.lower() in column.lower()]
         if pattern.lower() == "equal":
             if value in self._data_frame.columns:
-                return value
+                return [value]
         raise KeyError(f"Patter {pattern} or column {value} don't exist")
 
     @property
@@ -362,7 +363,7 @@ class FileProcessForwardBackward:
         Returns:
             StorageFile: Return storage file
         """
-        return self.store_file
+        return self._store_file
 
     @property
     def file_machine(self) -> FileMachine:
