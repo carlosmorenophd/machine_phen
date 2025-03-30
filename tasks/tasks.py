@@ -5,7 +5,10 @@ import gc
 from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
 from src.files.file_machine import FileDataRegression
-from src.optimizations.optimization import optimization_run_from_task, forward_backward_features
+from src.optimizations.optimization import (
+    optimization_run_from_task, 
+    feature_selection_run,
+    )
 
 
 app = Celery('phen_machine', broker=REDIS_BROKEN, queue='machine')
@@ -46,13 +49,13 @@ def task_feature_selection(
         target_column (str): column target on file
         genetic_parameters_str (str): basic parameters for genetic algorithm
     """
+    log_print = ""
     log_print = f"{log_print} file data - {file_data}"
     log_print = f"{log_print} file json definition - {file_json_definition}"
     print(log_print)
-    forward_backward_features(
-        folder_main,
-        file_data,
-        file_json_definition,
+    feature_selection_run(
+        file_name=file_data,
+        file_json_definition=file_json_definition,
     )
     gc.collect()
 

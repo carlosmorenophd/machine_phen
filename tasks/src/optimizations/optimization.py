@@ -27,7 +27,7 @@ def optimization_run_from_task(
     genetic_algorithm.export()
 
 
-def forward_backward_features(
+def feature_selection_run(
     file_name: str,
     file_json_definition: str,
 ) -> None:

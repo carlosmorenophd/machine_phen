@@ -7,8 +7,7 @@ import itertools
 import pandas as pd
 
 from src.optimizations.optimization_enum import (
-    FileProcessFeatureSelection, 
-    ProcedureForwardBackward,
+    FileProcessFeatureSelection,
     ActionProcedure,
 )
 from src.machines.machine_build import build_machine_regression

@@ -229,7 +229,7 @@ class FeatureModeEnum(Enum):
 
 
 @dataclass
-class ForwardBackwardProcedure:
+class SelectionProcedure:
     """Class to define de action to do in the process
     """
     action: ActionProcedure
@@ -270,7 +270,7 @@ class FileProcessFeatureSelection:
         """
         return self._data_frame[features]
 
-    def _find_procedure(self, data: Dict) -> ForwardBackwardProcedure:
+    def _find_procedure(self, data: Dict) -> SelectionProcedure:
         """Extract from dictionary the procedure
 
         Args:
@@ -306,7 +306,7 @@ class FileProcessFeatureSelection:
             features = self._find_features(
                 data=data,
             )
-            return ForwardBackwardProcedure(
+            return SelectionProcedure(
                 action=ActionProcedure(data["action"].lower()),
                 metric=MetricEnum(data["metric"].lower()),
                 models=models,
@@ -375,7 +375,7 @@ class FileProcessFeatureSelection:
         return self._file_machine
 
     @property
-    def procedure(self) -> ForwardBackwardProcedure:
+    def procedure(self) -> SelectionProcedure:
         """Get current procedure action
 
         Returns:
