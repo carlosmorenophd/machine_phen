@@ -112,7 +112,7 @@ class GeneticIndividual():
         """Convert the features chromosome to dataset
 
         Args:
-            file_machine (FileData): file with all information from dataset
+            file_machine (FileMachine): file with all information from dataset
             features_chromosome (list[bool], optional):
                 Features chromosome to define the column to keep of dataset
                   Defaults to None.

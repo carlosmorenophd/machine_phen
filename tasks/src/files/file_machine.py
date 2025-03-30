@@ -2,6 +2,7 @@
 
 
 from dataclasses import dataclass
+from typing import List
 
 import pandas as pd
 import numpy as np
@@ -54,6 +55,23 @@ class FileMachine():
             folder_file=self._file_data.folder_path,
         )
         self.original_df = self._storage_file.get_csv_to_data_frame()
+
+    def cast_features_to_chromosome(self, features: List[str]) -> List[bool]:
+        """Return a list of chromosome with a list of features
+
+        Args:
+            features (List[str]): list of feature names
+
+        Returns:
+            List[bool]: list of chromosome
+        """
+        chromosome = []
+        for column in self.without_target:
+            if column in features:
+                chromosome.append(True)
+            else:
+                chromosome.append(False)
+        return chromosome
 
     def get_dataset(
             self,

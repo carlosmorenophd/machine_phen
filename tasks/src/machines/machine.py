@@ -120,6 +120,7 @@ class MachineRegression(ABC):
         self._error_metric = None
         self._hyper_parameters: dict[HyperParametersDefinition] = None
         self._default_hyper_parameters: dict[HyperParametersDefinition] = None
+        self._rebuild_hyper_parameters: list[HyperParameterRebuild] = None
 
     @property
     def hyper_parameters(self) -> list[HyperParametersDefinition]:
@@ -132,6 +133,26 @@ class MachineRegression(ABC):
         """Get the machine name by enum"""
         return self._machine_name
 
+    @property
+    def time_training(self) -> float:
+        """Return time of training
+
+        Returns:
+            float: _description_
+        """
+        return self._time_training
+
+    @property
+    def rebuild_hyper_parameters(
+        self
+    ) -> list[HyperParameterRebuild]:
+        """Return a list of hyper parameter setter un rebuild
+
+        Returns:
+            list[HyperParameterRebuild]: list hyper parameters
+        """
+        return self._rebuild_hyper_parameters
+
     @abstractmethod
     def build_machine(self) -> None:
         """Create a machine for training and predict
@@ -141,9 +162,18 @@ class MachineRegression(ABC):
         """Create a machine with minimal parameters
         """
 
-    def rebuild_machine(self, parameters: list[HyperParameterRebuild]) -> None:
-        """Rebuild the machine with old parameters"""
-        for parameter in parameters:
+    def rebuild_hyper_parameters(
+            self,
+            rebuild_parameters: list[HyperParameterRebuild]
+    ) -> None:
+        """Rebuild the machine with old parameters
+
+        Args:
+            rebuild_parameters (list[HyperParameterRebuild]): List of new
+                hyper parameters
+        """
+        self._rebuild_hyper_parameters = rebuild_parameters
+        for parameter in rebuild_parameters:
             self._hyper_parameters[parameter.name].set_value(parameter.value)
 
     def identity(self) -> dict:

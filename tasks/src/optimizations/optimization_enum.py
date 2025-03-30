@@ -2,7 +2,7 @@
 from typing import List, Dict
 
 from abc import ABC
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 import pandas as pd
@@ -17,6 +17,7 @@ from src.files.file_machine import TrainingData
 from src.metrics.metric_enums import MetricEnum
 from src.files.file_machine import FileDataRegression
 from src.helpers.file_access import FolderCache, StorageFile
+from src.files.file_machine import FileMachine, TrainingData
 
 
 class GeneticIndividualParameter():
@@ -214,18 +215,24 @@ class GeneticAlgorithmParameter(ABC):
 class ActionProcedure(Enum):
     """Action on Forward Backward method
     """
-    FORWARD: 1
-    BACKWARD: 2
+    FORWARD = 'forward'
+    BACKWARD = 'backward'
+
+
+class FeatureModeEnum(Enum):
+    """ Type of feature
+    """
+    LIST = 1
 
 
 @dataclass
-class ProcedureForwardBackward:
+class ForwardBackwardProcedure:
     """Class to define de action to do in the process
     """
-    step: int
     action: ActionProcedure
     metric: MetricEnum
     models: List[MachineDefaultDefinition]
+    features: List[str] = field(default_factory=[])
 
 
 class FileProcessForwardBackward:
@@ -242,33 +249,15 @@ class FileProcessForwardBackward:
         definitions = self._store_file.get_json_from_file(
             file_name=file_json_definition,
         )
-        self._file_data = FileDataRegression(
-            file_in=file_name,
-            target_feature=definitions["target_feature"],
-            folder_path=FolderCache.UPLOAD,
+        self._file_machine = FileMachine(
+            file_data=FileDataRegression(
+                file_in=file_name,
+                target_feature=definitions["target_feature"],
+                folder_path=FolderCache.UPLOAD,
+            ),
+            training_data=TrainingData(),
         )
-        self._initial_features: List[str] = []
-        for feature_definition in definitions["start_features"]:
-            self._initial_features.append(
-                self._find_features(
-                    pattern=feature_definition["pattern"],
-                    value=feature_definition["value"],
-                ),
-            )
-        self._procedures: List[ProcedureForwardBackward] = []
-        for procedure in definitions["procedures"]:
-            self._procedures.append(
-                self._find_procedure(data=procedure)
-            )
-        self._current_step = min(self._procedures, key=lambda obj: obj.step)
-
-    def initial_features(self) -> List[str]:
-        """Get initial features
-
-        Returns:
-            List[str]: list features
-        """
-        return self._initial_features
+        self._procedure = self._find_procedure(data=definitions)
 
     def get_data_frame(self, features: List[str]) -> pd.DataFrame:
         """Return initial data frame
@@ -278,15 +267,7 @@ class FileProcessForwardBackward:
         """
         return self._data_frame[features]
 
-    def get_steps(self) -> List[ProcedureForwardBackward]:
-        """Get current procedure action
-
-        Returns:
-            ProcedureForwardBackward: current procedure
-        """
-        return self._procedures.sort(key=lambda obj: obj.step)
-
-    def _find_procedure(self, data: Dict) -> ProcedureForwardBackward:
+    def _find_procedure(self, data: Dict) -> ForwardBackwardProcedure:
         """Extract from dictionary the procedure
 
         Args:
@@ -300,7 +281,7 @@ class FileProcessForwardBackward:
         """
         try:
             models: List[MachineDefaultDefinition] = []
-            if "models" in data:
+            if "models" not in data:
                 raise KeyError("All procedure need a list of models")
             for model_data in data["models"]:
                 machine_name = convert_str_to_machine_name(model_data["name"])
@@ -314,17 +295,47 @@ class FileProcessForwardBackward:
                 models.append(
                     MachineDefaultDefinition(
                         machine_name=machine_name,
-                        hyper_parameters=hyper_parameters,
+                        rebuild_hyper_parameters=hyper_parameters,
                     )
                 )
-            return ProcedureForwardBackward(
-                step=int(data["position"]),
-                action=ActionProcedure[data["action"].lower()],
-                metric=MetricEnum[data["metric"].lower()],
-                models=models
+            if "features" not in data:
+                raise KeyError("All procedure need a list of feature")
+            features = self._find_feature_procedure(
+                data=data,
+            )
+            return ForwardBackwardProcedure(
+                action=ActionProcedure(data["action"].lower()),
+                metric=MetricEnum(data["metric"].lower()),
+                models=models,
+                features=features,
             )
         except Exception as e:
             raise KeyError(f"Can't extract the procedure from f{e}") from e
+
+    def _find_feature_procedure(
+            self,
+            data: Dict,
+    ) -> List[str]:
+        """Find a feature by type ofg feature
+
+        Args:
+            data (Dict): data to get information
+            case_feature (FeatureTypeEnum): tow types init, selection
+
+        Returns:
+            ProcedureFeature: return feature procedure
+        """
+        feature_dict = data["features"]
+        features = []
+        if "elements" in feature_dict["elements"]:
+            for feature_definition in feature_dict["elements"]:
+                features.append(
+                    self._find_features(
+                        pattern=feature_definition["pattern"],
+                        value=feature_definition["value"],
+                    ),
+                )
+        return features
 
     def _find_features(self, pattern: str, value: str) -> List[str]:
         """Search and get features by patterns
@@ -352,3 +363,21 @@ class FileProcessForwardBackward:
             StorageFile: Return storage file
         """
         return self.store_file
+
+    @property
+    def file_machine(self) -> FileMachine:
+        """Get the file data regression and target column
+
+        Returns:
+            FileDataRegression: file data
+        """
+        return self._file_machine
+
+    @property
+    def procedure(self) -> ForwardBackwardProcedure:
+        """Get current procedure action
+
+        Returns:
+            ProcedureForwardBackward: current procedure
+        """
+        return self._procedure

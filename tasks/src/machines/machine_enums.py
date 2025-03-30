@@ -59,4 +59,4 @@ class MachineDefaultDefinition:
     """Definition machine from with use default
     """
     machine_name: MachineNames
-    hyper_parameters: List[HyperParameterRebuild] = None
+    rebuild_hyper_parameters: List[HyperParameterRebuild] = None

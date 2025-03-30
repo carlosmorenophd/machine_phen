@@ -137,7 +137,7 @@ class StorageFile():
         if os.path.isfile(file):
             json_dict = None
             with open(file, 'r', encoding="utf-8") as f:
-                json_dict = json.loads(f)
+                json_dict = json.load(f)
             return json_dict
         raise FileNotFoundError(f"file not found - {file}")
 
