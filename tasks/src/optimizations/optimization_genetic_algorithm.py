@@ -541,8 +541,8 @@ class GeneticAlgorithm():
             ),
             deep_decimal=self._genetic_parameters.deep_decimal,
         )
-        child_1 = self._mutate_machine(child=child_1)
-        child_2 = self._mutate_machine(child=child_2)
+        # child_1 = self._mutate_machine(child=child_1)
+        # child_2 = self._mutate_machine(child=child_2)
         return child_1, child_2
 
     def _mutate_machine(self, child: GeneticIndividual):
