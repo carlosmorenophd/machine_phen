@@ -73,7 +73,6 @@ class GeneticMutationParameter():
     """
     mutation_rate: float = 0.05
     cross_over_rate: float = 0.8
-    mutate_machine: float = 0.1
 
 
 @dataclass
@@ -98,17 +97,14 @@ class GeneticAlgorithmParameter(ABC):
         )
         self._mutation_parameters = [
             GeneticMutationParameter(
-                mutate_machine=0.8,
                 cross_over_rate=0.8,
                 mutation_rate=0.8,
             ),
             GeneticMutationParameter(
-                mutate_machine=0.6,
                 cross_over_rate=0.6,
                 mutation_rate=0.6,
             ),
             GeneticMutationParameter(
-                mutate_machine=0.2,
                 cross_over_rate=0.3,
                 mutation_rate=0.2,
             ),
@@ -189,12 +185,6 @@ class GeneticAlgorithmParameter(ABC):
             int: deep decimal
         """
         return self._individual_parameter.deep_decimal
-
-    def get_mutate_machine(self, number_generation: int) -> float:
-        """Return the mutate machine"""
-        return self._get_parameters_by_number_generation(
-            number_generation=number_generation
-        ).mutate_machine
 
     @property
     def metric_selection(self) -> MetricEnum:

@@ -6,7 +6,6 @@ import copy
 from typing import Tuple, List
 
 import pandas as pd
-import numpy as np
 
 from src.optimizations.optimization_enum import (
     GeneticAlgorithmParameter,
@@ -512,28 +511,7 @@ class GeneticAlgorithm():
             ),
             deep_decimal=self._genetic_parameters.deep_decimal,
         )
-        # child_1 = self._mutate_machine(child=child_1)
-        # child_2 = self._mutate_machine(child=child_2)
         return child_1, child_2
-
-    def _mutate_machine(self, child: GeneticIndividual):
-        """Mutate machine
-
-        Args:
-            child_1 (GeneticIndividual): Child to mutate machine
-        """
-        if random.random() < self._genetic_parameters.get_mutate_machine(
-            number_generation=self._current_generation_number
-        ):
-            child.set_machine(
-                machine=machine_build_regression_optimization_decimal(
-                    machine_name=random.choice(
-                        self._genetic_parameters.machines_key
-                    ),
-                    deep_decimal=self._genetic_parameters.deep_decimal,
-                ),
-            )
-        return child
 
     def _selection(self):
         """Run every model in all population and sort by best metric
