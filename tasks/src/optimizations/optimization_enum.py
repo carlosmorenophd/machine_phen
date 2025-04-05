@@ -91,9 +91,10 @@ class GeneticAlgorithmParameter(ABC):
         #     metric_selection=MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
         #     number_population=10,
         # )
-        self._number_generation: int = 600
+        self._number_generation: int = 100
         self._individual_parameter = GeneticIndividualParameter(
-            number_population=400
+            number_population=80,
+            metric_selection=MetricEnum.R2_SCORE,
         )
         self._mutation_parameters = [
             GeneticMutationParameter(
@@ -162,9 +163,9 @@ class GeneticAlgorithmParameter(ABC):
         Returns:
             GeneticMutationParameter: mutation parameters
         """
-        if self._number_generation * .40 < number_generation:
+        if self._number_generation * .60 < number_generation:
             return self._mutation_parameters[0]
-        if self._number_generation * .80 < number_generation:
+        if self._number_generation * .90 < number_generation:
             return self._mutation_parameters[1]
         return self._mutation_parameters[2]
 
