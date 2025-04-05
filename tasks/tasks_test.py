@@ -46,6 +46,7 @@ if __name__ == "__main__":
             )
     else:
         print("No action to run")
+        # python tasks_test.py feature_selection 3.1.LRACE_FA_W_FMN.csv definition_backward.json
         feature_selection_run(
             file_name="3.1.LRACE_FA_W_FMN.csv",
             file_json_definition="definition_backward.json",
