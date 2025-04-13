@@ -1,7 +1,6 @@
 """Operative class to run the genetic algorithm.
 """
 
-import re
 from src.optimizations.optimization_enum import (
     GeneticAlgorithmParameter,
     FileProcessFeatureSelection,
@@ -20,10 +19,7 @@ def optimization_run_from_task(
     """Launch the genetic algorithm
     """
     if importance_columns != "" or importance_columns is not None:
-        file_data.re_sort_columns(new_sort_columns=[
-            re.sub(r'^[ \n\r\t]+', '', element)
-            for element in importance_columns.split(',')
-        ])
+        file_data.re_sort_columns(importance_columns_str=importance_columns)
 
     genetic_algorithm_parameters = GeneticAlgorithmParameter()
     genetic_algorithm = GeneticAlgorithm(

@@ -3,8 +3,8 @@ import os
 import json
 import warnings
 import random
+import re
 from dataclasses import dataclass
-from typing import List
 
 
 import pandas as pd
@@ -109,9 +109,13 @@ class FileData():
 
     def re_sort_columns(
         self,
-        new_sort_columns: List[str],
+        importance_columns_str: str,
     ) -> None:
         """Open file and change the order of columns"""
+        importance_columns = [
+            re.sub(r'^[ \n\r\t]+', '', element)
+            for element in importance_columns_str.split(',')
+        ]
         storage_file = StorageFile(
             file_name=self.file_in,
             folder_file=self.folder_path,
@@ -120,7 +124,7 @@ class FileData():
         columns_of_df = list(df.columns)
         column_order = []
         column_rest = columns_of_df[:]
-        for col in new_sort_columns:
+        for col in importance_columns:
             if col in columns_of_df:
                 column_order.append(col)
                 column_rest.remove(col)
