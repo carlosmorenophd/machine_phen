@@ -14,9 +14,13 @@ from src.optimizations.optimization_features import (
 
 def optimization_run_from_task(
     file_data: FileDataRegression,
+    importance_columns: str,
 ) -> None:
     """Launch the genetic algorithm
     """
+    if importance_columns != "" or importance_columns is not None:
+        file_data.re_sort_columns(importance_columns_str=importance_columns)
+
     genetic_algorithm_parameters = GeneticAlgorithmParameter()
     genetic_algorithm = GeneticAlgorithm(
         file_data=file_data,
@@ -38,7 +42,6 @@ def feature_selection_run(
         file_json_definition=file_json_definition,
         file_name=file_name
     )
-
     features = FeatureSelection(
         file_process=file_process
     )

@@ -2,6 +2,8 @@
 import os
 import json
 import warnings
+import random
+import re
 from dataclasses import dataclass
 
 
@@ -104,6 +106,39 @@ class FileData():
     """ Minimal parameter for file"""
     file_in: str
     folder_path: FolderCache
+
+    def re_sort_columns(
+        self,
+        importance_columns_str: str,
+    ) -> None:
+        """Open file and change the order of columns"""
+        importance_columns = [
+            re.sub(r'^[ \n\r\t]+', '', element)
+            for element in importance_columns_str.split(',')
+        ]
+        storage_file = StorageFile(
+            file_name=self.file_in,
+            folder_file=self.folder_path,
+        )
+        df = storage_file.get_csv_to_data_frame()
+        columns_of_df = list(df.columns)
+        column_order = []
+        column_rest = columns_of_df[:]
+        for col in importance_columns:
+            if col in columns_of_df:
+                column_order.append(col)
+                column_rest.remove(col)
+        random.shuffle(column_rest)
+        columns_final_order = column_order + column_rest
+        df_sort = df.reindex(columns=columns_final_order)
+        prefix = "sort"
+        storage_file.save_data_frame_to_csv(
+            data_frame=df_sort,
+            prefix=prefix,
+        )
+        self.file_in = storage_file.adding_prefix_file_name_only_file(
+            prefix=prefix
+        )
 
 
 class StorageFile():

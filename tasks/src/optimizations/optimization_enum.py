@@ -101,11 +101,11 @@ class GeneticAlgorithmParameter(ABC):
                 mutation_rate=0.8,
             ),
             GeneticMutationParameter(
-                cross_over_rate=0.6,
-                mutation_rate=0.6,
+                cross_over_rate=0.4,
+                mutation_rate=0.4,
             ),
             GeneticMutationParameter(
-                cross_over_rate=0.3,
+                cross_over_rate=0.2,
                 mutation_rate=0.2,
             ),
         ]
