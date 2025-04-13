@@ -93,6 +93,9 @@ class GeneticIndividual():
 
     def set_features_chromosome(self, features_chromosome: list[bool]):
         """Set the features chromosome"""
+        if True not in features_chromosome:
+            features_chromosome[
+                random.randrange(len(features_chromosome))] = True
         self._features_chromosome = features_chromosome
 
     def set_machine(self, machine: MachineRegression):
@@ -120,7 +123,9 @@ class GeneticIndividual():
             ValueError: Error if not was define features chromosome.
         """
         if features_chromosome is not None:
-            self._features_chromosome = features_chromosome
+            self.set_features_chromosome(
+                features_chromosome=features_chromosome
+            )
         if self._features_chromosome is None:
             raise ValueError("Features chromosome is not defined")
         self._dataset = file_machine.get_dataset(
@@ -138,11 +143,13 @@ class GeneticIndividual():
             rate_mutation (float): Range between 0 and 1 to
                 mutate the chromosome
         """
-        self._features_chromosome = [
-            not feature if random.random(
-            ) < mutation_rate else feature
-            for feature in self._features_chromosome
-        ]
+        self.set_features_chromosome(
+            features_chromosome=[
+                not feature if random.random(
+                ) < mutation_rate else feature
+                for feature in self._features_chromosome
+            ]
+        )
 
     def to_dictionary(self, features_names: list[str]) -> dict:
         """Convert the individual to dictionary
