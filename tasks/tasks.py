@@ -6,9 +6,9 @@ from celery import Celery
 from src.helpers.key_env import REDIS_BROKEN, FolderCache
 from src.files.file_machine import FileDataRegression
 from src.optimizations.optimization import (
-    optimization_run_from_task, 
+    optimization_run_from_task,
     feature_selection_run,
-    )
+)
 
 
 app = Celery('phen_machine', broker=REDIS_BROKEN, queue='machine')
@@ -18,6 +18,7 @@ app = Celery('phen_machine', broker=REDIS_BROKEN, queue='machine')
 def task_regression_genetic(
     files_in: str,
     target_column: str,
+    sort_columns: str,
 ) -> None:
     """Search the best machine for regression on one file
 
@@ -26,13 +27,20 @@ def task_regression_genetic(
         target_column (str): column target on file
         genetic_parameters_str (str): basic parameters for genetic algorithm
     """
-    print(f" Inputs: file - {files_in}, column - {target_column}")
+    print(f" Inputs: file - {
+        files_in
+    }, column - {
+        target_column
+    }, sort_columns - {
+        sort_columns
+    }")
     optimization_run_from_task(
         file_data=FileDataRegression(
             file_in=files_in,
             target_feature=target_column,
             folder_path=FolderCache.UPLOAD,
         ),
+        sort_columns=sort_columns,
     )
     gc.collect()
 

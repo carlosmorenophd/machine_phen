@@ -1,6 +1,7 @@
 """Operative class to run the genetic algorithm.
 """
 
+import re
 from src.optimizations.optimization_enum import (
     GeneticAlgorithmParameter,
     FileProcessFeatureSelection,
@@ -14,9 +15,16 @@ from src.optimizations.optimization_features import (
 
 def optimization_run_from_task(
     file_data: FileDataRegression,
+    sort_columns: str,
 ) -> None:
     """Launch the genetic algorithm
     """
+    if sort_columns != "" or sort_columns is not None:
+        file_data.re_sort_columns(new_sort_columns=[
+            re.sub(r'^[ \n\r\t]+', '', element)
+            for element in sort_columns.split(',')
+        ])
+
     genetic_algorithm_parameters = GeneticAlgorithmParameter()
     genetic_algorithm = GeneticAlgorithm(
         file_data=file_data,
@@ -38,7 +46,6 @@ def feature_selection_run(
         file_json_definition=file_json_definition,
         file_name=file_name
     )
-
     features = FeatureSelection(
         file_process=file_process
     )

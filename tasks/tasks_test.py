@@ -31,6 +31,7 @@ if __name__ == "__main__":
                 args=(
                     sys.argv[2],
                     sys.argv[3],
+                    sys.argv[4],
                 ),
                 queue='machine',
             )
@@ -47,8 +48,17 @@ if __name__ == "__main__":
     else:
         print("No action to run")
         # python tasks_test.py feature_selection 3.1.LRACE_FA_W_FMN.csv definition_backward.json
-        feature_selection_run(
-            file_name="3.1.LRACE_FA_W_FMN.csv",
-            file_json_definition="definition_backward.json",
+        # feature_selection_run(
+        #     file_name="3.1.LRACE_FA_W_FMN.csv",
+        #     file_json_definition="definition_backward.json",
+        # )
+        optimization_run_from_task(
+            file_data=FileDataRegression(
+                file_in='1.3_obregon_phen_FN.csv',
+                target_feature='YLD',
+                folder_path=FolderCache.UPLOAD,
+            ),
+            sort_columns='HI,BM,NDVI_GF3,NDVI_UAV_1,\
+                NDVI_UAV_2,NDVI_UAV_3,NDVI_UAV_4,NDVI_UAV_5',
         )
         print("Finish")

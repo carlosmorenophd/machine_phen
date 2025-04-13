@@ -74,7 +74,7 @@ class Metric():
         )
         self._metrics[MetricEnum.MEAN_POISSON_DEVIANCE.value] = \
             mean_poisson_deviance(
-            y_pred=self._y_predicted,
+            y_pred=self._y_predicted_no_negative,
             y_true=self._y_true,
         )
         self._metrics[MetricEnum.MEAN_SQUARED_ERROR.value] =\
