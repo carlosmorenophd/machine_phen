@@ -58,7 +58,7 @@ if __name__ == "__main__":
                 target_feature='YLD',
                 folder_path=FolderCache.UPLOAD,
             ),
-            sort_columns='HI,BM,NDVI_GF3,NDVI_UAV_1,\
+            importance_columns='HI,BM,NDVI_GF3,NDVI_UAV_1,\
                 NDVI_UAV_2,NDVI_UAV_3,NDVI_UAV_4,NDVI_UAV_5',
         )
         print("Finish")

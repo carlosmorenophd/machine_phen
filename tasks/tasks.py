@@ -40,7 +40,7 @@ def task_regression_genetic(
             target_feature=target_column,
             folder_path=FolderCache.UPLOAD,
         ),
-        sort_columns=sort_columns,
+        importance_columns=sort_columns,
     )
     gc.collect()
 

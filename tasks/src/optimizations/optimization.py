@@ -15,14 +15,14 @@ from src.optimizations.optimization_features import (
 
 def optimization_run_from_task(
     file_data: FileDataRegression,
-    sort_columns: str,
+    importance_columns: str,
 ) -> None:
     """Launch the genetic algorithm
     """
-    if sort_columns != "" or sort_columns is not None:
+    if importance_columns != "" or importance_columns is not None:
         file_data.re_sort_columns(new_sort_columns=[
             re.sub(r'^[ \n\r\t]+', '', element)
-            for element in sort_columns.split(',')
+            for element in importance_columns.split(',')
         ])
 
     genetic_algorithm_parameters = GeneticAlgorithmParameter()
