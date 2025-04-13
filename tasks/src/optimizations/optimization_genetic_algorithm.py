@@ -6,7 +6,6 @@ import copy
 from typing import Tuple, List
 
 import pandas as pd
-import numpy as np
 
 from src.optimizations.optimization_enum import (
     GeneticAlgorithmParameter,
@@ -252,10 +251,6 @@ class GeneticAlgorithm():
             number_population=self._genetic_parameters.number_population,
         )
         self._current_generation_number = 0
-        self._pheromone_tables_remove = np.zeros(
-            len(self._file_machine.columns_name_with_out_target)
-        )
-        self._umbral_remove_pheromone = 0.80
 
     def _create_initial_population(self, population_number: int):
         """Create the initial population
@@ -321,13 +316,6 @@ class GeneticAlgorithm():
         child_2_features_chromosome =\
             parent_2.features_chromosome[:crossover_point] + \
             parent_1.features_chromosome[crossover_point:]
-
-        for index, phenom in enumerate(
-            self._pheromone_tables_remove,
-        ):
-            if phenom > self._umbral_remove_pheromone:
-                child_1_features_chromosome[index] = False
-                child_2_features_chromosome[index] = False
 
         child_2.set_features_chromosome(
             child_2_features_chromosome
@@ -469,7 +457,6 @@ class GeneticAlgorithm():
             self._current_generation_number = generation_number
             self._log.progress_log(generation_number=generation_number)
             self._selection()
-            self._pheromone_build()
             for i in range(
                 self._genetic_parameters.number_population // 2
             ):
@@ -488,23 +475,6 @@ class GeneticAlgorithm():
             self._store_population()
             self.export()
 
-    def _pheromone_build(self) -> None:
-        """Calculate the table of pheromone
-        """
-        for individual in self._global_population:
-            for index, feature in enumerate(individual.features_chromosome):
-                if feature is True:
-                    self._pheromone_tables_remove[index] = \
-                        self._pheromone_tables_remove[index] + \
-                        (1 - individual.index_metric)
-        min_val = np.min(self._pheromone_tables_remove)
-        max_val = np.max(self._pheromone_tables_remove)
-        if max_val - min_val > 0:
-            self._pheromone_tables_remove \
-                = (self._pheromone_tables_remove - min_val) \
-                / (max_val - min_val)
-        print("Finish pheromone")
-
     def _mutation_two_children(
             self,
             child_1: GeneticIndividual,
@@ -517,7 +487,7 @@ class GeneticAlgorithm():
             child_2 (GeneticIndividual): Second child
 
         Returns:
-            _type_: _description_
+            _type_: return 2 child
         """
         child_1.mutate_features_chromosome(
             mutation_rate=self._genetic_parameters.get_mutation_rate(
@@ -541,28 +511,7 @@ class GeneticAlgorithm():
             ),
             deep_decimal=self._genetic_parameters.deep_decimal,
         )
-        child_1 = self._mutate_machine(child=child_1)
-        child_2 = self._mutate_machine(child=child_2)
         return child_1, child_2
-
-    def _mutate_machine(self, child: GeneticIndividual):
-        """Mutate machine
-
-        Args:
-            child_1 (GeneticIndividual): Child to mutate machine
-        """
-        if random.random() < self._genetic_parameters.get_mutate_machine(
-            number_generation=self._current_generation_number
-        ):
-            child.set_machine(
-                machine=machine_build_regression_optimization_decimal(
-                    machine_name=random.choice(
-                        self._genetic_parameters.machines_key
-                    ),
-                    deep_decimal=self._genetic_parameters.deep_decimal,
-                ),
-            )
-        return child
 
     def _selection(self):
         """Run every model in all population and sort by best metric

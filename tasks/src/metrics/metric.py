@@ -18,7 +18,7 @@ from sklearn.metrics import (
     root_mean_squared_error,
     root_mean_squared_log_error,
 )
-import numpy as np
+import pandas as pd
 
 
 from src.metrics.metric_enums import MetricEnum
@@ -29,22 +29,20 @@ class Metric():
     """Class to get error metrics
     """
 
-    def __init__(self, y_predicted: np.ndarray, y_test, x_test) -> None:
+    def __init__(
+            self,
+            y_predicted: pd.Series,
+            y_test: pd.Series,
+            x_test: pd.Series,
+    ) -> None:
         self._y_predicted = y_predicted
         self._y_true = y_test
         self._x_true = x_test
         self._metrics = {}
         self._predict_versus_true = []
-        self._y_predicted_no_negative = y_predicted
+        self._y_predicted_no_negative = y_predicted.copy()
         self._y_predicted_no_negative[self._y_predicted_no_negative < 0] = 1
         self.calculate_metric_prediction()
-
-    def calculate_quantile_base_discretization(self, quantile: int) -> None:
-        """Generate matrix confusion from quantile base discretization
-
-        Args:
-            quantile (int): _description_
-        """
 
     def calculate_metric_prediction(self) -> None:
         """Calculate all metrics
@@ -76,7 +74,7 @@ class Metric():
         )
         self._metrics[MetricEnum.MEAN_POISSON_DEVIANCE.value] = \
             mean_poisson_deviance(
-            y_pred=self._y_predicted,
+            y_pred=self._y_predicted_no_negative,
             y_true=self._y_true,
         )
         self._metrics[MetricEnum.MEAN_SQUARED_ERROR.value] =\
