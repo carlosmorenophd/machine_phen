@@ -284,10 +284,16 @@ class GeneticAlgorithm():
             ),
             metric_selection=self._genetic_parameters.metric_selection,
         )
+        feature_chromosome = [
+            random.choice([True, False]) for _ in features
+        ]
+        if True not in feature_chromosome:
+            feature_chromosome[
+                random.randrange(len(feature_chromosome))] = True
+
         genetic_individual.apply_dataset(
             file_machine=self._file_machine,
-            features_chromosome=[random.choice(
-                [True, False]) for _ in features]
+            features_chromosome=feature_chromosome,
         )
         return genetic_individual
 
