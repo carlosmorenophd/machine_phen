@@ -482,7 +482,9 @@ class GeneticAlgorithm():
         if len(self._population) > 0:
             first = self._population[:10]
             for i in range(len(first) - 1):
-                if abs(first[i] - first[i+1]) >= 0.1:
+                if abs(
+                    first[i].index_metric - first[i+1].index_metric
+                ) >= 0.1:
                     return True
             return False
         return True
