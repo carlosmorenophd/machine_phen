@@ -66,7 +66,7 @@ class GeneticIndividual():
         return self._machine
 
     @property
-    def index_metric(self):
+    def index_metric(self) -> float:
         """Get the index metric"""
         return self._index_metric
 
