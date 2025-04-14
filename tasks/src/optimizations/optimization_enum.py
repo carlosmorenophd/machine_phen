@@ -112,7 +112,7 @@ class GeneticAlgorithmParameter(ABC):
         self._training_data = TrainingData()
 
     @property
-    def machines_key(self) -> list[MachineNames]:
+    def machines_key(self) -> List[MachineNames]:
         """Return the list of machines key
 
         Returns:
