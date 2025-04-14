@@ -479,7 +479,8 @@ class GeneticAlgorithm():
         if self._current_generation_number\
                 > self._genetic_parameters.number_generation:
             return False
-        if len(self._population) > 0:
+        if len(self._population) > 0 and\
+                self._population[0].index_metric is not None:
             first = self._population[:10]
             for i in range(len(first) - 1):
                 if abs(
