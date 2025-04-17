@@ -244,6 +244,7 @@ class GeneticAlgorithm():
         file_data: FileDataRegression,
         training_data: TrainingData,
         genetic_algorithm_parameters:  GeneticAlgorithmParameter,
+        features_references: str,
     ) -> None:
         self._file_machine = FileMachine(
             file_data=file_data,
@@ -258,6 +259,7 @@ class GeneticAlgorithm():
             number_population=self._genetic_parameters.number_population,
         )
         self._current_generation_number = 0
+        self._features_references = "".join(features_references.split()).split(",")
 
     def _create_initial_population(
         self, population_number: int,
@@ -272,6 +274,29 @@ class GeneticAlgorithm():
                     machines=machines,
                 )
             )
+        self._population[0] = self._update_features_from_reference(
+            individual=self._population[0]
+        )
+
+    def _update_features_from_reference(
+            self,
+            individual: GeneticIndividual
+    ) -> GeneticIndividual:
+        """Create a one individual take a sort configuration 
+
+        Returns:
+            GeneticIndividual: _description_
+        """
+        if len(self._features_references) == 0:
+            return individual
+        features = []
+        for name in self._file_machine.columns_name_with_out_target:
+            allele = False
+            if name in self._features_references:
+                allele = True
+            features.append(allele)
+        individual.set_features_chromosome(features_chromosome=features)
+        return individual
 
     def _create_initial_individual(
         self,
