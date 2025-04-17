@@ -26,6 +26,7 @@ def optimization_run_from_task(
         file_data=file_data,
         training_data=genetic_algorithm_parameters.training_data,
         genetic_algorithm_parameters=genetic_algorithm_parameters,
+        features_references=importance_columns,
     )
     genetic_algorithm.run()
     genetic_algorithm.export()

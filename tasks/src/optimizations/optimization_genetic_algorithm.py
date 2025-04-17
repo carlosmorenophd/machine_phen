@@ -22,7 +22,7 @@ from src.machines.machine_build import (
 from src.machines.machine import MachineRegression
 from src.metrics.metric import Metric
 from src.metrics.metric_enums import MetricEnum
-from src.machines.machine_enums import HyperTypeValueEnum
+from src.machines.machine_enums import HyperTypeValueEnum, MachineNames
 from src.results.result_genetic import create_graph_model_index
 
 
@@ -66,7 +66,7 @@ class GeneticIndividual():
         return self._machine
 
     @property
-    def index_metric(self):
+    def index_metric(self) -> float:
         """Get the index metric"""
         return self._index_metric
 
@@ -244,6 +244,7 @@ class GeneticAlgorithm():
         file_data: FileDataRegression,
         training_data: TrainingData,
         genetic_algorithm_parameters:  GeneticAlgorithmParameter,
+        features_references: str,
     ) -> None:
         self._file_machine = FileMachine(
             file_data=file_data,
@@ -258,20 +259,49 @@ class GeneticAlgorithm():
             number_population=self._genetic_parameters.number_population,
         )
         self._current_generation_number = 0
+        self._features_references = "".join(features_references.split()).split(",")
 
-    def _create_initial_population(self, population_number: int):
+    def _create_initial_population(
+        self, population_number: int,
+        machines: List[MachineNames],
+    ) -> None:
         """Create the initial population
         """
         for _ in range(population_number):
             self._population.append(
                 self._create_initial_individual(
-                    features=self._file_machine.columns_name_with_out_target
+                    features=self._file_machine.columns_name_with_out_target,
+                    machines=machines,
                 )
             )
+        self._population[0] = self._update_features_from_reference(
+            individual=self._population[0]
+        )
+
+    def _update_features_from_reference(
+            self,
+            individual: GeneticIndividual
+    ) -> GeneticIndividual:
+        """Create a one individual take a sort configuration 
+
+        Returns:
+            GeneticIndividual: _description_
+        """
+        if len(self._features_references) == 0:
+            return individual
+        features = []
+        for name in self._file_machine.columns_name_with_out_target:
+            allele = False
+            if name in self._features_references:
+                allele = True
+            features.append(allele)
+        individual.set_features_chromosome(features_chromosome=features)
+        return individual
 
     def _create_initial_individual(
         self,
         features: List[str],
+        machines: List[MachineNames] = None,
     ) -> GeneticIndividual:
         """Create a individual with the features selected
 
@@ -282,10 +312,13 @@ class GeneticAlgorithm():
             GeneticIndividual: Individual with the features
                 selected and one machine by random
         """
+        machines_chose = self._genetic_parameters.machines_key
+        if machines is not None:
+            machines_chose = machines
         genetic_individual = GeneticIndividual(
             machine=machine_build_regression_optimization_decimal(
                 machine_name=random.choice(
-                    self._genetic_parameters.machines_key
+                    machines_chose
                 ),
                 deep_decimal=self._genetic_parameters.deep_decimal,
             ),
@@ -457,36 +490,65 @@ class GeneticAlgorithm():
             ))
         raise ValueError("Type value not defined")
 
+    def _stop_genetic_algorithm(
+        self,
+    ) -> bool:
+        """check if the algorithm need to stop
+
+        Args:
+            current_population (List): _description_
+
+        Returns:
+            bool: _description_
+        """
+        if self._current_generation_number\
+                > self._genetic_parameters.number_generation:
+            return False
+        if len(self._population) > 0 and\
+                self._population[0].index_metric is not None:
+            first = self._population[:10]
+            for i in range(len(first) - 1):
+                if abs(
+                    first[i].index_metric - first[i+1].index_metric
+                ) >= 0.1:
+                    return True
+            return False
+        return True
+
     def run(self):
         """Main function to run the genetic algorithm
         """
-        self._create_initial_population(
-            population_number=self._genetic_parameters.number_population,
-        )
-        self._log.initial_log()
-        for generation_number in range(
-            self._genetic_parameters.number_generation
-        ):
-            self._current_generation_number = generation_number
-            self._log.progress_log(generation_number=generation_number)
-            self._selection()
-            for i in range(
-                self._genetic_parameters.number_population // 2
-            ):
-                child_1, child_2 = self._crossover(
-                    parent_1=self._population[i],
-                    parent_2=self._population[
-                        self._genetic_parameters.number_population - 1
-                    ],
+        for machine in self._genetic_parameters.machines_key:
+            self._create_initial_population(
+                population_number=self._genetic_parameters.number_population,
+                machines=[machine]
+            )
+            self._log.initial_log()
+            self._current_generation_number = 1
+            while self._stop_genetic_algorithm():
+                self._log.progress_log(
+                    generation_number=self._current_generation_number
                 )
-                child_1, child_2 = self._mutation_two_children(
-                    child_1=child_1,
-                    child_2=child_2,
-                )
-                self._new_population.append(child_1)
-                self._new_population.append(child_2)
-            self._store_population()
-            self.export()
+                self._selection()
+                for i in range(
+                    self._genetic_parameters.number_population // 2
+                ):
+                    child_1, child_2 = self._crossover(
+                        parent_1=self._population[i],
+                        parent_2=self._population[
+                            self._genetic_parameters.number_population - 1
+                        ],
+                    )
+                    child_1, child_2 = self._mutation_two_children(
+                        child_1=child_1,
+                        child_2=child_2,
+                    )
+                    self._new_population.append(child_1)
+                    self._new_population.append(child_2)
+                self._store_population()
+                self.export()
+                self._current_generation_number\
+                    = self._current_generation_number + 1
 
     def _mutation_two_children(
             self,

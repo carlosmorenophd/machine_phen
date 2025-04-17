@@ -79,21 +79,21 @@ class Metric():
         )
         self._metrics[MetricEnum.MEAN_SQUARED_ERROR.value] =\
             mean_squared_error(
-            y_pred=self._y_predicted, y_true=self._y_true)
+            y_pred=self._y_predicted_no_negative, y_true=self._y_true)
         self._metrics[MetricEnum.MEAN_SQUARED_LOG_ERROR.value] =\
             mean_squared_log_error(
-            y_pred=self._y_predicted, y_true=self._y_true)
+            y_pred=self._y_predicted_no_negative, y_true=self._y_true)
         self._metrics[MetricEnum.MEDIAN_ABSOLUTE_ERROR.value] =\
             median_absolute_error(
-            y_pred=self._y_predicted, y_true=self._y_true)
+            y_pred=self._y_predicted_no_negative, y_true=self._y_true)
         self._metrics[MetricEnum.R2_SCORE.value] = r2_score(
-            y_pred=self._y_predicted, y_true=self._y_true)
+            y_pred=self._y_predicted_no_negative, y_true=self._y_true)
         self._metrics[MetricEnum.ROOT_MEAN_SQUARED_ERROR.value] =\
             root_mean_squared_error(
-            y_pred=self._y_predicted, y_true=self._y_true)
+            y_pred=self._y_predicted_no_negative, y_true=self._y_true)
         self._metrics[MetricEnum.ROOT_MEAN_SQUARED_LOG_ERROR.value] =\
             root_mean_squared_log_error(
-            y_pred=self._y_predicted, y_true=self._y_true)
+            y_pred=self._y_predicted_no_negative, y_true=self._y_true)
         self._metrics[
             MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR.value
         ] = 1 - mean_absolute_percentage_error(

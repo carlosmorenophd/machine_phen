@@ -90,9 +90,9 @@ class GeneticAlgorithmParameter(ABC):
         #     metric_selection=MetricEnum.ACCURACY_MEAN_ABSOLUTE_PERCENTAGE_ERROR,
         #     number_population=10,
         # )
-        self._number_generation: int = 40
+        self._number_generation: int = 100
         self._individual_parameter = GeneticIndividualParameter(
-            number_population=40,
+            number_population=80,
             metric_selection=MetricEnum.R2_SCORE,
         )
         self._mutation_parameters = [
@@ -112,7 +112,7 @@ class GeneticAlgorithmParameter(ABC):
         self._training_data = TrainingData()
 
     @property
-    def machines_key(self) -> list[MachineNames]:
+    def machines_key(self) -> List[MachineNames]:
         """Return the list of machines key
 
         Returns:
