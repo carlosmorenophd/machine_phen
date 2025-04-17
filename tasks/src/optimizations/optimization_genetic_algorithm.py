@@ -268,6 +268,7 @@ class GeneticAlgorithm():
     ) -> None:
         """Create the initial population
         """
+        self._population.clear()
         for _ in range(population_number):
             self._population.append(
                 self._create_initial_individual(
@@ -314,7 +315,7 @@ class GeneticAlgorithm():
                 selected and one machine by random
         """
         machines_chose = self._genetic_parameters.machines_key
-        if machines is not None:
+        if machines is not None and len(machines) != 0:
             machines_chose = machines
         genetic_individual = GeneticIndividual(
             machine=machine_build_regression_optimization_decimal(
@@ -445,11 +446,12 @@ class GeneticAlgorithm():
         """Main function to run the genetic algorithm
         """
         for machine in self._genetic_parameters.machines_key:
+            self._log.initial_log()
             self._create_initial_population(
                 population_number=self._genetic_parameters.number_population,
                 machines=[machine]
             )
-            self._log.initial_log()
+            self._log.log_message(quick_message="Finish first population")
             self._current_generation_number = 1
             while self._stop_genetic_algorithm():
                 self._log.progress_log(
