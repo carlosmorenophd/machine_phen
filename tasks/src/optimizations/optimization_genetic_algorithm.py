@@ -313,7 +313,7 @@ class GeneticAlgorithm():
                 selected and one machine by random
         """
         machines_chose = self._genetic_parameters.machines_key
-        if len(machines) != 0:
+        if machines is not None and len(machines) != 0:
             machines_chose = machines
         genetic_individual = GeneticIndividual(
             machine=machine_build_regression_optimization_decimal(
