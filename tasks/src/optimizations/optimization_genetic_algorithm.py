@@ -259,7 +259,8 @@ class GeneticAlgorithm():
             number_population=self._genetic_parameters.number_population,
         )
         self._current_generation_number = 0
-        self._features_references = "".join(features_references.split()).split(",")
+        self._features_references = "".join(
+            features_references.split()).split(",")
 
     def _create_initial_population(
         self, population_number: int,
@@ -382,45 +383,24 @@ class GeneticAlgorithm():
             parent_1=parent_1, parent_2=parent_2,
         )
         if parent_1.machine.machine_name == parent_2.machine.machine_name:
-            hyper_parameters_1 = parent_1.machine.hyper_parameters
-            hyper_parameters_2 = parent_2.machine.hyper_parameters
-            for key, _ in parent_1.machine.hyper_parameters.items():
-                if hyper_parameters_1[key].type_value ==\
-                        HyperTypeValueEnum.FLOAT:
-                    value_1, value_2 = self._crossover_value_same_machine(
-                        value_1=hyper_parameters_1[key].value,
-                        value_2=hyper_parameters_2[key].value,
-                        type_value=hyper_parameters_1[key].type_value,
-                    )
-                    hyper_parameters_1[key].set_value(value_1)
-                    hyper_parameters_2[key].set_value(value_2)
-                elif hyper_parameters_1[key].type_value ==\
-                        HyperTypeValueEnum.INT:
-                    value_1, value_2 = self._crossover_value_same_machine(
-                        value_1=hyper_parameters_1[key].value,
-                        value_2=hyper_parameters_2[key].value,
-                        type_value=hyper_parameters_1[key].type_value,
-                    )
-                    hyper_parameters_1[key].set_value(value_1)
-                    hyper_parameters_2[key].set_value(value_2)
-                elif hyper_parameters_1[key].type_value ==\
-                        HyperTypeValueEnum.CATEGORY:
-                    if random.random() < \
-                        self._genetic_parameters.get_cross_over_rate(
-                        number_generation=self._current_generation_number
-                    ):
-                        hyper_parameters_1[key].set_value(
-                            hyper_parameters_1[key].value)
-                        hyper_parameters_2[key].set_value(
-                            hyper_parameters_1[key].value)
-                    else:
-                        hyper_parameters_1[key].set_value(
-                            hyper_parameters_2[key].value)
-                        hyper_parameters_2[key].set_value(
-                            hyper_parameters_1[key].value)
-            parent_1.machine.set_hyper_parameters(hyper_parameters_1)
+            crossover_point = random.randint(
+                1, len(parent_1.machine.hyper_parameters) - 1)
+            hyper_parameters_child_1 = {}
+            hyper_parameters_child_2 = {}
+            index = 0
+            for key_1, value_1 in parent_1.machine.hyper_parameters.items():
+                if index >= crossover_point:
+                    hyper_parameters_child_1[key_1] = value_1
+                    hyper_parameters_child_2[key_1] =\
+                        parent_2.machine.hyper_parameters[key_1]
+                else:
+                    hyper_parameters_child_1[key_1] =\
+                        parent_2.machine.hyper_parameters[key_1]
+                    hyper_parameters_child_2[key_1] = value_1
+                index = index + 1
+            parent_1.machine.set_hyper_parameters(hyper_parameters_child_1)
             child_1.set_machine(parent_1.machine)
-            parent_2.machine.set_hyper_parameters(hyper_parameters_2)
+            parent_2.machine.set_hyper_parameters(hyper_parameters_child_2)
             child_2.set_machine(parent_2.machine)
         else:
             child_1.set_machine(parent_1.machine)
@@ -435,60 +415,6 @@ class GeneticAlgorithm():
                     deep_decimal=self._genetic_parameters.deep_decimal
                 )
         return child_1, child_2
-
-    def _crossover_value_same_machine(
-            self,
-            value_1: str,
-            value_2:  str,
-            type_value: HyperTypeValueEnum
-    ) -> tuple[str, str]:
-        """Cross over between two values of hyper parameters
-
-        Args:
-            value_1 (str): value of hyper parameter 1
-            value_2 (str): value of hyper parameter 2
-            type_value (HyperTypeValueEnum): type of hyper parameter
-
-        Returns:
-            tuple[str, str]: tuple of two new values of hyper parameters
-        """
-        mean_value = self._calculate_mean_str_hyper_parameter(
-            value_1=value_1, value_2=value_2, type_value=type_value)
-        if random.random() < self._genetic_parameters.get_cross_over_rate(
-            number_generation=self._current_generation_number
-        ):
-            return mean_value, mean_value
-        return value_1, mean_value
-
-    def _calculate_mean_str_hyper_parameter(
-            self,
-            value_1: str,
-            value_2:  str,
-            type_value: HyperTypeValueEnum
-    ) -> str:
-        """Calculate the mean between two str values
-
-        Args:
-            hyper_parameter_1 (str): First value of hyper parameter
-            hyper_parameter_2 (str): Second value of hyper parameter
-
-        Returns:
-            str: Mean value between two values of hyper parameters
-        """
-        if type_value == HyperTypeValueEnum.INT:
-            return str(
-                int(
-                    int(value_1) +
-                    int(value_2) / 2
-                )
-            )
-        if type_value == HyperTypeValueEnum.FLOAT:
-            return str(round(
-                float(value_1) +
-                float(value_2) / 2,
-                self._genetic_parameters.deep_decimal
-            ))
-        raise ValueError("Type value not defined")
 
     def _stop_genetic_algorithm(
         self,

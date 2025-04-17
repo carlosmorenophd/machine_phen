@@ -5,7 +5,7 @@ import time
 import json
 from abc import ABC, abstractmethod
 from datetime import timedelta
-from typing import Union
+from typing import Union, List
 
 
 from numpy import ndarray
@@ -124,7 +124,7 @@ class MachineRegression(ABC):
         self._rebuild_hyper_parameters: list[HyperParameterRebuild] = None
 
     @property
-    def hyper_parameters(self) -> list[HyperParametersDefinition]:
+    def hyper_parameters(self) -> dict[HyperParametersDefinition]:
         """Create a random hyper parameters
         """
         return self._hyper_parameters
@@ -196,7 +196,7 @@ class MachineRegression(ABC):
 
     def set_hyper_parameters(
             self,
-            hyper_parameters: list[HyperParametersDefinition],
+            hyper_parameters: dict[HyperParametersDefinition],
     ) -> None:
         """Set hyper parameters to machine
         """
