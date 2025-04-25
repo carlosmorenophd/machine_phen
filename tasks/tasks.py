@@ -75,4 +75,4 @@ def version() -> str:
     Returns:
         str: version number
     """
-    return "25.04.17-1"
+    return "25.04.24-1"
