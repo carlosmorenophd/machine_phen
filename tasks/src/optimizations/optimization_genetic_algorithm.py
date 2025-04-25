@@ -128,9 +128,10 @@ class GeneticIndividual():
             )
         if self._features_chromosome is None:
             raise ValueError("Features chromosome is not defined")
+        self.set_features_chromosome(features_chromosome=[random.choice(
+            [True, False]) for _ in self._features_chromosome])
         self._dataset = file_machine.get_dataset(
-            columns_to_keep=[random.choice(
-                [True, False]) for _ in self._features_chromosome]
+            columns_to_keep=self._features_chromosome
         )
 
     def mutate_features_chromosome(
