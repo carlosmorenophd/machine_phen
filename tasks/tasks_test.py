@@ -54,11 +54,10 @@ if __name__ == "__main__":
         # )
         optimization_run_from_task(
             file_data=FileDataRegression(
-                file_in='1.3_obregon_phen_FN.csv',
+                file_in='1.3_obregon_phen_no_uav_FN.csv',
                 target_feature='YLD',
                 folder_path=FolderCache.UPLOAD,
             ),
-            importance_columns='HI,BM,NDVI_GF3,NDVI_UAV_1,\
-                NDVI_UAV_2,NDVI_UAV_3,NDVI_UAV_4,NDVI_UAV_5',
+            importance_columns='',
         )
         print("Finish")
